@@ -17,5 +17,3 @@ Este repositorio contiene la evolucion de **Opun SEO Lite** hacia una plataforma
 
 Consulta el documento del plan para mas detalles y coordinaciones: [`docs/development-plan.md`](docs/development-plan.md).
 
-
-seguimos
