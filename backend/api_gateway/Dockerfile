@@ -26,7 +26,5 @@ RUN pip install --upgrade pip && pip install -r requirements.txt
 COPY . /app
 
 # --- Alembic y servidor ---
-CMD bash -c "\
-    cd /app && \
-    alembic upgrade head && \
-    uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload"
+# Nos movemos al directorio real donde está la app
+CMD bash -c "cd /app/backend/api_gateway && alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port 8000"
