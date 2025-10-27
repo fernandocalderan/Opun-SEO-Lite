@@ -1,0 +1,23 @@
+services:
+  - type: web
+    name: opun-seo-lite
+    env: docker
+    plan: free
+
+    # Ruta donde está tu Dockerfile
+    dockerfilePath: backend/api_gateway/Dockerfile
+    dockerContext: backend/api_gateway
+
+    # Puerto que expone la app (FastAPI, Uvicorn, etc.)
+    envVars:
+      - key: PORT
+        value: 8000
+
+    # Configuración de auto-despliegue
+    autoDeploy: true
+
+    # Health check (opcional, verifica si el servicio está vivo)
+    healthCheckPath: /
+
+    # Región del servicio
+    region: oregon
