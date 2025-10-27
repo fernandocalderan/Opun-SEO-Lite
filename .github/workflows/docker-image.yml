@@ -1,0 +1,52 @@
+name: CI/CD - Build & Push Docker Image
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build-test:
+    name: 🧪 Build & Test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 🔹 Checkout código
+        uses: actions/checkout@v4
+
+      - name: 🔹 Configurar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: 🔹 Instalar dependencias
+        run: |
+          pip install --upgrade pip
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+
+      - name: 🔹 Ejecutar pruebas
+        run: |
+          if [ -d "tests" ]; then pytest --maxfail=1 --disable-warnings -q; else echo "Sin tests definidos"; fi
+
+  docker:
+    name: 🚀 Build & Push Docker Image
+    runs-on: ubuntu-latest
+    needs: build-test
+    if: github.ref == 'refs/heads/main'
+
+    steps:
+      - name: 🔹 Checkout código
+        uses: actions/checkout@v4
+
+      - name: 🔹 Login en Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: 🔹 Construir imagen Docker
+        run: docker build -t ${{ secrets.DOCKER_USERNAME }}/opun-seo-lite:latest .
+
+      - name: 🔹 Subir imagen a Docker Hub
+        run: docker push ${{ secrets.DOCKER_USERNAME }}/opun-seo-lite:latest
