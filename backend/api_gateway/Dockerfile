@@ -1,5 +1,5 @@
 # ===============================
-# Dockerfile - Opun API Gateway
+# Dockerfile - Opun API Gateway (Render Compatible)
 # ===============================
 
 FROM python:3.11-slim AS base
@@ -25,5 +25,11 @@ RUN pip install --upgrade pip && pip install -r requirements.txt
 # --- Copia del código fuente ---
 COPY . /app
 
-# --- Migraciones y servidor ---
-CMD bash -c "cd /app && python -m alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port 8000"
+# --- Variables por defecto (Render las puede sobreescribir) ---
+ENV PORT=8000
+
+# --- Comando de arranque ---
+# Se usa la ruta absoluta del módulo FastAPI
+# --- Alembic y servidor ---
+CMD ["bash", "-c", "cd /app/backend/api_gateway && python -m alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000}"]
+
