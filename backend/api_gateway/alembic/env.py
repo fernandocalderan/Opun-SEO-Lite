@@ -17,13 +17,13 @@ if BASE_DIR not in sys.path:
     sys.path.append(BASE_DIR)
 
 from app.core.config import get_settings
-from app.db.base import Base  # noqa: F401
+from app.db.base_class import Base  # noqa: F401
 
 config = context.config
 
 # ✅ Configuración dinámica de la URL de la base de datos
 settings = get_settings()
-config.set_main_option("sqlalchemy.url", settings.database_url)
+config.set_main_option("sqlalchemy.url", str(settings.database_url))
 
 # Logging de Alembic
 if config.config_file_name is not None:
