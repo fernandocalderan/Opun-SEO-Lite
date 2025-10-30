@@ -12,31 +12,143 @@ depends_on = None
 
 
 def upgrade() -> None:
-    account_plan = sa.Enum(
-        "free", "starter", "pro", "agency", "enterprise", name="account_plan"
+    account_plan = postgresql.ENUM(
+        "free",
+        "starter",
+        "pro",
+        "agency",
+        "enterprise",
+        name="account_plan",
+        create_type=False,
     )
-    user_role = sa.Enum("owner", "admin", "editor", "viewer", name="user_role")
-    project_status = sa.Enum("active", "paused", "archived", name="project_status")
-    keyword_intent = sa.Enum(
-        "informational", "transactional", "navigational", "commercial", name="keyword_intent"
+    user_role = postgresql.ENUM("owner", "admin", "editor", "viewer", name="user_role", create_type=False)
+    project_status = postgresql.ENUM("active", "paused", "archived", name="project_status", create_type=False)
+    keyword_intent = postgresql.ENUM(
+        "informational",
+        "transactional",
+        "navigational",
+        "commercial",
+        name="keyword_intent",
+        create_type=False,
     )
-    action_status = sa.Enum("draft", "proposed", "approved", "applied", "rolled_back", name="action_status")
-    audit_type = sa.Enum("full", "technical", "content", "reputation", "custom", name="audit_type")
-    audit_status = sa.Enum("pending", "running", "completed", "failed", "cancelled", name="audit_status")
-    audit_item_severity = sa.Enum(
-        "critical", "high", "medium", "low", "info", name="audit_item_severity"
+    action_status = postgresql.ENUM(
+        "draft",
+        "proposed",
+        "approved",
+        "applied",
+        "rolled_back",
+        name="action_status",
+        create_type=False,
     )
-    reputation_source = sa.Enum("serp", "social", "news", "forum", name="reputation_source")
+    audit_type = postgresql.ENUM(
+        "full", "technical", "content", "reputation", "custom", name="audit_type", create_type=False
+    )
+    audit_status = postgresql.ENUM(
+        "pending", "running", "completed", "failed", "cancelled", name="audit_status", create_type=False
+    )
+    audit_item_severity = postgresql.ENUM(
+        "critical",
+        "high",
+        "medium",
+        "low",
+        "info",
+        name="audit_item_severity",
+        create_type=False,
+    )
+    reputation_source = postgresql.ENUM(
+        "serp", "social", "news", "forum", name="reputation_source", create_type=False
+    )
 
-    account_plan.create(op.get_bind(), checkfirst=True)
-    user_role.create(op.get_bind(), checkfirst=True)
-    project_status.create(op.get_bind(), checkfirst=True)
-    keyword_intent.create(op.get_bind(), checkfirst=True)
-    action_status.create(op.get_bind(), checkfirst=True)
-    audit_type.create(op.get_bind(), checkfirst=True)
-    audit_status.create(op.get_bind(), checkfirst=True)
-    audit_item_severity.create(op.get_bind(), checkfirst=True)
-    reputation_source.create(op.get_bind(), checkfirst=True)
+    op.execute(
+        """
+        DO $$
+        BEGIN
+            IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'account_plan') THEN
+                CREATE TYPE account_plan AS ENUM ('free', 'starter', 'pro', 'agency', 'enterprise');
+            END IF;
+        END$$;
+        """
+    )
+    op.execute(
+        """
+        DO $$
+        BEGIN
+            IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'user_role') THEN
+                CREATE TYPE user_role AS ENUM ('owner', 'admin', 'editor', 'viewer');
+            END IF;
+        END$$;
+        """
+    )
+    op.execute(
+        """
+        DO $$
+        BEGIN
+            IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'project_status') THEN
+                CREATE TYPE project_status AS ENUM ('active', 'paused', 'archived');
+            END IF;
+        END$$;
+        """
+    )
+    op.execute(
+        """
+        DO $$
+        BEGIN
+            IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'keyword_intent') THEN
+                CREATE TYPE keyword_intent AS ENUM ('informational', 'transactional', 'navigational', 'commercial');
+            END IF;
+        END$$;
+        """
+    )
+    op.execute(
+        """
+        DO $$
+        BEGIN
+            IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'action_status') THEN
+                CREATE TYPE action_status AS ENUM ('draft', 'proposed', 'approved', 'applied', 'rolled_back');
+            END IF;
+        END$$;
+        """
+    )
+    op.execute(
+        """
+        DO $$
+        BEGIN
+            IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'audit_type') THEN
+                CREATE TYPE audit_type AS ENUM ('full', 'technical', 'content', 'reputation', 'custom');
+            END IF;
+        END$$;
+        """
+    )
+    op.execute(
+        """
+        DO $$
+        BEGIN
+            IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'audit_status') THEN
+                CREATE TYPE audit_status AS ENUM ('pending', 'running', 'completed', 'failed', 'cancelled');
+            END IF;
+        END$$;
+        """
+    )
+    op.execute(
+        """
+        DO $$
+        BEGIN
+            IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'audit_item_severity') THEN
+                CREATE TYPE audit_item_severity AS ENUM ('critical', 'high', 'medium', 'low', 'info');
+            END IF;
+        END$$;
+        """
+    )
+    op.execute(
+        """
+        DO $$
+        BEGIN
+            IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'reputation_source') THEN
+                CREATE TYPE reputation_source AS ENUM ('serp', 'social', 'news', 'forum');
+            END IF;
+        END$$;
+        """
+    )
 
     op.create_table(
         "account",
