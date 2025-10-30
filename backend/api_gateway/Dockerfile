@@ -11,13 +11,6 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 
 WORKDIR /app
 
-# --- Dependencias del sistema ---
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    build-essential \
-    libpq-dev \
-    curl && \
-    rm -rf /var/lib/apt/lists/*
-
 # --- Dependencias Python ---
 COPY requirements.txt .
 RUN pip install --upgrade pip && pip install -r requirements.txt
@@ -32,4 +25,3 @@ ENV PORT=8000
 # Se usa la ruta absoluta del módulo FastAPI
 # --- Alembic y servidor ---
 CMD ["bash", "-c", "cd /app/backend/api_gateway && python -m alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000}"]
-
