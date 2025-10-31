@@ -51,7 +51,7 @@ export const planColumns = [
     items: [
       {
         id: "plan-5",
-        title: "Configurar alertas Slack para menciones críticas",
+        title: "Configurar alertas Slack para menciones criticas",
         impact: "Alto",
         effort: "Bajo",
         owner: "DevOps",
@@ -92,4 +92,12 @@ export const planTable = [
     owner: "Content",
     due: "07 Nov",
   },
+];
+
+export const planVelocity = [
+  { sprint: "Sprint 39", planned: 12, completed: 8 },
+  { sprint: "Sprint 40", planned: 10, completed: 9 },
+  { sprint: "Sprint 41", planned: 11, completed: 7 },
+  { sprint: "Sprint 42", planned: 12, completed: 10 },
+  { sprint: "Sprint 43", planned: 13, completed: 11 },
 ];

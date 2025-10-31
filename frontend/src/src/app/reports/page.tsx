@@ -1,6 +1,7 @@
+import { reportActivity, reportList, templateLibrary } from "@/lib/mocks/reports";
+import { ReportActivityChart } from "@/modules/reports/ReportActivityChart";
 import { ReportList } from "@/modules/reports/ReportList";
 import { TemplateLibrary } from "@/modules/reports/TemplateLibrary";
-import { reportList, templateLibrary } from "@/lib/mocks/reports";
 
 export default function ReportsPage() {
   return (
@@ -17,6 +18,7 @@ export default function ReportsPage() {
         </p>
       </header>
 
+      <ReportActivityChart data={reportActivity} />
       <ReportList reports={reportList} />
       <TemplateLibrary templates={templateLibrary} />
     </div>

@@ -1,0 +1,505 @@
+openapi: 3.1.0
+info:
+  title: Opun Intelligence Suite - Frontend Contracts
+  version: 0.2.0
+  description: >
+    Formalisation of the HTTP contracts the frontend relies on for the
+    Audits, Reputation, Plan and Reports experiences. Responses model the
+    mock data currently used in the Next.js prototype.
+servers:
+  - url: https://api.opun.dev
+    description: Production (placeholder)
+  - url: https://staging.api.opun.dev
+    description: Staging (placeholder)
+tags:
+  - name: Audits
+  - name: Reputation
+  - name: Plan
+  - name: Reports
+security:
+  - bearerAuth: []
+  - apiKeyAuth: []
+paths:
+  /v1/audits/summary:
+    get:
+      tags: [Audits]
+      summary: Retrieve audit KPI summary
+      responses:
+        "200":
+          description: Snapshot with aggregated audit metrics.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuditSummaryResponse"
+  /v1/audits/queue:
+    get:
+      tags: [Audits]
+      summary: List audits currently queued or running
+      responses:
+        "200":
+          description: Ordered list of queue items.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [items, next_cursor]
+                properties:
+                  items:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/AuditQueueItem"
+                  next_cursor:
+                    $ref: "#/components/schemas/NextCursor"
+  /v1/audits/history:
+    get:
+      tags: [Audits]
+      summary: Retrieve recent audit executions
+      parameters:
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+          description: Number of history rows to return.
+        - in: query
+          name: cursor
+          schema:
+            type: string
+          required: false
+          description: Pagination cursor supplied by previous response.
+      responses:
+        "200":
+          description: Paginated list of historical audit executions.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [items, next_cursor]
+                properties:
+                  items:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/AuditHistoryItem"
+                  next_cursor:
+                    $ref: "#/components/schemas/NextCursor"
+  /v1/reputation/sentiment/timeline:
+    get:
+      tags: [Reputation]
+      summary: Sentiment timeline for monitored brands
+      parameters:
+        - in: query
+          name: range
+          schema:
+            type: string
+            example: 7d
+          description: Aggregation window (e.g. `7d`, `30d`).
+      responses:
+        "200":
+          description: Time series with sentiment scores and mention totals.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/SentimentPoint"
+  /v1/reputation/channels:
+    get:
+      tags: [Reputation]
+      summary: Channel share and dominant sentiment
+      responses:
+        "200":
+          description: Distribution of sentiment by channel.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ChannelBreakdownItem"
+  /v1/reputation/mentions:
+    get:
+      tags: [Reputation]
+      summary: Prioritised mentions requiring action
+      parameters:
+        - in: query
+          name: state
+          schema:
+            type: string
+            enum: [open, snoozed, resolved]
+            default: open
+          description: Filter mentions by triage state.
+        - in: query
+          name: cursor
+          schema:
+            type: string
+          required: false
+          description: Pagination cursor supplied by previous response.
+      responses:
+        "200":
+          description: Paginated list of ORM mentions.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [items, next_cursor]
+                properties:
+                  items:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/ReputationMention"
+                  next_cursor:
+                    $ref: "#/components/schemas/NextCursor"
+  /v1/plan/board:
+    get:
+      tags: [Plan]
+      summary: Kanban board configuration
+      responses:
+        "200":
+          description: Column-based distribution of plan items.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PlanBoardResponse"
+  /v1/plan/table:
+    get:
+      tags: [Plan]
+      summary: Tabular export of plan items
+      parameters:
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 200
+            default: 50
+      responses:
+        "200":
+          description: List of backlog rows for advanced filtering.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [items, next_cursor]
+                properties:
+                  items:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/PlanTableRow"
+                  next_cursor:
+                    $ref: "#/components/schemas/NextCursor"
+  /v1/reports:
+    get:
+      tags: [Reports]
+      summary: List generated reports
+      parameters:
+        - in: query
+          name: project_id
+          schema:
+            type: string
+          required: false
+          description: Scope reports to a specific project.
+      responses:
+        "200":
+          description: Paginated list of reports with download metadata.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [items, next_cursor]
+                properties:
+                  items:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/ReportResource"
+                  next_cursor:
+                    $ref: "#/components/schemas/NextCursor"
+  /v1/reports/templates:
+    get:
+      tags: [Reports]
+      summary: Retrieve available report templates
+      responses:
+        "200":
+          description: List of templates and their descriptions.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ReportTemplate"
+  /v1/reports/generate:
+    post:
+      tags: [Reports]
+      summary: Trigger a report generation
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ReportGenerationRequest"
+      responses:
+        "202":
+          description: Report generation request accepted.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ReportGenerationResponse"
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+    apiKeyAuth:
+      type: apiKey
+      in: header
+      name: x-api-key
+  schemas:
+    NextCursor:
+      type: [string, "null"]
+      description: Use `null` when there are no more results.
+      example: c29tZS1jdXJzb3I
+    AuditSummaryResponse:
+      type: object
+      required: [completed, avg_duration_seconds, critical_open]
+      properties:
+        completed:
+          type: integer
+          minimum: 0
+        avg_duration_seconds:
+          type: integer
+          minimum: 0
+        critical_open:
+          type: integer
+          minimum: 0
+    AuditQueueItem:
+      type: object
+      required:
+        [id, project, type, status, started_at, eta_seconds]
+      properties:
+        id:
+          type: string
+        project:
+          type: string
+        type:
+          type: string
+          description: Type of audit (e.g. full, contenido, performance).
+        status:
+          type: string
+          enum: [running, pending, completed, failed]
+        started_at:
+          type: string
+          format: date-time
+          nullable: true
+        eta_seconds:
+          type: integer
+          nullable: true
+    AuditHistoryItem:
+      type: object
+      required:
+        [id, project, completed_at, score, critical_issues, owner]
+      properties:
+        id:
+          type: string
+        project:
+          type: string
+        completed_at:
+          type: string
+          format: date-time
+        score:
+          type: integer
+          minimum: 0
+          maximum: 100
+        critical_issues:
+          type: integer
+          minimum: 0
+        owner:
+          type: string
+    SentimentPoint:
+      type: object
+      required:
+        [date, sentiment_score, mentions_positive, mentions_negative]
+      properties:
+        date:
+          type: string
+          format: date
+        sentiment_score:
+          type: integer
+          minimum: 0
+          maximum: 100
+        mentions_positive:
+          type: integer
+          minimum: 0
+        mentions_negative:
+          type: integer
+          minimum: 0
+    ChannelBreakdownItem:
+      type: object
+      required: [channel, share, sentiment, exposure]
+      properties:
+        channel:
+          type: string
+        share:
+          type: number
+          minimum: 0
+          maximum: 1
+          description: Normalised share (0-1). Frontend multiplies by 100.
+        sentiment:
+          type: string
+          enum: [positive, neutral, negative]
+        exposure:
+          type: string
+          enum: [low, medium, high]
+    ReputationMention:
+      type: object
+      required:
+        [id, source, sentiment, summary, published_at, reach, recommended_action]
+      properties:
+        id:
+          type: string
+        source:
+          type: string
+        sentiment:
+          type: string
+          enum: [positive, neutral, negative]
+        summary:
+          type: string
+        published_at:
+          type: string
+          format: date-time
+        reach:
+          type: integer
+          minimum: 0
+        recommended_action:
+          type: string
+    PlanBoardResponse:
+      type: object
+      required: [columns]
+      properties:
+        columns:
+          type: array
+          items:
+            $ref: "#/components/schemas/PlanColumn"
+    PlanColumn:
+      type: object
+      required: [title, items]
+      properties:
+        title:
+          type: string
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/PlanItem"
+    PlanItem:
+      type: object
+      required:
+        [id, title, impact, effort, owner, due_date]
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        impact:
+          type: string
+          enum: [high, medium, low]
+        effort:
+          type: string
+          enum: [high, medium, low]
+        owner:
+          type: string
+        due_date:
+          type: string
+          format: date
+    PlanTableRow:
+      type: object
+      required:
+        [id, category, task, impact, effort, status, owner, due_date]
+      properties:
+        id:
+          type: string
+        category:
+          type: string
+        task:
+          type: string
+        impact:
+          type: string
+          enum: [high, medium, low]
+        effort:
+          type: string
+          enum: [high, medium, low]
+        status:
+          type: string
+        owner:
+          type: string
+        due_date:
+          type: string
+          format: date
+    ReportResource:
+      type: object
+      required:
+        [id, title, project, generated_at, status, formats, download_url]
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        project:
+          type: string
+        generated_at:
+          type: string
+          format: date-time
+        status:
+          type: string
+          enum:
+            [ready, requires_review, shared]
+        formats:
+          type: array
+          items:
+            type: string
+            enum: [pdf, html, notion, csv]
+        download_url:
+          type: string
+          format: uri
+    ReportTemplate:
+      type: object
+      required: [id, name, description, last_updated]
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        last_updated:
+          type: string
+          format: date
+    ReportGenerationRequest:
+      type: object
+      required: [project_id, template_id, format, range]
+      properties:
+        project_id:
+          type: string
+        template_id:
+          type: string
+        format:
+          type: string
+          enum: [pdf, html, notion, csv]
+        range:
+          type: object
+          required: [from, to]
+          properties:
+            from:
+              type: string
+              format: date
+            to:
+              type: string
+              format: date
+    ReportGenerationResponse:
+      type: object
+      required: [request_id, status]
+      properties:
+        request_id:
+          type: string
+        status:
+          type: string
+          enum: [accepted, queued]

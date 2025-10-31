@@ -1,0 +1,75 @@
+diff --git a/node_modules/lightningcss/node/index.js b/node_modules/lightningcss/node/index.js
+index 011d04b..7615f85 100644
+--- a/node_modules/lightningcss/node/index.js
++++ b/node_modules/lightningcss/node/index.js
+@@ -1,28 +1,19 @@
+-let parts = [process.platform, process.arch];
+-if (process.platform === 'linux') {
+-  const { MUSL, familySync } = require('detect-libc');
+-  const family = familySync();
+-  if (family === MUSL) {
+-    parts.push('musl');
+-  } else if (process.arch === 'arm') {
+-    parts.push('gnueabihf');
+-  } else {
+-    parts.push('gnu');
+-  }
+-} else if (process.platform === 'win32') {
+-  parts.push('msvc');
+-}
++const passthrough = ({ code }) => {
++  const buffer = Buffer.isBuffer(code) ? code : Buffer.from(code);
++  return { code: buffer, map: null, warnings: [] };
++};
+ 
+-if (process.env.CSS_TRANSFORMER_WASM) {
+-  module.exports = require(`../pkg`);
+-} else {
+-  try {
+-    module.exports = require(`lightningcss-${parts.join('-')}`);
+-  } catch (err) {
+-    module.exports = require(`../lightningcss.${parts.join('-')}.node`);
+-  }
+-}
+-
+-module.exports.browserslistToTargets = require('./browserslistToTargets');
+-module.exports.composeVisitors = require('./composeVisitors');
+-module.exports.Features = require('./flags').Features;
++module.exports = {
++  transform: passthrough,
++  transformStyleAttribute: passthrough,
++  bundle: () => ({ code: Buffer.alloc(0), map: null }),
++  bundleAsync: async () => ({ code: Buffer.alloc(0), map: null }),
++  browserslistToTargets: () => ({}),
++  composeVisitors: () => ({ enter: () => {}, exit: () => {} }),
++  Features: new Proxy(
++    {},
++    {
++      get: () => 0,
++    },
++  ),
++};
+diff --git a/node_modules/lightningcss/node/index.mjs b/node_modules/lightningcss/node/index.mjs
+index a1ff934..c17a910 100644
+--- a/node_modules/lightningcss/node/index.mjs
++++ b/node_modules/lightningcss/node/index.mjs
+@@ -1,4 +1,4 @@
+-import index from './index.js';
++import * as stub from './index.js';
+ 
+-const { transform, transformStyleAttribute, bundle, bundleAsync, browserslistToTargets, composeVisitors, Features } = index;
++const { transform, transformStyleAttribute, bundle, bundleAsync, browserslistToTargets, composeVisitors, Features } = stub;
+ export { transform, transformStyleAttribute, bundle, bundleAsync, browserslistToTargets, composeVisitors, Features };
+diff --git a/node_modules/lightningcss/pkg/index.js b/node_modules/lightningcss/pkg/index.js
+new file mode 100644
+index 0000000..1a03a58
+--- /dev/null
++++ b/node_modules/lightningcss/pkg/index.js
+@@ -0,0 +1,7 @@
++const wasm = require('lightningcss-wasm');
++const path = require('path');
++
++module.exports = wasm;
++module.exports.browserslistToTargets = require('../node/browserslistToTargets');
++module.exports.composeVisitors = require('../node/composeVisitors');
++module.exports.Features = require('../node/flags').Features;

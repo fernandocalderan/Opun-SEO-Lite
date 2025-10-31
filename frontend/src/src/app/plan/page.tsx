@@ -1,6 +1,7 @@
+import { planColumns, planTable, planVelocity } from "@/lib/mocks/plan";
 import { PlanBoard } from "@/modules/plan/PlanBoard";
 import { PlanTable } from "@/modules/plan/PlanTable";
-import { planColumns, planTable } from "@/lib/mocks/plan";
+import { PlanVelocityChart } from "@/modules/plan/PlanVelocityChart";
 
 export default function PlanPage() {
   return (
@@ -16,8 +17,8 @@ export default function PlanPage() {
           Coordina iniciativas de SEO y reputacion entre equipos cross-funcionales.
         </p>
       </header>
-
       <PlanBoard columns={planColumns} />
+      <PlanVelocityChart data={planVelocity} />
       <PlanTable rows={planTable} />
     </div>
   );

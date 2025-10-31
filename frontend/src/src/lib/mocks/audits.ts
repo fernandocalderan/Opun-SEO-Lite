@@ -35,7 +35,7 @@ export const auditHistory = [
   {
     id: "hist-1",
     project: "Brand / Landing principal",
-    finishedAt: "30 Oct · 15:54",
+    finishedAt: "30 Oct @ 15:54",
     score: 84,
     criticalIssues: 2,
     owner: "SEO Ops",
@@ -43,7 +43,7 @@ export const auditHistory = [
   {
     id: "hist-2",
     project: "Blog / Cluster ORM",
-    finishedAt: "29 Oct · 10:12",
+    finishedAt: "29 Oct @ 10:12",
     score: 78,
     criticalIssues: 4,
     owner: "Content",
@@ -51,7 +51,7 @@ export const auditHistory = [
   {
     id: "hist-3",
     project: "Knowledge base",
-    finishedAt: "28 Oct · 18:41",
+    finishedAt: "28 Oct @ 18:41",
     score: 88,
     criticalIssues: 1,
     owner: "Support",

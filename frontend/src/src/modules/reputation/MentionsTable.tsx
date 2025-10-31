@@ -1,5 +1,7 @@
 "use client";
 
+import { useMemo, useState } from "react";
+
 type Mention = {
   id: string;
   source: string;
@@ -16,19 +18,111 @@ const sentimentColor: Record<Mention["sentiment"], string> = {
   negativo: "text-rose-600",
 };
 
+const FILTERS: Array<{ label: string; value: "all" | Mention["sentiment"] }> = [
+  { label: "Todos", value: "all" },
+  { label: "Positivos", value: "positivo" },
+  { label: "Neutros", value: "neutral" },
+  { label: "Negativos", value: "negativo" },
+];
+
+function toCsv(mentions: Mention[]): string {
+  const header = [
+    "id",
+    "source",
+    "sentiment",
+    "snippet",
+    "published_at",
+    "reach",
+    "action",
+  ];
+
+  const rows = mentions.map((mention) =>
+    [
+      mention.id,
+      mention.source,
+      mention.sentiment,
+      mention.snippet.replace(/"/g, '""'),
+      mention.publishedAt,
+      mention.reach,
+      mention.action.replace(/"/g, '""'),
+    ].map((value) => `"${value}"`).join(","),
+  );
+
+  return [header.join(","), ...rows].join("\n");
+}
+
 export function MentionsTable({ mentions }: { mentions: Mention[] }) {
+  const [sentimentFilter, setSentimentFilter] =
+    useState<(typeof FILTERS)[number]["value"]>("all");
+
+  const filteredMentions = useMemo(() => {
+    if (sentimentFilter === "all") {
+      return mentions;
+    }
+
+    return mentions.filter((mention) => mention.sentiment === sentimentFilter);
+  }, [mentions, sentimentFilter]);
+
+  const handleExport = () => {
+    const csv = toCsv(filteredMentions);
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+
+    const anchor = document.createElement("a");
+    anchor.href = url;
+    anchor.download = `opun_mentions_${sentimentFilter}.csv`;
+    anchor.click();
+
+    URL.revokeObjectURL(url);
+  };
+
   return (
     <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-      <header className="flex items-center justify-between">
-        <h2 className="text-lg font-semibold text-slate-900">
-          Menciones recientes priorizadas
-        </h2>
-        <button className="rounded-full border border-slate-200 px-3 py-1 text-xs font-medium text-slate-500 transition hover:bg-slate-100">
-          Exportar CSV
-        </button>
+      <header className="flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <h2 className="text-lg font-semibold text-slate-900">
+            Menciones recientes priorizadas
+          </h2>
+          <p className="text-xs text-slate-500">
+            Filtra por sentimiento para asignar acciones mas rapido.
+          </p>
+        </div>
+        <div className="flex items-center gap-2 text-xs text-slate-500">
+          <button
+            type="button"
+            onClick={handleExport}
+            className="rounded-full border border-slate-200 px-3 py-1 font-medium transition hover:bg-slate-100"
+          >
+            Exportar CSV
+          </button>
+        </div>
       </header>
+
+      <div className="mt-4 flex flex-wrap items-center gap-2">
+        {FILTERS.map((filter) => {
+          const isActive = sentimentFilter === filter.value;
+          return (
+            <button
+              key={filter.value}
+              type="button"
+              onClick={() => setSentimentFilter(filter.value)}
+              className={`rounded-full border px-3 py-1 text-xs font-medium transition ${
+                isActive
+                  ? "border-indigo-500 bg-indigo-50 text-indigo-600"
+                  : "border-slate-200 text-slate-500 hover:bg-slate-100"
+              }`}
+            >
+              {filter.label}
+            </button>
+          );
+        })}
+        <span className="text-xs text-slate-400">
+          {filteredMentions.length} resultados
+        </span>
+      </div>
+
       <div className="mt-4 space-y-3">
-        {mentions.map((mention) => (
+        {filteredMentions.map((mention) => (
           <article
             key={mention.id}
             className="rounded-xl border border-slate-200 bg-slate-50 p-4 shadow-inner"
@@ -52,9 +146,22 @@ export function MentionsTable({ mentions }: { mentions: Mention[] }) {
             <p className="mt-3 text-sm leading-relaxed text-slate-600">
               {mention.snippet}
             </p>
-            <p className="mt-3 rounded-lg bg-white px-3 py-2 text-xs font-medium text-slate-600">
-              {mention.action}
-            </p>
+            <div className="mt-3 flex flex-wrap items-center justify-between gap-2">
+              <p className="rounded-lg bg-white px-3 py-2 text-xs font-medium text-slate-600">
+                {mention.action}
+              </p>
+              <button
+                type="button"
+                onClick={() => {
+                  if (navigator.clipboard) {
+                    void navigator.clipboard.writeText(mention.action);
+                  }
+                }}
+                className="text-xs font-medium text-indigo-500 transition hover:text-indigo-600"
+              >
+                Copiar accion
+              </button>
+            </div>
           </article>
         ))}
       </div>
