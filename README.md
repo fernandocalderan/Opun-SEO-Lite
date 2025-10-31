@@ -4,7 +4,7 @@ Evolucion de **Opun SEO Lite** hacia una plataforma SaaS multi-tenant orientada 
 El repositorio se ha reorganizado para reiniciar la capa frontend y mantener el legado separado.
 
 ## Estructura actual
-- `docs/` – planes, ADRs y documentacion estrategica.
+- `docs/` – planes, ADRs y documentacion estrategica (`frontend-plan.md`, `frontend-api-contracts.md`, etc.).
 - `frontend/` – workspace del nuevo frontend (ver `frontend/README.md`).
 - `legacy/` – artefactos historicos de referencia (app Streamlit original).
 - `requirements.txt` – placeholder para dependencias globales (vacio por ahora).
