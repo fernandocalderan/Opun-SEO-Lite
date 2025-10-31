@@ -1,46 +1,23 @@
 # Opun Intelligence Suite
 
-Evolución de **Opun SEO Lite** hacia una plataforma SaaS multi-tenant orientada a agencias y marcas. El repositorio contiene los cimientos del backend (FastAPI + PostgreSQL) y artefactos legacy de la solución Streamlit original.
+Evolucion de **Opun SEO Lite** hacia una plataforma SaaS multi-tenant orientada a SEO continuo e ingenieria reputacional.  
+El repositorio se ha reorganizado para reiniciar la capa frontend y mantener el legado separado.
 
-## Estado Actual (Oct 2025)
-- **API Gateway** (`backend/api_gateway`) operando con modelos multi-tenant, migración inicial y stack local vía Docker Compose.
-- **Plan de desarrollo iterativo** actualizado en `docs/development-plan.md`, con roadmap de 12 semanas y backlog priorizado.
-- **CI/CD** en proceso de depuración (workflow `docker-image.yml` listo para ajustes de lint/tests).
-- **Aplicación Streamlit** reubicada en modo legacy (`legacy/streamlit`) para referencia histórica durante la migración.
+## Estructura actual
+- `docs/` – planes, ADRs y documentacion estrategica.
+- `frontend/` – workspace del nuevo frontend (ver `frontend/README.md`).
+- `legacy/` – artefactos historicos de referencia (app Streamlit original).
+- `requirements.txt` – placeholder para dependencias globales (vacio por ahora).
 
-## Puesta en Marcha Local
-1. Crear entorno de variables:
-   ```bash
-   cp backend/api_gateway/.env.example backend/api_gateway/.env
-   ```
-2. Levantar servicios:
-   ```bash
-   docker-compose up --build
-   ```
-3. Accesos rápidos:
-   - API FastAPI → http://localhost:8000 (docs interactivas en `/docs`).
-   - PostgreSQL → `localhost:5432` (usuario `postgres`, contraseña `postgres`).
-   - PGAdmin → http://localhost:5050 (credenciales en `docker-compose.yml`).
+## Estado
+- **Backend/API**: pendiente de redisenar (consulta `docs/development-plan.md`).
+- **Frontend**: planificado en `docs/frontend-plan.md`, listo para iniciar con Next.js + Tailwind.
+- **CI/CD & Infra**: se configuraran nuevamente cuando se definan los stacks finales.
 
-Para ejecutar la API sin Docker, instala dependencias (`backend/api_gateway/requirements.txt`) y usa `uvicorn backend.api_gateway.main:app --reload` con Postgres local.
+## Proximos pasos sugeridos
+1. Validar el plan frontend con stakeholders y registrar ADRs clave.
+2. Inicializar el proyecto web dentro de `frontend/src` siguiendo el plan (Sprint 0).
+3. Definir la arquitectura backend y alinear los contratos API con el frontend.
+4. Reutilizar, si aplica, ideas del legacy Streamlit durante el redisen.
 
-## Flujo de Trabajo
-- Sprints de 2 semanas con demos y retrospectivas. Detalles en `docs/development-plan.md`.
-- Ramas: `main` (estable), `develop` (integración), ramas feature con PR obligatorio y pipeline verde.
-- Estándares de ingeniería: tipado estricto, `ruff` + `black`, pruebas `pytest` (incluyendo async).
-
-## Estructura de Carpetas
-- `backend/api_gateway/`: servicio FastAPI principal (modelos, esquemas, rutas, servicios, Alembic).
-- `backend/services/`: esqueletos para microservicios (Audit Orchestrator, AI, CMS, etc.).
-- `docs/`: plan de desarrollo y futuros ADRs.
-- `legacy/streamlit/`: código histórico de la aplicación Streamlit mientras se completa su migración.
-- `.github/workflows/`: pipelines CI/CD (pendientes de ajuste según backlog Sprint 1).
-
-## Próximos Entregables Prioritarios
-1. Lint + pruebas automatizadas en CI (`ruff`, `pytest`, build Docker).
-2. Pruebas unitarias para `AccountService`, `ProjectService`, `AuditService`.
-3. Scripts de automatización (invoke/make) para tareas locales.
-4. Stub funcional del Audit Orchestrator con cola y worker meta.
-5. Documentación de contratos API → Frontend/SDK.
-
-Mantén la documentación viva: cualquier cambio relevante debe reflejarse en este README y en el plan de desarrollo.
+Mantener este README actualizado conforme avance la implementacion.

@@ -1,0 +1,13 @@
+# Environments & caches
+venv/
+.venv/
+node_modules/
+__pycache__/
+*.py[cod]
+*.log
+
+# OS / Editor noise
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
