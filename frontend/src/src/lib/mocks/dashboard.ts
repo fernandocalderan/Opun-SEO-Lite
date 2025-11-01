@@ -21,7 +21,13 @@ export const kpiSummary = [
     status: "risk",
     description: "Faltan rich snippets y copy consistente en title/meta.",
   },
-];
+] satisfies Array<{
+  label: string;
+  value: string;
+  delta: string;
+  status: "good" | "watch" | "risk";
+  description: string;
+}>;
 
 export const reputationAlerts = [
   {
@@ -51,7 +57,14 @@ export const reputationAlerts = [
     publishedAt: "Hace 1 dia",
     url: "https://www.g2.com",
   },
-];
+] satisfies Array<{
+  id: string;
+  channel: string;
+  summary: string;
+  sentiment: "negative" | "positive" | "neutral";
+  publishedAt: string;
+  url: string;
+}>;
 
 export const keyInsights = [
   {
@@ -72,4 +85,10 @@ export const keyInsights = [
     severity: "medium",
     source: "SERP Watch",
   },
-];
+] satisfies Array<{
+  title: string;
+  context: string;
+  recommendation: string;
+  severity: "critical" | "medium" | "high" | "low";
+  source: string;
+}>;

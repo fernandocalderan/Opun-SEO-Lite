@@ -25,6 +25,7 @@ function Sidebar() {
     { label: "Audits", href: "/audits" },
     { label: "Plan", href: "/plan" },
     { label: "Reports", href: "/reports" },
+    { label: "Settings", href: "/settings" },
   ];
 
   return (

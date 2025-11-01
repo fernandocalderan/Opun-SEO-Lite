@@ -1,6 +1,4 @@
-@import "tailwindcss";
-
-@theme inline {
+:root {
   /* Brand */
   --color-brand-primary: #4f46e5;
   --color-brand-secondary: #0ea5e9;

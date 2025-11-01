@@ -11,7 +11,7 @@ type QueueItem = {
   eta: string;
 };
 
-type ItemState = QueueItem & {
+type ItemState = Omit<QueueItem, "status"> & {
   status: "En ejecucion" | "Pendiente" | "Completada";
 };
 
@@ -34,7 +34,7 @@ export function AuditQueue({ items }: { items: QueueItem[] }) {
         item.id === id
           ? {
               ...item,
-              status: "En ejecucion",
+              status: "En ejecucion" as const,
               startedAt: "Ahora",
               eta: "00:10",
             }
@@ -50,7 +50,7 @@ export function AuditQueue({ items }: { items: QueueItem[] }) {
           item.id === id
             ? {
                 ...item,
-                status: "Completada",
+                status: "Completada" as const,
                 eta: "Finalizada",
               }
             : item,
