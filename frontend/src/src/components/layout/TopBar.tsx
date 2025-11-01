@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useTheme } from "next-themes";
 import { useUiPreferences, type ThemeMode } from "@/lib/stores/uiPreferences";
 
@@ -11,9 +11,7 @@ const THEME_OPTIONS: Array<{ value: ThemeMode; label: string }> = [
 ];
 
 export function TopBar() {
-  const { toggleSidebar } = useUiPreferences((state) => ({
-    toggleSidebar: state.toggleSidebar,
-  }));
+  const toggleSidebar = useUiPreferences((state) => state.toggleSidebar);
 
   return (
     <header className="flex h-16 items-center justify-between border-b border-border bg-surface px-6">
@@ -45,20 +43,24 @@ export function TopBar() {
 
 function ThemeSwitcher() {
   const { setTheme, theme, resolvedTheme } = useTheme();
-  const { themeOverride, setThemeOverride } = useUiPreferences((state) => ({
-    themeOverride: state.themeOverride,
-    setThemeOverride: state.setThemeOverride,
-  }));
+  const themeOverride = useUiPreferences((state) => state.themeOverride);
+  const setThemeOverride = useUiPreferences((state) => state.setThemeOverride);
+  const [isHydrated, setIsHydrated] = useState(false);
 
   useEffect(() => {
-    if (!theme) {
+    const raf = requestAnimationFrame(() => setIsHydrated(true));
+    return () => cancelAnimationFrame(raf);
+  }, []);
+
+  useEffect(() => {
+    if (!isHydrated || !theme) {
       return;
     }
     const normalized = (theme === "system" ? "system" : theme) as ThemeMode;
     if (themeOverride !== normalized) {
       setThemeOverride(normalized);
     }
-  }, [theme, themeOverride, setThemeOverride]);
+  }, [isHydrated, theme, themeOverride, setThemeOverride]);
 
   const handleSelect = (nextTheme: ThemeMode) => {
     setTheme(nextTheme);
@@ -70,12 +72,14 @@ function ThemeSwitcher() {
     return acc;
   }, {});
 
-  const resolvedLabel =
+  const hydratedLabel =
     themeOverride === "system"
       ? resolvedTheme
         ? labelMap[resolvedTheme] ?? labelMap.system
         : labelMap.system
-      : labelMap[themeOverride] ?? "Tema";
+      : labelMap[themeOverride] ?? labelMap.system;
+
+  const displayLabel = isHydrated ? hydratedLabel : labelMap.system;
 
   return (
     <div className="flex items-center gap-2">
@@ -95,8 +99,11 @@ function ThemeSwitcher() {
           </button>
         ))}
       </div>
-      <span className="text-xs font-semibold uppercase tracking-[0.08em] text-text-muted">
-        {resolvedLabel}
+      <span
+        className="text-xs font-semibold uppercase tracking-[0.08em] text-text-muted"
+        suppressHydrationWarning
+      >
+        {displayLabel}
       </span>
     </div>
   );

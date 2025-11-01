@@ -16,10 +16,8 @@ const NAV_ITEMS = [
 
 export function Sidebar() {
   const pathname = usePathname();
-  const { sidebarCollapsed, toggleSidebar } = useUiPreferences((state) => ({
-    sidebarCollapsed: state.sidebarCollapsed,
-    toggleSidebar: state.toggleSidebar,
-  }));
+  const sidebarCollapsed = useUiPreferences((state) => state.sidebarCollapsed);
+  const toggleSidebar = useUiPreferences((state) => state.toggleSidebar);
 
   const activeMap = useMemo(() => {
     return NAV_ITEMS.reduce<Record<string, boolean>>((acc, item) => {
