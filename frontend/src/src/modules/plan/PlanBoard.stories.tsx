@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import { PlanBoard } from "./PlanBoard";
-import { planColumns } from "@/lib/mocks/plan";
+import { planColumns } from "@/lib/mocks";
 
 const meta: Meta<typeof PlanBoard> = {
   title: "Plan/PlanBoard",

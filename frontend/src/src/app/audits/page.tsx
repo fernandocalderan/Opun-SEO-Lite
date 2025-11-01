@@ -2,19 +2,19 @@ import { AuditHistory } from "@/modules/audits/AuditHistory";
 import { AuditPerformance } from "@/modules/audits/AuditPerformance";
 import { AuditQueue } from "@/modules/audits/AuditQueue";
 import { AuditSummary } from "@/modules/audits/AuditSummary";
-import { auditHistory, auditQueue, auditSummary } from "@/lib/mocks/audits";
+import { auditHistory, auditQueue, auditSummary } from "@/lib/mocks";
 
 export default function AuditsPage() {
   return (
     <div className="space-y-6 p-8">
       <header className="space-y-1">
-        <span className="text-xs font-semibold uppercase tracking-wider text-indigo-500">
+        <span className="text-xs font-semibold uppercase tracking-[var(--tracking-wide)] text-brand-primary">
           Audit Orchestrator
         </span>
-        <h1 className="text-3xl font-semibold text-slate-900">
+        <h1 className="text-3xl font-semibold text-text-heading">
           Estado de auditorias y backlog
         </h1>
-        <p className="text-sm text-slate-500">
+        <p className="text-sm text-text-body">
           Controla ejecuciones en curso, prioriza el backlog y comparte resultados con los squads.
         </p>
       </header>

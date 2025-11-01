@@ -42,9 +42,9 @@ const SentimentTooltip: FC<TooltipProps> = ({ active, payload, label }) => {
     payload.find((entry) => entry.name === "Negativas")?.value ?? 0;
 
   return (
-    <div className="rounded-xl border border-slate-200 bg-white p-3 shadow-lg">
+    <div className="rounded-xl border border-border bg-surface p-3 shadow-lg">
       <p className="text-xs font-semibold text-indigo-500">{label}</p>
-      <p className="mt-2 text-sm font-semibold text-slate-900">
+      <p className="mt-2 text-sm font-semibold text-text-heading">
         Score ponderado: {score}
       </p>
       <p className="text-xs text-emerald-600">+{positive} menciones</p>
@@ -55,17 +55,17 @@ const SentimentTooltip: FC<TooltipProps> = ({ active, payload, label }) => {
 
 export const SentimentTimeline: FC<Props> = ({ data }) => {
   return (
-    <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+    <section className="rounded-2xl border border-border bg-surface p-5 shadow-sm">
       <header className="flex items-center justify-between">
         <div>
-          <h2 className="text-lg font-semibold text-slate-900">
+          <h2 className="text-lg font-semibold text-text-heading">
             Evolucion del sentimiento
           </h2>
-          <p className="text-sm text-slate-500">
+          <p className="text-sm text-text-body">
             Promedio diario ponderado por volumen de menciones.
           </p>
         </div>
-        <span className="text-sm font-medium text-slate-400">
+        <span className="text-sm font-medium text-text-muted">
           Escala 0 - 100
         </span>
       </header>
@@ -113,7 +113,7 @@ export const SentimentTimeline: FC<Props> = ({ data }) => {
               height={36}
               iconType="circle"
               formatter={(value) => (
-                <span className="text-xs font-medium text-slate-500">{value}</span>
+                <span className="text-xs font-medium text-text-body">{value}</span>
               )}
             />
             <ReferenceLine y={60} stroke="#f97316" strokeDasharray="5 5" yAxisId="score" />

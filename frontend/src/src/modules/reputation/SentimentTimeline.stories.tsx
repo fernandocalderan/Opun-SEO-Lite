@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import { SentimentTimeline } from "./SentimentTimeline";
-import { sentimentTimeline } from "@/lib/mocks/reputation";
+import { sentimentTimeline } from "@/lib/mocks";
 
 const meta: Meta<typeof SentimentTimeline> = {
   title: "Reputation/SentimentTimeline",

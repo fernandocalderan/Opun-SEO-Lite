@@ -11,18 +11,18 @@ type Alert = {
 
 const sentimentBadge: Record<Alert["sentiment"], string> = {
   positive: "bg-emerald-50 text-emerald-600 border-emerald-200",
-  neutral: "bg-zinc-100 text-zinc-600 border-zinc-300",
+  neutral: "bg-surface-alt text-text-body border-zinc-300",
   negative: "bg-rose-50 text-rose-600 border-rose-200",
 };
 
 export function ReputationAlerts({ alerts }: { alerts: Alert[] }) {
   return (
-    <section className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm">
+    <section className="rounded-2xl border border-border bg-surface p-5 shadow-soft">
       <header className="flex items-center justify-between">
-        <h2 className="text-lg font-semibold text-zinc-900">
+        <h2 className="text-lg font-semibold text-text-heading">
           Alertas de reputacion
         </h2>
-        <span className="text-sm text-zinc-500">
+        <span className="text-sm text-text-muted">
           {alerts.length} menciones nuevas
         </span>
       </header>
@@ -30,7 +30,7 @@ export function ReputationAlerts({ alerts }: { alerts: Alert[] }) {
         {alerts.map((alert) => (
           <li key={alert.id} className="space-y-2">
             <div className="flex items-center justify-between gap-3">
-              <span className="text-sm font-medium text-zinc-900">
+              <span className="text-sm font-medium text-text-heading">
                 {alert.channel}
               </span>
               <span
@@ -39,13 +39,13 @@ export function ReputationAlerts({ alerts }: { alerts: Alert[] }) {
                 {alert.sentiment.toUpperCase()}
               </span>
             </div>
-            <p className="text-sm leading-relaxed text-zinc-600">
+            <p className="text-sm leading-relaxed text-text-body">
               {alert.summary}
             </p>
-            <div className="flex items-center justify-between text-xs text-zinc-400">
+            <div className="flex items-center justify-between text-xs text-text-muted">
               <span>{alert.publishedAt}</span>
               <a
-                className="font-medium text-indigo-500 hover:text-indigo-600"
+                className="font-medium text-brand-primary hover:text-brand-secondary"
                 href={alert.url}
                 target="_blank"
                 rel="noreferrer"

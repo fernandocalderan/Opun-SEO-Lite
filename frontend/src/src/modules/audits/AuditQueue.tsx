@@ -65,17 +65,17 @@ export function AuditQueue({ items }: { items: QueueItem[] }) {
   };
 
   return (
-    <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+    <section className="rounded-2xl border border-border bg-surface p-5 shadow-sm">
       <header className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h2 className="text-lg font-semibold text-slate-900">
+          <h2 className="text-lg font-semibold text-text-heading">
             Auditorias en cola
           </h2>
-          <p className="text-xs text-slate-500">
+          <p className="text-xs text-text-body">
             {runningCount} en ejecucion, se procesan en paralelo por workers.
           </p>
         </div>
-        <button className="rounded-full border border-slate-200 px-3 py-1 text-xs text-slate-500 transition hover:bg-slate-100">
+        <button className="rounded-full border border-border px-3 py-1 text-xs text-text-body transition hover:bg-surface-alt">
           Programar nueva
         </button>
       </header>
@@ -83,21 +83,21 @@ export function AuditQueue({ items }: { items: QueueItem[] }) {
         {queue.map((item) => (
           <li
             key={item.id}
-            className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3"
+            className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-border bg-surface-subtle px-4 py-3"
           >
             <div>
               <p className="text-sm font-semibold text-slate-800">
                 {item.project}
               </p>
-              <span className="text-xs text-slate-500">{item.type}</span>
+              <span className="text-xs text-text-body">{item.type}</span>
             </div>
-            <div className="flex flex-wrap items-center gap-3 text-xs text-slate-500">
+            <div className="flex flex-wrap items-center gap-3 text-xs text-text-body">
               <span
                 className={`rounded-full border px-3 py-1 font-medium ${
                   item.status === "En ejecucion"
                     ? "border-emerald-200 bg-emerald-50 text-emerald-600"
                     : item.status === "Pendiente"
-                      ? "border-slate-200 bg-white text-slate-600"
+                      ? "border-border bg-surface text-text-body"
                       : "border-indigo-200 bg-indigo-50 text-indigo-600"
                 }`}
               >
@@ -111,7 +111,7 @@ export function AuditQueue({ items }: { items: QueueItem[] }) {
                 <button
                   type="button"
                   onClick={() => handleStart(item.id)}
-                  className="rounded-full border border-indigo-200 bg-white px-3 py-1 text-indigo-500 transition hover:bg-indigo-50"
+                  className="rounded-full border border-indigo-200 bg-surface px-3 py-1 text-indigo-500 transition hover:bg-indigo-50"
                 >
                   Iniciar ahora
                 </button>

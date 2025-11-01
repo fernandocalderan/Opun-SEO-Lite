@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import { PlanTable } from "./PlanTable";
-import { planTable } from "@/lib/mocks/plan";
+import { planTable } from "@/lib/mocks";
 
 const meta: Meta<typeof PlanTable> = {
   title: "Plan/PlanTable",

@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import { ChannelBreakdown } from "./ChannelBreakdown";
-import { channelBreakdown } from "@/lib/mocks/reputation";
+import { channelBreakdown } from "@/lib/mocks";
 
 const meta: Meta<typeof ChannelBreakdown> = {
   title: "Reputation/ChannelBreakdown",

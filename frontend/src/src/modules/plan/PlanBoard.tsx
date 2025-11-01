@@ -39,13 +39,13 @@ type ColumnState = Column & {
 const impactBadge: Record<string, string> = {
   Alto: "border-emerald-200 bg-emerald-50 text-emerald-600",
   Medio: "border-amber-200 bg-amber-50 text-amber-600",
-  Bajo: "border-slate-200 bg-white text-slate-600",
+  Bajo: "border-border bg-surface text-text-body",
 };
 
 const effortBadge: Record<string, string> = {
   Alto: "border-rose-200 bg-rose-50 text-rose-600",
   Medio: "border-blue-200 bg-blue-50 text-blue-600",
-  Bajo: "border-slate-200 bg-white text-slate-600",
+  Bajo: "border-border bg-surface text-text-body",
 };
 
 const slugify = (value: string) =>
@@ -66,14 +66,14 @@ const SortableCard: FC<SortableCardProps> = ({ item }) => {
         transform: CSS.Transform.toString(transform),
         transition,
       }}
-      className={`rounded-xl border border-slate-200 bg-slate-50 p-3 text-sm shadow-inner transition ${
-        isDragging ? "border-indigo-300 bg-white shadow-lg" : ""
+      className={`rounded-xl border border-border bg-surface-subtle p-3 text-sm shadow-inner transition ${
+        isDragging ? "border-indigo-300 bg-surface shadow-lg" : ""
       }`}
       {...attributes}
       {...listeners}
     >
       <p className="font-medium text-slate-800">{item.title}</p>
-      <div className="mt-2 flex flex-wrap items-center gap-2 text-[11px] text-slate-500">
+      <div className="mt-2 flex flex-wrap items-center gap-2 text-[11px] text-text-body">
         <span
           className={`rounded-full border px-2 py-0.5 font-medium ${
             impactBadge[item.impact] ?? impactBadge.Bajo
@@ -105,13 +105,13 @@ const PlanColumn: FC<PlanColumnProps> = ({ column }) => {
   return (
     <article
       ref={setNodeRef}
-      className={`flex flex-col gap-3 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm transition ${
+      className={`flex flex-col gap-3 rounded-2xl border border-border bg-surface p-4 shadow-sm transition ${
         isOver ? "border-indigo-300 shadow-md" : ""
       }`}
     >
       <header className="flex items-center justify-between">
         <h3 className="text-sm font-semibold text-slate-800">{column.title}</h3>
-        <span className="text-xs text-slate-400">{column.items.length}</span>
+        <span className="text-xs text-text-muted">{column.items.length}</span>
       </header>
       <SortableContext
         items={column.items.map((item) => item.id)}
@@ -122,7 +122,7 @@ const PlanColumn: FC<PlanColumnProps> = ({ column }) => {
             <SortableCard key={item.id} item={item} />
           ))}
           {column.items.length === 0 ? (
-            <p className="rounded-xl border border-dashed border-slate-300 bg-slate-50 p-4 text-center text-xs font-medium text-slate-400">
+            <p className="rounded-xl border border-dashed border-border-strong bg-surface-subtle p-4 text-center text-xs font-medium text-text-muted">
               Soltar tarjetas aqui
             </p>
           ) : null}
@@ -235,15 +235,15 @@ export function PlanBoard({ columns }: { columns: Column[] }) {
   return (
     <section className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <div className="flex items-center gap-3 text-xs text-slate-500">
-          <span className="rounded-full border border-slate-200 bg-white px-3 py-1">
-            Total: <strong className="ml-1 text-slate-700">{stats.total}</strong>
+        <div className="flex items-center gap-3 text-xs text-text-body">
+          <span className="rounded-full border border-border bg-surface px-3 py-1">
+            Total: <strong className="ml-1 text-text-heading">{stats.total}</strong>
           </span>
           <span className="rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-emerald-600">
             Completado: {stats.completed} ({stats.completionRate}%)
           </span>
         </div>
-        <p className="text-xs text-slate-400">
+        <p className="text-xs text-text-muted">
           Arrastra tarjetas entre columnas para re-priorizar.
         </p>
       </div>

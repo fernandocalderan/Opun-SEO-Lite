@@ -1,6 +1,6 @@
-# Plan de Frontend — Opun Intelligence Suite
+# Plan de Frontend - Opun Intelligence Suite
 
-> Estado: borrador inicial — 31 Oct 2025
+> Estado: validado - 01 Nov 2025
 
 ## 1. Objetivo
 Redisenar la experiencia web para agencias y equipos de reputacion, integrando auditoria SEO, ingenieria reputacional y colaboracion multi-equipo en una interfaz moderna, responsive y preparada para marca blanca.
@@ -77,10 +77,10 @@ Redisenar la experiencia web para agencias y equipos de reputacion, integrando a
 - Documentacion de user flows para los roles: SEO Strategist, Reputation Manager, Agency Admin.
 
 ## 10. Proximos Pasos Inmediatos
-1. Validar plan con stakeholders (producto, reputacion, ingenieria).
-2. Crear ADR sobre stack frontend y design system.
-3. Preparar mock data y especificaciones API minimas.
-4. Iniciar Sprint 0 con setup del proyecto en `frontend/src`.
+1. Documentar hallazgos de validacion y mantener ADRs sincronizados (completo).
+2. Mantener mock data alineada al spec y compartir updates semanales (en curso).
+3. Ejecutar Sprint 0 enfocandose en layout base, design tokens y Storybook (en curso).
+4. Ejecutar Sprint 1 (dashboards) siguiendo `docs/sprint-1-backlog.md` y registrar feedback (nuevo).
 
 ---
 

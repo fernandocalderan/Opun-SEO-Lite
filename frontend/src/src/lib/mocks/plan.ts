@@ -1,3 +1,5 @@
+import type { PlanColumn, PlanTableRow, PlanVelocityPoint } from "./types";
+
 export const planColumns = [
   {
     title: "Pendiente",
@@ -59,7 +61,7 @@ export const planColumns = [
       },
     ],
   },
-];
+] satisfies PlanColumn[];
 
 export const planTable = [
   {
@@ -92,7 +94,7 @@ export const planTable = [
     owner: "Content",
     due: "07 Nov",
   },
-];
+] satisfies PlanTableRow[];
 
 export const planVelocity = [
   { sprint: "Sprint 39", planned: 12, completed: 8 },
@@ -100,4 +102,4 @@ export const planVelocity = [
   { sprint: "Sprint 41", planned: 11, completed: 7 },
   { sprint: "Sprint 42", planned: 12, completed: 10 },
   { sprint: "Sprint 43", planned: 13, completed: 11 },
-];
+] satisfies PlanVelocityPoint[];

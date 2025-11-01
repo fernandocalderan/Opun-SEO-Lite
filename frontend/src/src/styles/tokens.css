@@ -38,3 +38,18 @@
   --layout-gutter: 2rem;
   --layout-gap: 1.5rem;
 }
+
+.dark {
+  --color-surface: #0f172a;
+  --color-surface-subtle: #020617;
+  --color-surface-alt: #15213b;
+  --color-border: #1e293b;
+  --color-border-strong: #334155;
+  --color-text-heading: #e2e8f0;
+  --color-text-body: #cbd5f5;
+  --color-text-muted: #64748b;
+  --color-text-inverse: #0f172a;
+  --shadow-soft: 0 20px 50px rgba(15, 23, 42, 0.4);
+  --shadow-card: 0 12px 35px rgba(79, 70, 229, 0.4);
+  --shadow-border: 0 1px 0 rgba(148, 163, 184, 0.12);
+}

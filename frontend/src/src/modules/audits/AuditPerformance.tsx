@@ -40,20 +40,20 @@ export function AuditPerformance({ history }: Props) {
   );
 
   return (
-    <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+    <section className="rounded-2xl border border-border bg-surface p-5 shadow-soft">
       <header className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h2 className="text-lg font-semibold text-slate-900">
+          <h2 className="text-lg font-semibold text-text-heading">
             Consistencia de auditorias
           </h2>
-          <p className="text-xs text-slate-500">
+          <p className="text-xs text-text-muted">
             Evolucion de score final y issues criticos por auditoria reciente.
           </p>
         </div>
         <button
           type="button"
           onClick={() => setShowCritical((previous) => !previous)}
-          className="rounded-full border border-slate-200 px-3 py-1 text-xs font-medium text-slate-500 transition hover:bg-slate-100"
+          className="rounded-full border border-border px-3 py-1 text-xs font-medium text-text-muted transition hover:bg-surface-alt"
         >
           {showCritical ? "Ocultar issues" : "Ver issues"}
         </button>

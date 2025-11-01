@@ -55,17 +55,17 @@ export function ReportList({ reports }: { reports: ReportItem[] }) {
   };
 
   return (
-    <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+    <section className="rounded-2xl border border-border bg-surface p-5 shadow-sm">
       <header className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h2 className="text-lg font-semibold text-slate-900">
+          <h2 className="text-lg font-semibold text-text-heading">
             Reportes generados
           </h2>
-          <p className="text-xs text-slate-500">
+          <p className="text-xs text-text-body">
             Descarga o comparte entregables alineados con el mock de datos.
           </p>
         </div>
-        <button className="rounded-full border border-slate-200 px-3 py-1 text-xs text-slate-500 hover:bg-slate-100">
+        <button className="rounded-full border border-border px-3 py-1 text-xs text-text-body hover:bg-surface-alt">
           Nuevo reporte
         </button>
       </header>
@@ -73,20 +73,20 @@ export function ReportList({ reports }: { reports: ReportItem[] }) {
         {list.map((report) => (
           <article
             key={report.id}
-            className="flex flex-wrap items-center justify-between gap-4 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3"
+            className="flex flex-wrap items-center justify-between gap-4 rounded-xl border border-border bg-surface-subtle px-4 py-3"
           >
             <div>
               <p className="text-sm font-semibold text-slate-800">
                 {report.title}
               </p>
-              <span className="text-xs text-slate-500">{report.project}</span>
+              <span className="text-xs text-text-body">{report.project}</span>
             </div>
-            <div className="flex flex-wrap items-center gap-3 text-xs text-slate-500">
+            <div className="flex flex-wrap items-center gap-3 text-xs text-text-body">
               <span>{report.generatedAt}</span>
               <span>{report.format}</span>
               <span
                 className={`rounded-full border px-3 py-1 font-medium ${
-                  statusBadge[report.status] ?? "border-slate-200 bg-white text-slate-600"
+                  statusBadge[report.status] ?? "border-border bg-surface text-text-body"
                 }`}
               >
                 {report.status}
@@ -95,7 +95,7 @@ export function ReportList({ reports }: { reports: ReportItem[] }) {
                 <button
                   type="button"
                   onClick={() => handleDownload(report)}
-                  className="rounded-full border border-slate-200 bg-white px-3 py-1 text-slate-600 transition hover:bg-slate-100"
+                  className="rounded-full border border-border bg-surface px-3 py-1 text-text-body transition hover:bg-surface-alt"
                 >
                   Descargar
                 </button>

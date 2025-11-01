@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import { TemplateLibrary } from "./TemplateLibrary";
-import { templateLibrary } from "@/lib/mocks/reports";
+import { templateLibrary } from "@/lib/mocks";
 
 const meta: Meta<typeof TemplateLibrary> = {
   title: "Reports/TemplateLibrary",

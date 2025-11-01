@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import { MentionsTable } from "./MentionsTable";
-import { recentMentions } from "@/lib/mocks/reputation";
+import { recentMentions } from "@/lib/mocks";
 
 const meta: Meta<typeof MentionsTable> = {
   title: "Reputation/MentionsTable",

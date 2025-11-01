@@ -1,3 +1,9 @@
+import type {
+  ReportActivityPoint,
+  ReportListItem,
+  ReportTemplate,
+} from "./types";
+
 export const reportList = [
   {
     id: "report-1",
@@ -23,7 +29,7 @@ export const reportList = [
     format: "Notion Sync",
     status: "Compartido",
   },
-];
+] satisfies ReportListItem[];
 
 export const templateLibrary = [
   {
@@ -44,7 +50,7 @@ export const templateLibrary = [
     description:
       "Roadmap semanal con asignaciones por equipo para mitigar menciones negativas.",
   },
-];
+] satisfies ReportTemplate[];
 
 export const reportActivity = [
   { date: "24 Oct", generated: 3, shared: 1 },
@@ -54,4 +60,4 @@ export const reportActivity = [
   { date: "28 Oct", generated: 6, shared: 4 },
   { date: "29 Oct", generated: 5, shared: 3 },
   { date: "30 Oct", generated: 7, shared: 5 },
-];
+] satisfies ReportActivityPoint[];

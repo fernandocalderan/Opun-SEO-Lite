@@ -100,26 +100,26 @@ export function PlanTable({ rows }: { rows: PlanRow[] }) {
   };
 
   return (
-    <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+    <section className="rounded-2xl border border-border bg-surface p-5 shadow-sm">
       <header className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h2 className="text-lg font-semibold text-slate-900">Plan maestro</h2>
-          <p className="text-xs text-slate-500">
+          <h2 className="text-lg font-semibold text-text-heading">Plan maestro</h2>
+          <p className="text-xs text-text-body">
             Filtra acciones por estado, owner o palabra clave.
           </p>
         </div>
-        <div className="flex items-center gap-2 text-xs text-slate-500">
+        <div className="flex items-center gap-2 text-xs text-text-body">
           <button
             type="button"
             onClick={handleExport}
-            className="rounded-full border border-slate-200 px-3 py-1 hover:bg-slate-100"
+            className="rounded-full border border-border px-3 py-1 hover:bg-surface-alt"
           >
             Exportar JSON
           </button>
           <button
             type="button"
             onClick={handleShare}
-            className="rounded-full border border-slate-200 px-3 py-1 hover:bg-slate-100"
+            className="rounded-full border border-border px-3 py-1 hover:bg-surface-alt"
           >
             Copiar enlace
           </button>
@@ -127,12 +127,12 @@ export function PlanTable({ rows }: { rows: PlanRow[] }) {
       </header>
 
       <div className="mt-4 flex flex-wrap items-center gap-3 text-xs">
-        <label className="flex items-center gap-2 text-slate-500">
+        <label className="flex items-center gap-2 text-text-body">
           Estado
           <select
             value={statusFilter}
             onChange={(event) => setStatusFilter(event.target.value)}
-            className="rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs"
+            className="rounded-lg border border-border bg-surface px-2 py-1 text-xs"
           >
             {statuses.map((status) => (
               <option key={status} value={status}>
@@ -141,12 +141,12 @@ export function PlanTable({ rows }: { rows: PlanRow[] }) {
             ))}
           </select>
         </label>
-        <label className="flex items-center gap-2 text-slate-500">
+        <label className="flex items-center gap-2 text-text-body">
           Owner
           <select
             value={ownerFilter}
             onChange={(event) => setOwnerFilter(event.target.value)}
-            className="rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs"
+            className="rounded-lg border border-border bg-surface px-2 py-1 text-xs"
           >
             {owners.map((owner) => (
               <option key={owner} value={owner}>
@@ -155,31 +155,31 @@ export function PlanTable({ rows }: { rows: PlanRow[] }) {
             ))}
           </select>
         </label>
-        <label className="flex items-center gap-2 text-slate-500">
+        <label className="flex items-center gap-2 text-text-body">
           Buscar
           <input
             type="search"
             value={search}
             onChange={(event) => setSearch(event.target.value)}
             placeholder="Ej: canonical"
-            className="rounded-lg border border-slate-200 bg-white px-3 py-1 text-xs"
+            className="rounded-lg border border-border bg-surface px-3 py-1 text-xs"
           />
         </label>
         <button
           type="button"
           onClick={() => setSortByDue((previous) => !previous)}
-          className="rounded-full border border-slate-200 px-3 py-1 text-xs text-slate-500 transition hover:bg-slate-100"
+          className="rounded-full border border-border px-3 py-1 text-xs text-text-body transition hover:bg-surface-alt"
         >
           Orden: {sortByDue ? "Due date" : "Estado"}
         </button>
-        <span className="text-slate-400">
+        <span className="text-text-muted">
           {filteredRows.length} resultados visibles
         </span>
       </div>
 
       <div className="mt-4 overflow-x-auto">
         <table className="min-w-full divide-y divide-slate-200 text-sm">
-          <thead className="bg-slate-50 text-left font-medium text-slate-500">
+          <thead className="bg-surface-subtle text-left font-medium text-text-body">
             <tr>
               <th className="px-4 py-3">Categoria</th>
               <th className="px-4 py-3">Tarea</th>
@@ -192,20 +192,20 @@ export function PlanTable({ rows }: { rows: PlanRow[] }) {
           </thead>
           <tbody className="divide-y divide-slate-100">
             {filteredRows.map((row) => (
-              <tr key={row.id} className="bg-white">
-                <td className="px-4 py-3 text-slate-500">{row.category}</td>
+              <tr key={row.id} className="bg-surface">
+                <td className="px-4 py-3 text-text-body">{row.category}</td>
                 <td className="px-4 py-3 font-medium text-slate-800">
                   {row.task}
                 </td>
-                <td className="px-4 py-3 text-slate-600">{row.impact}</td>
-                <td className="px-4 py-3 text-slate-600">{row.effort}</td>
+                <td className="px-4 py-3 text-text-body">{row.impact}</td>
+                <td className="px-4 py-3 text-text-body">{row.effort}</td>
                 <td className="px-4 py-3">
-                  <span className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs font-medium text-slate-600">
+                  <span className="rounded-full border border-border bg-surface-subtle px-3 py-1 text-xs font-medium text-text-body">
                     {row.status}
                   </span>
                 </td>
-                <td className="px-4 py-3 text-slate-500">{row.owner}</td>
-                <td className="px-4 py-3 text-slate-500">{row.due}</td>
+                <td className="px-4 py-3 text-text-body">{row.owner}</td>
+                <td className="px-4 py-3 text-text-body">{row.due}</td>
               </tr>
             ))}
           </tbody>

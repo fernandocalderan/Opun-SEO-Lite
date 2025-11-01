@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: Opun Intelligence Suite - Frontend Contracts
-  version: 0.2.0
+  version: 0.3.0
   description: >
     Formalisation of the HTTP contracts the frontend relies on for the
     Audits, Reputation, Plan and Reports experiences. Responses model the
@@ -12,14 +12,28 @@ servers:
   - url: https://staging.api.opun.dev
     description: Staging (placeholder)
 tags:
+  - name: Overview
   - name: Audits
   - name: Reputation
   - name: Plan
   - name: Reports
+  - name: Settings
 security:
   - bearerAuth: []
   - apiKeyAuth: []
 paths:
+  /v1/overview:
+    get:
+      tags: [Overview]
+      summary: Dataset para la vista Overview
+      description: Retorna los KPIs principales, alertas reputacionales y recomendaciones destacadas.
+      responses:
+        "200":
+          description: Datos agregados para la portada del dashboard.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OverviewResponse"
   /v1/audits/summary:
     get:
       tags: [Audits]
@@ -244,6 +258,18 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ReportGenerationResponse"
+  /v1/settings:
+    get:
+      tags: [Settings]
+      summary: Obtener la configuracion activa del tenant
+      description: Incluye preferencias de proyecto, SEO, reputacion, integraciones y alertas.
+      responses:
+        "200":
+          description: Configuracion completa que consume el modulo Settings del frontend.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SettingsConfiguration"
 components:
   securitySchemes:
     bearerAuth:
@@ -259,6 +285,336 @@ components:
       type: [string, "null"]
       description: Use `null` when there are no more results.
       example: c29tZS1jdXJzb3I
+    OverviewResponse:
+      type: object
+      required: [kpis, alerts, insights, narrative]
+      properties:
+        kpis:
+          type: array
+          items:
+            $ref: "#/components/schemas/OverviewKpi"
+        alerts:
+          type: array
+          items:
+            $ref: "#/components/schemas/OverviewAlert"
+        insights:
+          type: array
+          items:
+            $ref: "#/components/schemas/OverviewInsight"
+        narrative:
+          $ref: "#/components/schemas/OverviewNarrative"
+    OverviewKpi:
+      type: object
+      required: [label, value, delta, status, description]
+      properties:
+        label:
+          type: string
+          example: SEO Health
+        value:
+          type: string
+          example: 82 / 100
+        delta:
+          type: string
+          example: "+6 vs. last sprint"
+        status:
+          type: string
+          enum: [good, watch, risk]
+        description:
+          type: string
+          example: Auditoria tecnica estable; se detectaron 3 issues criticos pendientes.
+    OverviewAlert:
+      type: object
+      required: [id, channel, summary, sentiment, published_at, url]
+      properties:
+        id:
+          type: string
+        channel:
+          type: string
+        summary:
+          type: string
+        sentiment:
+          type: string
+          enum: [positive, neutral, negative]
+        published_at:
+          type: string
+          example: "2025-10-31T12:00:00Z"
+        url:
+          type: string
+          format: uri
+    OverviewInsight:
+      type: object
+      required: [title, context, recommendation, severity, source]
+      properties:
+        title:
+          type: string
+        context:
+          type: string
+        recommendation:
+          type: string
+        severity:
+          type: string
+          enum: [critical, high, medium, low]
+        source:
+          type: string
+    OverviewNarrative:
+      type: object
+      required: [headline, updated_at, summary]
+      properties:
+        headline:
+          type: string
+          example: Estrategia en progreso
+        updated_at:
+          type: string
+          format: date-time
+        summary:
+          type: string
+    SettingsConfiguration:
+      type: object
+      required:
+        [project, seo, reputation, integrations, alerts, collaboration, governance]
+      properties:
+        project:
+          $ref: "#/components/schemas/ProjectSettings"
+        seo:
+          $ref: "#/components/schemas/SeoSettings"
+        reputation:
+          $ref: "#/components/schemas/ReputationSettings"
+        integrations:
+          $ref: "#/components/schemas/IntegrationsSettings"
+        alerts:
+          $ref: "#/components/schemas/AlertingSettings"
+        collaboration:
+          $ref: "#/components/schemas/CollaborationSettings"
+        governance:
+          $ref: "#/components/schemas/GovernanceSettings"
+    ProjectSettings:
+      type: object
+      required:
+        [projectName, publicName, primaryUrl, relatedUrls, industries, markets, objectives, stakeholders, slaMinutes]
+      properties:
+        projectName:
+          type: string
+        publicName:
+          type: string
+        primaryUrl:
+          type: string
+          format: uri
+        relatedUrls:
+          type: array
+          items:
+            type: string
+            format: uri
+        industries:
+          type: array
+          items:
+            type: string
+        markets:
+          type: array
+          items:
+            type: string
+        objectives:
+          type: array
+          items:
+            type: string
+        stakeholders:
+          type: array
+          items:
+            $ref: "#/components/schemas/ProjectStakeholder"
+        slaMinutes:
+          type: integer
+          minimum: 0
+    ProjectStakeholder:
+      type: object
+      required: [name, email, responsibility, channel]
+      properties:
+        name:
+          type: string
+        email:
+          type: string
+          format: email
+        responsibility:
+          type: string
+        channel:
+          type: string
+          enum: [email, slack, sms, teams]
+    SeoSettings:
+      type: object
+      required:
+        [primaryKeywords, secondaryKeywords, negativeKeywords, competitorDomains, targetSerpFeatures, crawlFrequency, crawlDepth, monitoringRegions]
+      properties:
+        primaryKeywords:
+          type: array
+          items:
+            type: string
+        secondaryKeywords:
+          type: array
+          items:
+            type: string
+        negativeKeywords:
+          type: array
+          items:
+            type: string
+        competitorDomains:
+          type: array
+          items:
+            type: string
+            format: uri
+        targetSerpFeatures:
+          type: array
+          items:
+            type: string
+        crawlFrequency:
+          type: string
+          enum: [daily, weekly, monthly, quarterly]
+        crawlDepth:
+          type: string
+          enum: [shallow, standard, deep]
+        monitoringRegions:
+          type: array
+          items:
+            type: string
+    ReputationSettings:
+      type: object
+      required:
+        [topics, hashtags, excludeTerms, channels, sentimentCriticalThreshold, sentimentWarningThreshold, languages, customSources, escalationContacts]
+      properties:
+        topics:
+          type: array
+          items:
+            type: string
+        hashtags:
+          type: array
+          items:
+            type: string
+        excludeTerms:
+          type: array
+          items:
+            type: string
+        channels:
+          $ref: "#/components/schemas/ChannelPreferences"
+        sentimentCriticalThreshold:
+          type: integer
+          minimum: 0
+          maximum: 100
+        sentimentWarningThreshold:
+          type: integer
+          minimum: 0
+          maximum: 100
+        languages:
+          type: array
+          items:
+            type: string
+        customSources:
+          type: array
+          items:
+            type: string
+            format: uri
+        escalationContacts:
+          type: array
+          items:
+            type: string
+            format: email
+    ChannelPreferences:
+      type: object
+      required: [social, forums, news, reviews, video, blogs]
+      properties:
+        social:
+          type: boolean
+        forums:
+          type: boolean
+        news:
+          type: boolean
+        reviews:
+          type: boolean
+        video:
+          type: boolean
+        blogs:
+          type: boolean
+    IntegrationsSettings:
+      type: object
+      required:
+        [twitter, facebook, instagram, linkedin, youtube, searchConsole, ga4, semrush, ahrefs, salesforce, hubspot, zendesk]
+      properties:
+        twitter:
+          type: boolean
+        facebook:
+          type: boolean
+        instagram:
+          type: boolean
+        linkedin:
+          type: boolean
+        youtube:
+          type: boolean
+        searchConsole:
+          type: boolean
+        ga4:
+          type: boolean
+        semrush:
+          type: boolean
+        ahrefs:
+          type: boolean
+        salesforce:
+          type: boolean
+        hubspot:
+          type: boolean
+        zendesk:
+          type: boolean
+    AlertingSettings:
+      type: object
+      required:
+        [volumeSpikeThreshold, sentimentDropThreshold, dailyDigest, weeklyExecutiveReport, realtimeSlackChannel, emailRecipients, quietHours]
+      properties:
+        volumeSpikeThreshold:
+          type: integer
+        sentimentDropThreshold:
+          type: integer
+        dailyDigest:
+          type: boolean
+        weeklyExecutiveReport:
+          type: boolean
+        realtimeSlackChannel:
+          type: string
+        emailRecipients:
+          type: array
+          items:
+            type: string
+            format: email
+        quietHours:
+          $ref: "#/components/schemas/QuietHours"
+    QuietHours:
+      type: object
+      required: [start, end]
+      properties:
+        start:
+          type: string
+          example: "22:00"
+        end:
+          type: string
+          example: "07:00"
+    CollaborationSettings:
+      type: object
+      required: [teams, reviewerWorkflow, sharedNotes]
+      properties:
+        teams:
+          type: array
+          items:
+            type: string
+        reviewerWorkflow:
+          type: string
+        sharedNotes:
+          type: string
+    GovernanceSettings:
+      type: object
+      required: [dataRetentionDays, anonymizePersonalData, piiNotes, legalAcknowledged]
+      properties:
+        dataRetentionDays:
+          type: integer
+        anonymizePersonalData:
+          type: boolean
+        piiNotes:
+          type: string
+        legalAcknowledged:
+          type: boolean
     AuditSummaryResponse:
       type: object
       required: [completed, avg_duration_seconds, critical_open]

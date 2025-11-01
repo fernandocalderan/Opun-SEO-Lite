@@ -31,17 +31,17 @@ export function ChannelBreakdown({ channels }: { channels: Channel[] }) {
   const colors = ["#6366f1", "#14b8a6", "#f59e0b", "#f97316", "#f43f5e"];
 
   return (
-    <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+    <section className="rounded-2xl border border-border bg-surface p-5 shadow-sm">
       <header className="flex flex-wrap items-center justify-between gap-3">
-        <h2 className="text-lg font-semibold text-slate-900">
+        <h2 className="text-lg font-semibold text-text-heading">
           Distribucion por canal
         </h2>
-        <span className="text-xs uppercase tracking-widest text-slate-400">
+        <span className="text-xs uppercase tracking-widest text-text-muted">
           Ultimos 7 dias
         </span>
       </header>
       <div className="mt-6 grid gap-5 lg:grid-cols-[1fr,1.1fr]">
-        <div className="h-64 rounded-xl border border-slate-200 bg-slate-50 p-4">
+        <div className="h-64 rounded-xl border border-border bg-surface-subtle p-4">
           <ResponsiveContainer width="100%" height="100%">
             <PieChart>
               <Tooltip
@@ -82,9 +82,9 @@ export function ChannelBreakdown({ channels }: { channels: Channel[] }) {
             </PieChart>
           </ResponsiveContainer>
         </div>
-        <div className="overflow-hidden rounded-xl border border-slate-200">
+        <div className="overflow-hidden rounded-xl border border-border">
           <table className="min-w-full divide-y divide-slate-200 text-sm">
-            <thead className="bg-slate-50 text-left font-medium text-slate-500">
+            <thead className="bg-surface-subtle text-left font-medium text-text-body">
               <tr>
                 <th className="px-4 py-3">Canal</th>
                 <th className="px-4 py-3">Exposicion</th>
@@ -98,20 +98,20 @@ export function ChannelBreakdown({ channels }: { channels: Channel[] }) {
                   key={item.channel}
                   onMouseEnter={() => setHighlighted(item.channel)}
                   onMouseLeave={() => setHighlighted(null)}
-                  className={`bg-white transition ${
+                  className={`bg-surface transition ${
                     highlighted === item.channel ? "bg-indigo-50/60" : ""
                   }`}
                 >
                   <td className="px-4 py-3 font-medium text-slate-800">
                     {item.channel}
                   </td>
-                  <td className="px-4 py-3 text-slate-500">{item.exposure}</td>
+                  <td className="px-4 py-3 text-text-body">{item.exposure}</td>
                   <td className="px-4 py-3">
-                    <span className="inline-flex rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs font-medium text-slate-600">
+                    <span className="inline-flex rounded-full border border-border bg-surface-subtle px-3 py-1 text-xs font-medium text-text-body">
                       {item.sentiment}
                     </span>
                   </td>
-                  <td className="px-4 py-3 text-right font-semibold text-slate-700">
+                  <td className="px-4 py-3 text-right font-semibold text-text-heading">
                     {item.share}
                   </td>
                 </tr>

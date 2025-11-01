@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import { AuditHistory } from "./AuditHistory";
-import { auditHistory } from "@/lib/mocks/audits";
+import { auditHistory } from "@/lib/mocks";
 
 const meta: Meta<typeof AuditHistory> = {
   title: "Audits/AuditHistory",

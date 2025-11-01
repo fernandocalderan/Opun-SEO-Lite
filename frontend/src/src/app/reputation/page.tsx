@@ -5,7 +5,7 @@ import {
   channelBreakdown,
   recentMentions,
   sentimentTimeline,
-} from "@/lib/mocks/reputation";
+} from "@/lib/mocks";
 import { KpiCard } from "@/components/KpiCard";
 
 export default function ReputationPage() {
@@ -39,13 +39,13 @@ export default function ReputationPage() {
   return (
     <div className="space-y-6 p-8">
       <header className="space-y-1">
-        <span className="text-xs font-semibold uppercase tracking-wider text-indigo-500">
+        <span className="text-xs font-semibold uppercase tracking-[var(--tracking-wide)] text-brand-primary">
           Reputation Watch
         </span>
-        <h1 className="text-3xl font-semibold text-slate-900">
+        <h1 className="text-3xl font-semibold text-text-heading">
           Monitoreo y mitigacion en vivo
         </h1>
-        <p className="text-sm text-slate-500">
+        <p className="text-sm text-text-body">
           Consolida menciones, alertas ORM y accionables coordinados con el equipo de PR.
         </p>
       </header>

@@ -1,4 +1,4 @@
-import { ConfigurationState } from "@/modules/settings/types";
+import type { ConfigurationState } from "@/modules/settings/types";
 
 export const initialSettings: ConfigurationState = {
   project: {
@@ -7,40 +7,50 @@ export const initialSettings: ConfigurationState = {
     primaryUrl: "https://www.opun.example",
     relatedUrls: [
       "https://blog.opun.example",
-      "https://status.opun.example"
+      "https://status.opun.example",
     ],
     industries: ["SaaS", "Marketing Technology"],
     markets: ["Latam", "US"],
     objectives: [
       "Reforzar reputacion digital",
       "Incrementar share of voice SEO",
-      "Optimizar respuesta ante crisis"
+      "Optimizar respuesta ante crisis",
     ],
     stakeholders: [
       {
         name: "Valeria Rios",
         email: "valeria.rios@opun.example",
         responsibility: "Brand & PR",
-        channel: "slack"
+        channel: "slack",
       },
       {
         name: "Jorge Diaz",
         email: "jorge.diaz@opun.example",
         responsibility: "SEO Lead",
-        channel: "email"
-      }
+        channel: "email",
+      },
     ],
     slaMinutes: 90,
   },
   seo: {
-    primaryKeywords: ["gestión reputación online", "auditoria seo automatizada"],
-    secondaryKeywords: ["monitor de menciones", "alertas reputacionales", "seo intelligence"],
+    primaryKeywords: [
+      "gestion reputacion online",
+      "auditoria seo automatizada",
+    ],
+    secondaryKeywords: [
+      "monitor de menciones",
+      "alertas reputacionales",
+      "seo intelligence",
+    ],
     negativeKeywords: ["gratis", "pirata"],
-    competitorDomains: ["https://competidor1.example", "https://competidor2.example"],
+    competitorDomains: [
+      "https://competidor1.example",
+      "https://competidor2.example",
+    ],
     targetSerpFeatures: ["featured snippet", "top stories", "reviews"],
     crawlFrequency: "weekly",
     crawlDepth: "standard",
-    monitoringRegions: ["México", "España", "Colombia"],
+    monitoringRegions: ["Mexico", "Espana", "Colombia"],
   },
   reputation: {
     topics: ["producto", "atencion", "innovacion"],
@@ -80,7 +90,10 @@ export const initialSettings: ConfigurationState = {
     dailyDigest: true,
     weeklyExecutiveReport: true,
     realtimeSlackChannel: "#reputation-alerts",
-    emailRecipients: ["alertas@opun.example", "equipo-pr@opun.example"],
+    emailRecipients: [
+      "alertas@opun.example",
+      "equipo-pr@opun.example",
+    ],
     quietHours: {
       start: "22:00",
       end: "07:00",
@@ -88,13 +101,16 @@ export const initialSettings: ConfigurationState = {
   },
   collaboration: {
     teams: ["SEO Squad", "Brand Studio", "Customer Success"],
-    reviewerWorkflow: "Toda alerta critica requiere visto bueno de PR y Customer Success antes de publicarse.",
-    sharedNotes: "Detalle aqui hallazgos clave o decisiones de gestion de crisis.",
+    reviewerWorkflow:
+      "Toda alerta critica requiere visto bueno de PR y Customer Success antes de publicarse.",
+    sharedNotes:
+      "Detalle aqui hallazgos clave o decisiones de gestion de crisis.",
   },
   governance: {
     dataRetentionDays: 365,
     anonymizePersonalData: true,
-    piiNotes: "Se anonimiza automaticamente cualquier email o telefono encontrado en menciones.",
+    piiNotes:
+      "Se anonimiza automaticamente cualquier email o telefono encontrado en menciones.",
     legalAcknowledged: true,
   },
 };

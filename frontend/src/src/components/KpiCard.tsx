@@ -28,11 +28,11 @@ export function KpiCard({
   description,
 }: KpiCardProps) {
   return (
-    <article className="flex flex-col gap-3 rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm">
+    <article className="flex flex-col gap-3 rounded-2xl border border-border bg-surface p-5 shadow-soft">
       <div className="flex items-start justify-between gap-3">
         <div>
-          <span className="text-sm font-medium text-zinc-500">{label}</span>
-          <p className="mt-1 text-2xl font-semibold tracking-tight text-zinc-900">
+          <span className="text-sm font-medium text-text-muted">{label}</span>
+          <p className="mt-1 text-2xl font-semibold tracking-tight text-text-heading">
             {value}
           </p>
           {delta ? (
@@ -44,13 +44,13 @@ export function KpiCard({
           ) : null}
         </div>
         {icon ? (
-          <span className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-zinc-100 text-zinc-700">
+          <span className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-surface-alt text-text-heading">
             {icon}
           </span>
         ) : null}
       </div>
       {description ? (
-        <p className="text-sm leading-relaxed text-zinc-500">{description}</p>
+        <p className="text-sm leading-relaxed text-text-body">{description}</p>
       ) : null}
     </article>
   );

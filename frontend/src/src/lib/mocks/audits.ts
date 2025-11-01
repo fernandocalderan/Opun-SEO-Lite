@@ -1,8 +1,14 @@
+import type {
+  AuditHistoryItem,
+  AuditQueueItem,
+  AuditSummaryItem,
+} from "./types";
+
 export const auditSummary = [
   { label: "Auditorias completadas", value: "128", delta: "+18 mes" },
   { label: "Tiempo promedio", value: "12m 40s", delta: "-2m vs. objetivo" },
   { label: "Issues criticos", value: "7", delta: "3 abiertos" },
-];
+] satisfies AuditSummaryItem[];
 
 export const auditQueue = [
   {
@@ -29,7 +35,7 @@ export const auditQueue = [
     startedAt: "--",
     eta: "--",
   },
-];
+] satisfies AuditQueueItem[];
 
 export const auditHistory = [
   {
@@ -56,4 +62,4 @@ export const auditHistory = [
     criticalIssues: 1,
     owner: "Support",
   },
-];
+] satisfies AuditHistoryItem[];

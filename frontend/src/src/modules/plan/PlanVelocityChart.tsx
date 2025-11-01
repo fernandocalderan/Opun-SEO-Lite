@@ -24,17 +24,17 @@ type Props = {
 
 export const PlanVelocityChart: FC<Props> = ({ data }) => {
   return (
-    <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+    <section className="rounded-2xl border border-border bg-surface p-5 shadow-sm">
       <header className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h2 className="text-lg font-semibold text-slate-900">
+          <h2 className="text-lg font-semibold text-text-heading">
             Velocidad del equipo
           </h2>
-          <p className="text-xs text-slate-500">
+          <p className="text-xs text-text-body">
             Comparativa de iniciativas planificadas vs completadas por sprint.
           </p>
         </div>
-        <span className="text-xs text-slate-400">
+        <span className="text-xs text-text-muted">
           Fuente: registro de plan maestro (mock)
         </span>
       </header>

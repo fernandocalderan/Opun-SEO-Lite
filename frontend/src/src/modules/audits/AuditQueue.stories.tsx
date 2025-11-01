@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import { AuditQueue } from "./AuditQueue";
-import { auditQueue } from "@/lib/mocks/audits";
+import { auditQueue } from "@/lib/mocks";
 
 const meta: Meta<typeof AuditQueue> = {
   title: "Audits/AuditQueue",

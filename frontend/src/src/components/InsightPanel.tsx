@@ -21,14 +21,14 @@ export function InsightPanel({ items }: { items: Insight[] }) {
       {items.map((item) => (
         <article
           key={`${item.source}-${item.title}`}
-          className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm"
+          className="rounded-2xl border border-border bg-surface p-5 shadow-soft"
         >
           <header className="flex items-start justify-between gap-3">
             <div>
-              <span className="text-xs uppercase tracking-wider text-zinc-400">
+              <span className="text-xs uppercase tracking-[0.18em] text-text-muted">
                 {item.source}
               </span>
-              <h3 className="mt-1 text-lg font-semibold text-zinc-900">
+              <h3 className="mt-1 text-lg font-semibold text-text-heading">
                 {item.title}
               </h3>
             </div>
@@ -38,11 +38,11 @@ export function InsightPanel({ items }: { items: Insight[] }) {
               {item.severity.toUpperCase()}
             </span>
           </header>
-          <p className="mt-3 text-sm leading-relaxed text-zinc-500">
+          <p className="mt-3 text-sm leading-relaxed text-text-body">
             {item.context}
           </p>
-          <p className="mt-4 rounded-xl bg-zinc-50 p-4 text-sm text-zinc-600">
-            <span className="font-medium text-zinc-900">Recomendacion:</span>{" "}
+          <p className="mt-4 rounded-xl bg-surface-alt p-4 text-sm text-text-body">
+            <span className="font-medium text-text-heading">Recomendacion:</span>{" "}
             {item.recommendation}
           </p>
         </article>

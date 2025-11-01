@@ -1,3 +1,10 @@
+import type {
+  InsightItem,
+  KpiSummaryItem,
+  OverviewNarrative,
+  ReputationAlert,
+} from "./types";
+
 export const kpiSummary = [
   {
     label: "SEO Health",
@@ -21,13 +28,7 @@ export const kpiSummary = [
     status: "risk",
     description: "Faltan rich snippets y copy consistente en title/meta.",
   },
-] satisfies Array<{
-  label: string;
-  value: string;
-  delta: string;
-  status: "good" | "watch" | "risk";
-  description: string;
-}>;
+] satisfies KpiSummaryItem[];
 
 export const reputationAlerts = [
   {
@@ -57,14 +58,7 @@ export const reputationAlerts = [
     publishedAt: "Hace 1 dia",
     url: "https://www.g2.com",
   },
-] satisfies Array<{
-  id: string;
-  channel: string;
-  summary: string;
-  sentiment: "negative" | "positive" | "neutral";
-  publishedAt: string;
-  url: string;
-}>;
+] satisfies ReputationAlert[];
 
 export const keyInsights = [
   {
@@ -85,10 +79,11 @@ export const keyInsights = [
     severity: "medium",
     source: "SERP Watch",
   },
-] satisfies Array<{
-  title: string;
-  context: string;
-  recommendation: string;
-  severity: "critical" | "medium" | "high" | "low";
-  source: string;
-}>;
+] satisfies InsightItem[];
+
+export const overviewNarrative = {
+  headline: "Estrategia en progreso",
+  summary:
+    "Objetivo Sprint: estabilizar reputacion en foros especializados y recuperar 10% de CTR en brand search. El backend debera suministrar datos de tendencias y ownership de tareas.",
+  updatedAt: "2025-10-31T14:00:00Z",
+} satisfies OverviewNarrative;

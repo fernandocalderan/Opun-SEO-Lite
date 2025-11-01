@@ -1,3 +1,9 @@
+import type {
+  ChannelBreakdownItem,
+  ReputationMention,
+  SentimentTimelinePoint,
+} from "./types";
+
 export const sentimentTimeline = [
   { date: "Oct 21", score: 68, negative: 4, positive: 12 },
   { date: "Oct 22", score: 71, negative: 3, positive: 15 },
@@ -6,12 +12,7 @@ export const sentimentTimeline = [
   { date: "Oct 25", score: 70, negative: 5, positive: 14 },
   { date: "Oct 26", score: 64, negative: 8, positive: 9 },
   { date: "Oct 27", score: 72, negative: 3, positive: 19 },
-] satisfies Array<{
-  date: string;
-  score: number;
-  negative: number;
-  positive: number;
-}>;
+] satisfies SentimentTimelinePoint[];
 
 export const channelBreakdown = [
   {
@@ -38,12 +39,7 @@ export const channelBreakdown = [
     sentiment: "neutral",
     share: "18%",
   },
-] satisfies Array<{
-  channel: string;
-  exposure: string;
-  sentiment: "positivo" | "negativo" | "neutral";
-  share: string;
-}>;
+] satisfies ChannelBreakdownItem[];
 
 export const recentMentions = [
   {
@@ -76,12 +72,4 @@ export const recentMentions = [
     reach: "9k",
     action: "Publicar caso de exito orientado a B2C",
   },
-] satisfies Array<{
-  id: string;
-  source: string;
-  sentiment: "negativo" | "neutral" | "positivo";
-  snippet: string;
-  publishedAt: string;
-  reach: string;
-  action: string;
-}>;
+] satisfies ReputationMention[];
