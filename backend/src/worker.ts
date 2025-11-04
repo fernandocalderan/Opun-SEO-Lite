@@ -1,5 +1,6 @@
 import { setTimeout as sleep } from "node:timers/promises";
 import { getPendingQueue, markCompleted, markFailed, markRunning } from "./store/auditsStore";
+import { getPendingReports, markReportCompleted, markReportFailed, markReportRunning } from "./store/reportsStore";
 import { analyzeCrawl, analyzePerformance, analyzeSeoMeta, analyzeSocial, computeScores, fetchSerp, generateExecutiveSummary, type AuditFullResult } from "./analyzers/web";
 
 async function processPendingOnce() {
@@ -60,16 +61,40 @@ async function processPendingOnce() {
   }
 }
 
+async function processReportsOnce() {
+  const pending = await getPendingReports();
+  if (pending.length === 0) {
+    return;
+  }
+  for (const item of pending) {
+    try {
+      const eta = Math.floor(Math.random() * 6) + 3; // 3-8s
+      await markReportRunning(item.id, eta);
+      console.log(`Generating report ${item.id} (${item.title}) ~${eta}s`);
+      await sleep(eta * 1000);
+      const now = new Date().toISOString();
+      const html = `<!doctype html><meta charset="utf-8"><title>${item.title}</title><h1>${item.title}</h1><p>Proyecto: <strong>${item.project}</strong></p><p>Generado: ${now}</p><hr/><p>Resumen ejecutivo: ver módulo de auditorías y KPIs.</p>`;
+      await markReportCompleted(item.id, html, "HTML");
+      console.log(`Report completed ${item.id}`);
+    } catch (err) {
+      console.error(`Report failed ${item.id}`, err);
+      await markReportFailed(item.id, (err as Error).message);
+    }
+  }
+}
+
 async function main() {
   const mode = process.env.WORKER_MODE ?? "once";
   if (mode === "loop") {
     // eslint-disable-next-line no-constant-condition
     while (true) {
       await processPendingOnce();
+      await processReportsOnce();
       await sleep(5000);
     }
   } else {
     await processPendingOnce();
+    await processReportsOnce();
   }
 }
 
