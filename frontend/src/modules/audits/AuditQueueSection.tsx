@@ -1,24 +1,22 @@
 "use client";
 
 import { useMemo } from "react";
-import { useAuditSummary } from "./hooks";
-import { AuditSummary } from "./AuditSummary";
-import { createAuditSummaryFallback } from "@/lib/gateways";
+import { AuditQueue } from "./AuditQueue";
+import { useAuditQueue } from "./hooks";
+import { createAuditQueueFallback } from "@/lib/gateways";
 
-export function AuditSummarySection() {
-  const fallback = useMemo(() => createAuditSummaryFallback(), []);
-  const { data, isLoading, isError, refetch } = useAuditSummary();
+export function AuditQueueSection() {
+  const fallback = useMemo(() => createAuditQueueFallback(), []);
+  const { data, isError, refetch } = useAuditQueue();
 
   if (isError && !data) {
     return (
       <section className="rounded-2xl border border-border bg-surface p-6 text-sm text-text-muted shadow-soft">
         <div className="space-y-3 text-center">
           <h2 className="text-base font-semibold text-text-heading">
-            No se pudo cargar el resumen de auditorias
+            No se pudo cargar la cola de auditorias
           </h2>
-          <p>
-            Verifica la conexion con el backend y vuelve a intentarlo.
-          </p>
+          <p>Reintenta mas tarde o verifica la conexion con el servicio.</p>
           <button
             type="button"
             onClick={() => void refetch()}
@@ -32,6 +30,7 @@ export function AuditSummarySection() {
   }
 
   const items = data ?? fallback;
+  const key = data ? items.map((item) => item.id).join("|") : "fallback";
 
-  return <AuditSummary items={items} key={data ? "data" : "fallback"} />;
+  return <AuditQueue key={key} items={items} />;
 }

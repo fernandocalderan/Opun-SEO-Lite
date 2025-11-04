@@ -620,17 +620,29 @@ components:
           type: boolean
     AuditSummaryResponse:
       type: object
-      required: [completed, avg_duration_seconds, critical_open]
+      required: [overall_score, critical_issues, warnings, opportunities, last_run]
       properties:
-        completed:
+        overall_score:
           type: integer
           minimum: 0
-        avg_duration_seconds:
+          maximum: 100
+          description: Score global de la auditoria mas reciente.
+        critical_issues:
           type: integer
           minimum: 0
-        critical_open:
+          description: Numero de issues criticos abiertos.
+        warnings:
           type: integer
           minimum: 0
+          description: Advertencias activas o en seguimiento.
+        opportunities:
+          type: integer
+          minimum: 0
+          description: Acciones de mejora pendientes priorizadas.
+        last_run:
+          type: string
+          format: date-time
+          description: Timestamp ISO de la ultima auditoria completada.
     AuditQueueItem:
       type: object
       required:
