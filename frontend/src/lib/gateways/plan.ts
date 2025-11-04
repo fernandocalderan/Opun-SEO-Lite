@@ -23,3 +23,31 @@ async function getJson(url: string) {
   try { const r = await fetch(url, { signal: c.signal }); if (!r.ok) throw new Error(String(r.status)); return await r.json(); } finally { clearTimeout(tid); }
 }
 
+export async function createPlanItem(column: string, item: { title: string; impact: string; effort: string; owner: string; due: string }) {
+  if (!API_BASE_URL) return null;
+  const r = await fetch(`${API_BASE_URL}/v1/plan/items`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ column, item }),
+  });
+  if (!r.ok) throw new Error(`HTTP ${r.status}`);
+  return await r.json();
+}
+
+export async function updatePlanItem(id: string, patch: Partial<{ title: string; impact: string; effort: string; owner: string; due: string; column: string }>) {
+  if (!API_BASE_URL) return null;
+  const r = await fetch(`${API_BASE_URL}/v1/plan/items/${id}`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(patch),
+  });
+  if (!r.ok) throw new Error(`HTTP ${r.status}`);
+  return await r.json();
+}
+
+export async function deletePlanItem(id: string) {
+  if (!API_BASE_URL) return null;
+  const r = await fetch(`${API_BASE_URL}/v1/plan/items/${id}`, { method: "DELETE" });
+  if (!r.ok) throw new Error(`HTTP ${r.status}`);
+  return await r.json();
+}

@@ -45,3 +45,28 @@ async function getJson(url: string) {
   try { const r = await fetch(url, { signal: c.signal }); if (!r.ok) throw new Error(String(r.status)); return await r.json(); } finally { clearTimeout(tid); }
 }
 
+export async function createReport(payload: { title: string; project: string; format?: string }): Promise<{ id: string; status: string } | null> {
+  if (!API_BASE_URL) return null;
+  const r = await fetch(`${API_BASE_URL}/v1/reports`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+  if (!r.ok) throw new Error(`HTTP ${r.status}`);
+  return (await r.json()) as { id: string; status: string };
+}
+
+export async function fetchReportStatus(id: string): Promise<{ id: string; status: string } | null> {
+  if (!API_BASE_URL) return null;
+  const r = await fetch(`${API_BASE_URL}/v1/reports/${id}/status`);
+  if (!r.ok) return null;
+  return (await r.json()) as { id: string; status: string };
+}
+
+export async function fetchReportResult(id: string): Promise<{ id: string; title: string; project: string; generated_at: string; html: string; format: string } | { status: "pending" } | null> {
+  if (!API_BASE_URL) return null;
+  const r = await fetch(`${API_BASE_URL}/v1/reports/${id}/result`);
+  if (r.status === 202) return { status: "pending" } as const;
+  if (!r.ok) return null;
+  return (await r.json()) as any;
+}

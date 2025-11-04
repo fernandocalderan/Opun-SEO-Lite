@@ -53,9 +53,10 @@ const slugify = (value: string) =>
 
 type SortableCardProps = {
   item: PlanCard;
+  onDelete?: (id: string) => void;
 };
 
-const SortableCard: FC<SortableCardProps> = ({ item }) => {
+const SortableCard: FC<SortableCardProps> = ({ item, onDelete }) => {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
     useSortable({ id: item.id });
 
@@ -72,7 +73,19 @@ const SortableCard: FC<SortableCardProps> = ({ item }) => {
       {...attributes}
       {...listeners}
     >
-      <p className="font-medium text-slate-800">{item.title}</p>
+      <div className="flex items-start justify-between gap-2">
+        <p className="font-medium text-slate-800">{item.title}</p>
+        {onDelete ? (
+          <button
+            type="button"
+            onClick={(e) => { e.stopPropagation(); onDelete(item.id); }}
+            className="rounded-full border border-border px-2 py-0.5 text-[10px] text-text-body hover:bg-surface"
+            aria-label="Eliminar"
+          >
+            ✕
+          </button>
+        ) : null}
+      </div>
       <div className="mt-2 flex flex-wrap items-center gap-2 text-[11px] text-text-body">
         <span
           className={`rounded-full border px-2 py-0.5 font-medium ${
@@ -97,9 +110,10 @@ const SortableCard: FC<SortableCardProps> = ({ item }) => {
 
 type PlanColumnProps = {
   column: ColumnState;
+  onDelete?: (id: string) => void;
 };
 
-const PlanColumn: FC<PlanColumnProps> = ({ column }) => {
+const PlanColumn: FC<PlanColumnProps> = ({ column, onDelete }) => {
   const { setNodeRef, isOver } = useDroppable({ id: column.id });
 
   return (
@@ -119,7 +133,7 @@ const PlanColumn: FC<PlanColumnProps> = ({ column }) => {
       >
         <div className="space-y-3">
           {column.items.map((item) => (
-            <SortableCard key={item.id} item={item} />
+            <SortableCard key={item.id} item={item} onDelete={onDelete} />
           ))}
           {column.items.length === 0 ? (
             <p className="rounded-xl border border-dashed border-border-strong bg-surface-subtle p-4 text-center text-xs font-medium text-text-muted">
@@ -132,7 +146,7 @@ const PlanColumn: FC<PlanColumnProps> = ({ column }) => {
   );
 };
 
-export function PlanBoard({ columns }: { columns: Column[] }) {
+export function PlanBoard({ columns, onMoveCard, onDeleteCard }: { columns: Column[]; onMoveCard?: (id: string, toColumnTitle: string) => void; onDeleteCard?: (id: string) => void }) {
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
   );
@@ -216,6 +230,9 @@ export function PlanBoard({ columns }: { columns: Column[] }) {
       const insertIndex = overIndex === -1 ? toColumn.items.length : overIndex;
       toColumn.items.splice(insertIndex, 0, movedCard);
 
+      if (onMoveCard && activeColumn.title !== overColumn.title) {
+        onMoveCard(String(active.id), overColumn.title);
+      }
       return updated;
     });
   };
@@ -251,7 +268,7 @@ export function PlanBoard({ columns }: { columns: Column[] }) {
       <DndContext sensors={sensors} onDragEnd={handleDragEnd}>
         <div className="grid gap-4 lg:grid-cols-4">
           {board.map((column) => (
-            <PlanColumn key={column.id} column={column} />
+            <PlanColumn key={column.id} column={column} onDelete={onDeleteCard} />
           ))}
         </div>
       </DndContext>
