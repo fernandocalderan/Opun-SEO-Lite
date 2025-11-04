@@ -2,6 +2,7 @@ import { AuditPerformanceSection } from "@/modules/audits/AuditPerformanceSectio
 import { AuditSummarySection } from "@/modules/audits/AuditSummarySection";
 import { AuditQueueSection } from "@/modules/audits/AuditQueueSection";
 import { AuditHistorySection } from "@/modules/audits/AuditHistorySection";
+import { AuditLauncher } from "@/modules/audits/AuditLauncher";
 
 export default function AuditsPage() {
   return (
@@ -18,6 +19,7 @@ export default function AuditsPage() {
         </p>
       </header>
 
+      <AuditLauncher />
       <AuditSummarySection />
       <AuditPerformanceSection />
 
