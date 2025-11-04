@@ -1,27 +1,59 @@
 "use client";
 
-import { FormEvent, useReducer, useState } from "react";
+import Link from "next/link";
+import { FormEvent, useMemo, useReducer, useState } from "react";
+import { initialSettings } from "@/lib/mocks/settings";
 
-const QUICK_DEFAULTS = {
-  url: "",
-  keywords: [] as string[],
-  scanDepth: "light" as AuditScanDepth,
-  includeSerp: true,
-  includeReputation: true,
-  includeTechnical: true,
-  alerting: {
-    notifyEmail: false,
-    notifySlack: false,
-    criticalOnly: true,
-  },
-  notes: "",
-};
+const preset = initialSettings;
 
 type AuditScanDepth = "light" | "standard" | "full";
 
-type AuditConfig = typeof QUICK_DEFAULTS & {
+type AuditConfig = {
+  url: string;
+  keywords: string[];
   scanDepth: AuditScanDepth;
+  includeSerp: boolean;
+  includeReputation: boolean;
+  includeTechnical: boolean;
+  alerting: {
+    notifyEmail: boolean;
+    notifySlack: boolean;
+    criticalOnly: boolean;
+  };
+  notes: string;
 };
+
+const depthMap: Record<string, AuditScanDepth> = {
+  light: "light",
+  shallow: "light",
+  standard: "standard",
+  deep: "full",
+  full: "full",
+};
+
+const buildConfigFromPreset = (): AuditConfig => {
+  const keywords = [
+    ...(preset.seo.primaryKeywords ?? []),
+    ...(preset.seo.secondaryKeywords ?? []),
+  ].slice(0, 5);
+
+  return {
+    url: preset.project.primaryUrl ?? "",
+    keywords,
+    scanDepth: depthMap[preset.seo.crawlDepth] ?? "standard",
+    includeSerp: true,
+    includeReputation: true,
+    includeTechnical: true,
+    alerting: {
+      notifyEmail: !!preset.alerts.dailyDigest,
+      notifySlack: Boolean(preset.alerts.realtimeSlackChannel),
+      criticalOnly: true,
+    },
+    notes: "",
+  };
+};
+
+const PRESET_CONFIG = buildConfigFromPreset();
 
 type AuditAction =
   | { type: "setUrl"; payload: string }
@@ -60,10 +92,10 @@ function reducer(state: AuditConfig, action: AuditAction): AuditConfig {
     case "setNotes":
       return { ...state, notes: action.payload };
     case "reset":
-      return { ...QUICK_DEFAULTS };
+      return buildConfigFromPreset();
     case "resetQuick":
       return {
-        ...QUICK_DEFAULTS,
+        ...buildConfigFromPreset(),
         url: state.url,
         keywords: state.keywords,
       };
@@ -77,9 +109,14 @@ type AuditLauncherProps = {
 };
 
 export function AuditLauncher({ onLaunch }: AuditLauncherProps) {
-  const [state, dispatch] = useReducer(reducer, QUICK_DEFAULTS);
+  const presetConfig = useMemo(() => buildConfigFromPreset(), []);
+  const [state, dispatch] = useReducer(reducer, presetConfig);
   const [status, setStatus] = useState<"idle" | "running" | "success" | "error">("idle");
   const [message, setMessage] = useState<string>("");
+
+  const usingPreset = useMemo(() => {
+    return JSON.stringify(state) === JSON.stringify(presetConfig);
+  }, [state, presetConfig]);
 
   const handleQuickSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -128,15 +165,15 @@ export function AuditLauncher({ onLaunch }: AuditLauncherProps) {
 
   return (
     <section className="space-y-6 rounded-2xl border border-border bg-surface p-6 shadow-soft">
-      <header className="space-y-1">
+      <header className="space-y-2">
         <span className="text-xs font-semibold uppercase tracking-[var(--tracking-wide)] text-brand-primary">
           Quick audit
         </span>
         <h2 className="text-2xl font-semibold text-text-heading">Auditoria rapida</h2>
         <p className="text-sm text-text-body">
-          Ingresa la URL de tu cliente y, si deseas, algunas palabras clave para ejecutar una auditoria
-          con los criterios recomendados. Puedes profundizar los criterios en la seccion avanzada.
+          Usa el preset guardado en Settings o personaliza los criterios antes de lanzar la auditoria.
         </p>
+        <PresetBanner usingPreset={usingPreset} />
       </header>
 
       <form onSubmit={handleQuickSubmit} className="space-y-4">
@@ -189,7 +226,7 @@ export function AuditLauncher({ onLaunch }: AuditLauncherProps) {
             onClick={() => dispatch({ type: "reset" })}
             disabled={status === "running"}
           >
-            Limpiar
+            Restaurar preset
           </button>
           <StatusBadge status={status} message={message} />
         </div>
@@ -216,6 +253,14 @@ export function AuditLauncher({ onLaunch }: AuditLauncherProps) {
               disabled={status === "running"}
             >
               Restablecer valores rapidos
+            </button>
+            <button
+              type="button"
+              onClick={() => dispatch({ type: "reset" })}
+              className="rounded-full border border-border px-4 py-2 text-sm text-text-body transition hover:bg-surface-alt"
+              disabled={status === "running"}
+            >
+              Restaurar preset de Settings
             </button>
           </div>
         </form>
@@ -393,6 +438,46 @@ function StatusBadge({ status, message }: StatusBadgeProps) {
       <span className="h-2 w-2 rounded-full bg-current" />
       {message}
     </span>
+  );
+}
+
+type PresetBannerProps = {
+  usingPreset: boolean;
+};
+
+function PresetBanner({ usingPreset }: PresetBannerProps) {
+  const primaryKeywords = preset.seo.primaryKeywords.slice(0, 3).join(", ");
+  return (
+    <div className="flex flex-wrap items-center gap-3 rounded-lg border border-dashed border-border bg-surface-subtle px-4 py-3 text-xs text-text-muted">
+      <div className="flex items-center gap-2">
+        <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-brand-primary/10 text-brand-primary">
+          ⚙️
+        </span>
+        <div className="space-y-0.5">
+          <span className="font-medium text-text-heading">
+            Preset activo: {preset.project.publicName ?? "Cliente sin nombre"}
+          </span>
+          <p>
+            URL base <strong>{preset.project.primaryUrl}</strong> · Keywords principales {primaryKeywords}
+          </p>
+        </div>
+      </div>
+      <div className="flex items-center gap-2">
+        <span
+          className={`rounded-full px-3 py-1 text-xs font-semibold ${
+            usingPreset ? "bg-emerald-50 text-emerald-600" : "bg-amber-50 text-amber-600"
+          }`}
+        >
+          {usingPreset ? "Usando preset de Settings" : "Personalizado"}
+        </span>
+        <Link
+          href="/settings"
+          className="inline-flex items-center gap-1 text-xs font-semibold text-brand-primary hover:text-brand-secondary"
+        >
+          Editar preset
+        </Link>
+      </div>
+    </div>
   );
 }
 
