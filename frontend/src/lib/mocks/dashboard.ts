@@ -34,6 +34,7 @@ export const reputationAlerts = [
   {
     id: "alert-1",
     channel: "Foro / Reddit",
+    source: "r/soporte-opun",
     summary:
       "Hilo cuestiona tiempos de respuesta del equipo de soporte; 12 comentarios negativos en 24h.",
     sentiment: "negative",
@@ -43,6 +44,7 @@ export const reputationAlerts = [
   {
     id: "alert-2",
     channel: "SERP / Top Stories",
+    source: "news.google.com",
     summary:
       "Blog especializado destaca la nueva funcion IA con tono positivo; oportunidad para amplificar.",
     sentiment: "positive",
@@ -52,6 +54,7 @@ export const reputationAlerts = [
   {
     id: "alert-3",
     channel: "Reviews / G2",
+    source: "g2.com/app/opun",
     summary:
       "Review 3 estrellas menciona onboarding complejo. Sugiere reforzar tutoriales iniciales.",
     sentiment: "neutral",

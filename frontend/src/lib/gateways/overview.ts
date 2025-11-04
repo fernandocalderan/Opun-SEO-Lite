@@ -26,6 +26,7 @@ export type OverviewResponse = {
   alerts: Array<{
     id: string;
     channel: string;
+    source: string;
     summary: string;
     sentiment: ReputationAlert["sentiment"];
     published_at: string;
@@ -63,6 +64,7 @@ const overviewMockResponse: OverviewResponse = {
   alerts: reputationAlerts.map((alert) => ({
     id: alert.id,
     channel: alert.channel,
+    source: alert.source,
     summary: alert.summary,
     sentiment: alert.sentiment,
     published_at: alert.publishedAt,
@@ -94,6 +96,7 @@ function normalizeOverviewResponse(response: OverviewResponse): OverviewDataset 
     alerts: response.alerts.map((alert) => ({
       id: alert.id,
       channel: alert.channel,
+      source: alert.source,
       summary: alert.summary,
       sentiment: alert.sentiment,
       publishedAt: alert.published_at,

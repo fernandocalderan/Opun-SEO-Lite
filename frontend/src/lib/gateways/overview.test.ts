@@ -15,6 +15,7 @@ describe("fetchOverview", () => {
 
     expect(data.kpis).toHaveLength(3);
     expect(data.alerts.every((alert) => "publishedAt" in alert)).toBe(true);
+    expect(data.alerts.every((alert) => typeof alert.source === "string")).toBe(true);
     expect(data.narrative.headline).toBeDefined();
   });
 

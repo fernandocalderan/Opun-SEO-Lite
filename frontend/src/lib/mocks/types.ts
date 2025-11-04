@@ -13,6 +13,7 @@ export interface KpiSummaryItem {
 export interface ReputationAlert {
   id: string;
   channel: string;
+  source: string;
   summary: string;
   sentiment: SentimentTone;
   publishedAt: string;

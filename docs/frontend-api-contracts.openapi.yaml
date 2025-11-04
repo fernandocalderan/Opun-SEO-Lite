@@ -324,12 +324,15 @@ components:
           example: Auditoria tecnica estable; se detectaron 3 issues criticos pendientes.
     OverviewAlert:
       type: object
-      required: [id, channel, summary, sentiment, published_at, url]
+      required: [id, channel, source, summary, sentiment, published_at, url]
       properties:
         id:
           type: string
         channel:
           type: string
+        source:
+          type: string
+          description: Origen especifico de la alerta (dominio, medio o plataforma).
         summary:
           type: string
         sentiment:

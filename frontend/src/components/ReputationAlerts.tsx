@@ -3,6 +3,7 @@
 type Alert = {
   id: string;
   channel: string;
+  source: string;
   summary: string;
   sentiment: "positive" | "neutral" | "negative";
   publishedAt: string;
@@ -64,7 +65,10 @@ export function ReputationAlerts({ alerts }: { alerts: Alert[] }) {
             <p className="text-sm leading-relaxed text-text-body">
               {alert.summary}
             </p>
-            <div className="flex items-center justify-between text-xs text-text-muted">
+            <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-text-muted">
+              <span className="font-medium text-text-heading">
+                {alert.source}
+              </span>
               <span>{alert.publishedAt}</span>
               <a
                 className="font-medium text-brand-primary hover:text-brand-secondary"

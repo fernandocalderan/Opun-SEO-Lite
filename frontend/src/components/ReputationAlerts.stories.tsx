@@ -17,6 +17,7 @@ export const Default: Story = {
       {
         id: "alert-1",
         channel: "Foro / Reddit",
+        source: "r/soporte-opun",
         summary:
           "Hilo cuestiona tiempos de respuesta del soporte; 12 comentarios negativos en 24h.",
         sentiment: "negative",
@@ -26,6 +27,7 @@ export const Default: Story = {
       {
         id: "alert-2",
         channel: "Top Stories",
+        source: "news.google.com",
         summary:
           "Medio especializado destaca la nueva funcion IA con tono positivo.",
         sentiment: "positive",
@@ -35,6 +37,7 @@ export const Default: Story = {
       {
         id: "alert-3",
         channel: "Reviews / G2",
+        source: "g2.com/app/opun",
         summary:
           "Review 3 estrellas menciona onboarding complejo. Sugiere reforzar tutoriales.",
         sentiment: "neutral",
