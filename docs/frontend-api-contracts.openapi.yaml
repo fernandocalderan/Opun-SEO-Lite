@@ -94,10 +94,27 @@ paths:
                 properties:
                   items:
                     type: array
-                    items:
-                      $ref: "#/components/schemas/AuditHistoryItem"
+                  items:
+                    $ref: "#/components/schemas/AuditHistoryItem"
                   next_cursor:
                     $ref: "#/components/schemas/NextCursor"
+  /v1/audits/performance:
+    get:
+      tags: [Audits]
+      summary: Obtener tendencia de performance de auditorias recientes
+      responses:
+        "200":
+          description: Serie de tiempo con score y issues criticos por auditoria.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [points]
+                properties:
+                  points:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/AuditPerformancePoint"
   /v1/reputation/sentiment/timeline:
     get:
       tags: [Reputation]
@@ -686,6 +703,24 @@ components:
           minimum: 0
         owner:
           type: string
+    AuditPerformancePoint:
+      type: object
+      required: [id, project, completed_at, score, critical_issues]
+      properties:
+        id:
+          type: string
+        project:
+          type: string
+        completed_at:
+          type: string
+          format: date-time
+        score:
+          type: integer
+          minimum: 0
+          maximum: 100
+        critical_issues:
+          type: integer
+          minimum: 0
     SentimentPoint:
       type: object
       required:

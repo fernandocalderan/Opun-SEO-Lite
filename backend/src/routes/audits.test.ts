@@ -3,6 +3,7 @@ import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { buildServer } from "../server";
 import {
   auditHistoryMock,
+  auditPerformanceMock,
   auditQueueMock,
   auditSummaryMock,
 } from "../mocks/audits";
@@ -46,6 +47,17 @@ describe("GET /v1/audits/history", () => {
     expect(response.body).toEqual({
       items: auditHistoryMock,
       next_cursor: null,
+    });
+  });
+});
+
+describe("GET /v1/audits/performance", () => {
+  it("retorna puntos de performance", async () => {
+    const response = await request(app.server).get("/v1/audits/performance");
+
+    expect(response.status).toBe(200);
+    expect(response.body).toEqual({
+      points: auditPerformanceMock,
     });
   });
 });

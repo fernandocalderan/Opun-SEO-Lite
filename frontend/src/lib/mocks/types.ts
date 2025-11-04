@@ -59,6 +59,14 @@ export interface AuditHistoryItem {
   owner: string;
 }
 
+export interface AuditPerformancePoint {
+  id: string;
+  project: string;
+  completedAt: string;
+  score: number;
+  criticalIssues: number;
+}
+
 export interface SentimentTimelinePoint {
   date: string;
   score: number;

@@ -1,10 +1,12 @@
 import {
+  auditPerformance as auditPerformanceMock,
   auditHistory as auditHistoryMock,
   auditQueue as auditQueueMock,
   auditSummary as auditSummaryMock,
 } from "../mocks";
 import type {
   AuditHistoryItem,
+  AuditPerformancePoint,
   AuditQueueItem,
   AuditSummaryItem,
 } from "../mocks/types";
@@ -19,6 +21,15 @@ export type AuditQueueCard = AuditQueueItem & {
 };
 
 export type AuditHistoryRow = AuditHistoryItem;
+
+export type AuditPerformanceDatum = {
+  id: string;
+  project: string;
+  completedAtIso: string;
+  label: string;
+  score: number;
+  criticalIssues: number;
+};
 
 export type AuditSummaryResponse = {
   overall_score: number;
@@ -52,6 +63,16 @@ export type AuditHistoryResponse = {
   next_cursor: string | null;
 };
 
+export type AuditPerformanceResponse = {
+  points: Array<{
+    id: string;
+    project: string;
+    completed_at: string;
+    score: number;
+    critical_issues: number;
+  }>;
+};
+
 export type FetchAuditSummaryOptions = {
   signal?: AbortSignal;
 };
@@ -61,6 +82,10 @@ export type FetchAuditQueueOptions = {
 };
 
 export type FetchAuditHistoryOptions = {
+  signal?: AbortSignal;
+};
+
+export type FetchAuditPerformanceOptions = {
   signal?: AbortSignal;
 };
 
@@ -106,6 +131,17 @@ export function createAuditQueueFallback(): AuditQueueCard[] {
 
 export function createAuditHistoryFallback(): AuditHistoryRow[] {
   return auditHistoryMock;
+}
+
+export function createAuditPerformanceFallback(): AuditPerformanceDatum[] {
+  return auditPerformanceMock.map((point) => ({
+    id: point.id,
+    project: point.project,
+    completedAtIso: point.completedAt,
+    label: formatPerformanceLabel(point.completedAt),
+    score: point.score,
+    criticalIssues: point.criticalIssues,
+  }));
 }
 
 export async function fetchAuditSummary(
@@ -174,6 +210,28 @@ export async function fetchAuditHistory(
   return createAuditHistoryFallback();
 }
 
+export async function fetchAuditPerformance(
+  options?: FetchAuditPerformanceOptions,
+): Promise<AuditPerformanceDatum[]> {
+  const baseUrl = getApiBaseUrl();
+
+  if (baseUrl) {
+    try {
+      const payload = await fetchWithTimeout<AuditPerformanceResponse>(
+        `${baseUrl}/v1/audits/performance`,
+        options?.signal,
+      );
+      if (payload) {
+        return transformAuditPerformance(payload);
+      }
+    } catch (error) {
+      logFallback("performance", error);
+    }
+  }
+
+  return createAuditPerformanceFallback();
+}
+
 function transformAuditSummary(response: AuditSummaryResponse): AuditSummaryCard[] {
   const scoreStatus = getScoreStatus(response.overall_score);
   const issuesStatus = getIssueStatus(response.critical_issues);
@@ -219,6 +277,19 @@ function transformAuditHistory(response: AuditHistoryResponse): AuditHistoryRow[
     score: item.score,
     criticalIssues: item.critical_issues,
     owner: item.owner,
+  }));
+}
+
+function transformAuditPerformance(
+  response: AuditPerformanceResponse,
+): AuditPerformanceDatum[] {
+  return response.points.map((point) => ({
+    id: point.id,
+    project: point.project,
+    completedAtIso: point.completed_at,
+    label: formatPerformanceLabel(point.completed_at),
+    score: point.score,
+    criticalIssues: point.critical_issues,
   }));
 }
 
@@ -318,6 +389,18 @@ function formatHistoryTimestamp(value: string): string {
   const time = historyTimeFormatter.format(date);
 
   return `${day} ${month} @ ${time}`.trim();
+}
+
+function formatPerformanceLabel(value: string): string {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) {
+    return value;
+  }
+
+  const formattedDate = historyDateFormatter.format(date);
+  const time = historyTimeFormatter.format(date);
+
+  return `${formattedDate} @ ${time}`;
 }
 
 function capitalize(value: string): string {

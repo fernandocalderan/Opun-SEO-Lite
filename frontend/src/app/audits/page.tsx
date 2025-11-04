@@ -1,8 +1,7 @@
-import { AuditPerformance } from "@/modules/audits/AuditPerformance";
+import { AuditPerformanceSection } from "@/modules/audits/AuditPerformanceSection";
 import { AuditSummarySection } from "@/modules/audits/AuditSummarySection";
 import { AuditQueueSection } from "@/modules/audits/AuditQueueSection";
 import { AuditHistorySection } from "@/modules/audits/AuditHistorySection";
-import { auditHistory } from "@/lib/mocks";
 
 export default function AuditsPage() {
   return (
@@ -20,7 +19,7 @@ export default function AuditsPage() {
       </header>
 
       <AuditSummarySection />
-      <AuditPerformance history={auditHistory} />
+      <AuditPerformanceSection />
 
       <div className="grid gap-6 xl:grid-cols-2">
         <AuditQueueSection />

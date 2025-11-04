@@ -13,30 +13,31 @@ import {
   YAxis,
 } from "recharts";
 
-type HistoryItem = {
+type PerformancePoint = {
   id: string;
   project: string;
-  finishedAt: string;
+  label: string;
+  completedAtIso?: string;
   score: number;
   criticalIssues: number;
 };
 
 type Props = {
-  history: HistoryItem[];
+  data: PerformancePoint[];
 };
 
-export function AuditPerformance({ history }: Props) {
+export function AuditPerformance({ data }: Props) {
   const [showCritical, setShowCritical] = useState(true);
 
   const chartData = useMemo(
     () =>
-      history
+      [...data]
         .map((item) => ({
           ...item,
-          label: item.finishedAt,
+          label: item.label,
         }))
         .reverse(),
-    [history],
+    [data],
   );
 
   return (

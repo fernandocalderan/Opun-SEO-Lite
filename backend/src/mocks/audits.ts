@@ -59,3 +59,34 @@ export const auditHistoryMock = [
     owner: "Support",
   },
 ] as const;
+
+export const auditPerformanceMock = [
+  {
+    id: "perf-1",
+    project: "Brand / Landing principal",
+    completed_at: "2025-10-30T15:54:00Z",
+    score: 84,
+    critical_issues: 2,
+  },
+  {
+    id: "perf-2",
+    project: "Blog / Cluster ORM",
+    completed_at: "2025-10-29T10:12:00Z",
+    score: 78,
+    critical_issues: 4,
+  },
+  {
+    id: "perf-3",
+    project: "Knowledge base",
+    completed_at: "2025-10-28T18:41:00Z",
+    score: 88,
+    critical_issues: 1,
+  },
+  {
+    id: "perf-4",
+    project: "Product / Onboarding",
+    completed_at: "2025-10-27T17:20:00Z",
+    score: 82,
+    critical_issues: 3,
+  },
+] as const;

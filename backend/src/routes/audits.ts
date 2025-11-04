@@ -2,6 +2,7 @@ import type { FastifyInstance } from "fastify";
 import { z } from "zod";
 import {
   auditHistoryMock,
+  auditPerformanceMock,
   auditQueueMock,
   auditSummaryMock,
 } from "../mocks/audits";
@@ -44,6 +45,18 @@ const auditHistoryResponseSchema = z.object({
   next_cursor: z.string().nullable(),
 });
 
+const auditPerformancePointSchema = z.object({
+  id: z.string(),
+  project: z.string(),
+  completed_at: z.string(),
+  score: z.number().int().min(0).max(100),
+  critical_issues: z.number().int().min(0),
+});
+
+const auditPerformanceResponseSchema = z.object({
+  points: z.array(auditPerformancePointSchema),
+});
+
 export async function registerAuditRoutes(app: FastifyInstance) {
   app.get("/v1/audits/summary", async () => {
     return auditSummarySchema.parse(auditSummaryMock);
@@ -60,6 +73,12 @@ export async function registerAuditRoutes(app: FastifyInstance) {
     return auditHistoryResponseSchema.parse({
       items: auditHistoryMock,
       next_cursor: null,
+    });
+  });
+
+  app.get("/v1/audits/performance", async () => {
+    return auditPerformanceResponseSchema.parse({
+      points: auditPerformanceMock,
     });
   });
 }
