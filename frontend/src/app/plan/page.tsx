@@ -1,9 +1,12 @@
-import { planColumns, planTable, planVelocity } from "@/lib/mocks";
 import { PlanBoard } from "@/modules/plan/PlanBoard";
 import { PlanTable } from "@/modules/plan/PlanTable";
 import { PlanVelocityChart } from "@/modules/plan/PlanVelocityChart";
+import { usePlanBoard, usePlanTable, usePlanVelocity } from "@/modules/plan/hooks";
 
 export default function PlanPage() {
+  const board = usePlanBoard();
+  const velocity = usePlanVelocity();
+  const table = usePlanTable();
   return (
     <div className="space-y-6 p-8">
       <header className="space-y-1">
@@ -17,9 +20,9 @@ export default function PlanPage() {
           Coordina iniciativas de SEO y reputacion entre equipos cross-funcionales.
         </p>
       </header>
-      <PlanBoard columns={planColumns} />
-      <PlanVelocityChart data={planVelocity} />
-      <PlanTable rows={planTable} />
+      <PlanBoard columns={board.data ?? []} />
+      <PlanVelocityChart data={velocity.data ?? []} />
+      <PlanTable rows={table.data ?? []} />
     </div>
   );
 }

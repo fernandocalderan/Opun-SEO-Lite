@@ -3,6 +3,9 @@ import cors from "@fastify/cors";
 import { fileURLToPath } from "node:url";
 import { registerOverviewRoutes } from "./routes/overview";
 import { registerAuditRoutes } from "./routes/audits";
+import { registerReputationRoutes } from "./routes/reputation";
+import { registerPlanRoutes } from "./routes/plan";
+import { registerReportsRoutes } from "./routes/reports";
 
 export function buildServer() {
   const app = Fastify({
@@ -15,6 +18,9 @@ export function buildServer() {
 
   void app.register(registerOverviewRoutes);
   void app.register(registerAuditRoutes);
+  void app.register(registerReputationRoutes);
+  void app.register(registerPlanRoutes);
+  void app.register(registerReportsRoutes);
 
   return app;
 }

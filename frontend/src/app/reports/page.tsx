@@ -1,9 +1,12 @@
-import { reportActivity, reportList, templateLibrary } from "@/lib/mocks";
 import { ReportActivityChart } from "@/modules/reports/ReportActivityChart";
 import { ReportList } from "@/modules/reports/ReportList";
 import { TemplateLibrary } from "@/modules/reports/TemplateLibrary";
+import { useReportActivity, useReportList, useReportTemplates } from "@/modules/reports/hooks";
 
 export default function ReportsPage() {
+  const list = useReportList();
+  const templates = useReportTemplates();
+  const activity = useReportActivity();
   return (
     <div className="space-y-6 p-8">
       <header className="space-y-1">
@@ -18,9 +21,9 @@ export default function ReportsPage() {
         </p>
       </header>
 
-      <ReportActivityChart data={reportActivity} />
-      <ReportList reports={reportList} />
-      <TemplateLibrary templates={templateLibrary} />
+      <ReportActivityChart data={activity.data ?? []} />
+      <ReportList reports={list.data ?? []} />
+      <TemplateLibrary templates={templates.data ?? []} />
     </div>
   );
 }
