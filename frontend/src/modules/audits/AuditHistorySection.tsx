@@ -40,7 +40,14 @@ export function AuditHistorySection() {
   }
 
   const pages: any[] = ((data as any)?.pages ?? [fallback]) as any[];
-  const items = pages.flatMap((page: any) => page.items);
+  const itemsRaw = pages.flatMap((page: any) => page.items);
+  const seen = new Set<string>();
+  const items = itemsRaw.filter((it: any) => {
+    if (!it?.id) return true;
+    if (seen.has(it.id)) return false;
+    seen.add(it.id);
+    return true;
+  });
   const total = pages[0]?.total ?? fallback.total;
   const [openId, setOpenId] = useState<string | null>(null);
   const [result, setResult] = useState<any | { status: "pending" } | null>(null);

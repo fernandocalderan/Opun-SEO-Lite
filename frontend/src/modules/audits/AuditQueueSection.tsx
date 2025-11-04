@@ -43,7 +43,14 @@ export function AuditQueueSection() {
   }
 
   const pages: any[] = ((data as any)?.pages ?? [fallbackQueue]) as any[];
-  const items = pages.flatMap((page: any) => page.items);
+  const itemsRaw = pages.flatMap((page: any) => page.items);
+  const seen = new Set<string>();
+  const items = itemsRaw.filter((it: any) => {
+    if (!it?.id) return true;
+    if (seen.has(it.id)) return false;
+    seen.add(it.id);
+    return true;
+  });
   const total = pages[0]?.total ?? fallbackQueue.total;
   const pendingResult = pendingQuery.data ?? fallbackPending;
   const pendingCount = pendingResult.count;
