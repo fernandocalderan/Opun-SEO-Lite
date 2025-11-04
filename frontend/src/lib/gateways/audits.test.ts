@@ -1,12 +1,15 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
   createAuditHistoryFallback,
+  createAuditPerformanceFallback,
   createAuditQueueFallback,
   createAuditSummaryFallback,
   fetchAuditHistory,
+  fetchAuditPerformance,
   fetchAuditQueue,
   fetchAuditSummary,
   type AuditHistoryResponse,
+  type AuditPerformanceResponse,
   type AuditQueueResponse,
   type AuditSummaryResponse,
 } from "./audits";
@@ -84,7 +87,7 @@ describe("audits gateways", () => {
 
       const result = await fetchAuditQueue();
 
-      expect(result).toEqual([
+      expect(result.items).toEqual([
         {
           id: "queue-1",
           project: "Brand",
@@ -94,6 +97,7 @@ describe("audits gateways", () => {
           eta: "05:00",
         },
       ]);
+      expect(result.nextCursor).toBeNull();
     });
 
     it("retorna fallback ante fallo", async () => {
@@ -130,7 +134,7 @@ describe("audits gateways", () => {
 
       const result = await fetchAuditHistory();
 
-      expect(result).toEqual([
+      expect(result.items).toEqual([
         {
           id: "hist-1",
           project: "Brand",
@@ -140,6 +144,7 @@ describe("audits gateways", () => {
           owner: "SEO",
         },
       ]);
+      expect(result.nextCursor).toBeNull();
     });
 
     it("usa fallback cuando hay error", async () => {
@@ -149,6 +154,51 @@ describe("audits gateways", () => {
       const result = await fetchAuditHistory();
 
       expect(result).toEqual(createAuditHistoryFallback());
+    });
+  });
+
+  describe("fetchAuditPerformance", () => {
+    it("devuelve puntos y agregados desde la API", async () => {
+      process.env.NEXT_PUBLIC_API_BASE_URL = "http://localhost:3333";
+      const mockResponse: AuditPerformanceResponse = {
+        points: [
+          {
+            id: "perf-1",
+            project: "Brand",
+            completed_at: "2025-10-30T15:54:00Z",
+            score: 90,
+            critical_issues: 1,
+            duration_seconds: 780,
+          },
+        ],
+        aggregates: {
+          average_score: 90,
+          average_duration_seconds: 780,
+          max_duration_seconds: 780,
+          sample_size: 1,
+        },
+      };
+
+      vi.spyOn(global, "fetch").mockResolvedValueOnce({
+        ok: true,
+        json: async () => mockResponse,
+      } as Response);
+
+      const result = await fetchAuditPerformance();
+
+      expect(result.points[0].label).toContain("30");
+      expect(result.points[0].label).toContain("15:54");
+      expect(result.aggregates.averageScore).toBe(90);
+      expect(result.aggregates.sampleSize).toBe(1);
+    });
+
+    it("usa fallback ante errores", async () => {
+      process.env.NEXT_PUBLIC_API_BASE_URL = "http://localhost:3333";
+      vi.spyOn(global, "fetch").mockRejectedValueOnce(new Error("Network error"));
+
+      const result = await fetchAuditPerformance();
+
+      expect(result).toEqual(createAuditPerformanceFallback());
     });
   });
 });

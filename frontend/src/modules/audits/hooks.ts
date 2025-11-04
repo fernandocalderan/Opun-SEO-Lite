@@ -10,9 +10,11 @@ import {
   fetchAuditQueue,
   fetchAuditSummary,
   type AuditHistoryRow,
-  type AuditPerformanceDatum,
+  type AuditPerformanceResult,
   type AuditQueueCard,
   type AuditSummaryCard,
+  type AuditQueueResult,
+  type AuditHistoryResult,
 } from "@/lib/gateways";
 
 export const auditSummaryQueryKey = ["audits", "summary"] as const;
@@ -21,9 +23,9 @@ export const auditHistoryQueryKey = ["audits", "history"] as const;
 export const auditPerformanceQueryKey = ["audits", "performance"] as const;
 
 export type UseAuditSummaryResult = UseQueryResult<AuditSummaryCard[]>;
-export type UseAuditQueueResult = UseQueryResult<AuditQueueCard[]>;
-export type UseAuditHistoryResult = UseQueryResult<AuditHistoryRow[]>;
-export type UseAuditPerformanceResult = UseQueryResult<AuditPerformanceDatum[]>;
+export type UseAuditQueueResult = UseQueryResult<AuditQueueResult>;
+export type UseAuditHistoryResult = UseQueryResult<AuditHistoryResult>;
+export type UseAuditPerformanceResult = UseQueryResult<AuditPerformanceResult>;
 
 export function useAuditSummary(): UseAuditSummaryResult {
   const fallback = useMemo(() => createAuditSummaryFallback(), []);

@@ -7,7 +7,7 @@ import { createAuditPerformanceFallback } from "@/lib/gateways";
 
 export function AuditPerformanceSection() {
   const fallback = useMemo(() => createAuditPerformanceFallback(), []);
-  const { data, isError, refetch } = useAuditPerformance();
+  const { data, isError, isLoading, refetch } = useAuditPerformance();
 
   if (isError && !data) {
     return (
@@ -29,7 +29,14 @@ export function AuditPerformanceSection() {
     );
   }
 
-  const items = data ?? fallback;
+  const resultado = data ?? fallback;
 
-  return <AuditPerformance data={items} />;
+  return (
+    <AuditPerformance
+      data={resultado.points}
+      aggregates={resultado.aggregates}
+      onRefresh={() => void refetch()}
+      isLoading={isLoading}
+    />
+  );
 }

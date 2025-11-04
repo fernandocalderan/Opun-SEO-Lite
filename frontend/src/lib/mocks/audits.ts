@@ -22,6 +22,14 @@ export const auditQueue = [
   },
   {
     id: "queue-2",
+    project: "Knowledge base",
+    type: "Full crawl",
+    status: "En ejecucion",
+    startedAt: "16:10",
+    eta: "00:02",
+  },
+  {
+    id: "queue-3",
     project: "Blog / Cluster ORM",
     type: "Contenido",
     status: "Pendiente",
@@ -29,12 +37,28 @@ export const auditQueue = [
     eta: "--",
   },
   {
-    id: "queue-3",
+    id: "queue-4",
     project: "Ecommerce / fichas producto",
     type: "Performance",
     status: "Pendiente",
     startedAt: "--",
     eta: "--",
+  },
+  {
+    id: "queue-5",
+    project: "Product / Onboarding",
+    type: "Full crawl",
+    status: "Fallida",
+    startedAt: "14:05",
+    eta: "--",
+  },
+  {
+    id: "queue-6",
+    project: "Mobile app / Core web vitals",
+    type: "Performance",
+    status: "Completada",
+    startedAt: "13:20",
+    eta: "Finalizada",
   },
 ] satisfies AuditQueueItem[];
 
@@ -63,6 +87,30 @@ export const auditHistory = [
     criticalIssues: 1,
     owner: "Support",
   },
+  {
+    id: "hist-4",
+    project: "Product / Onboarding",
+    finishedAt: "27 Oct @ 17:20",
+    score: 82,
+    criticalIssues: 3,
+    owner: "Product Ops",
+  },
+  {
+    id: "hist-5",
+    project: "Mobile app / Core web vitals",
+    finishedAt: "26 Oct @ 09:45",
+    score: 75,
+    criticalIssues: 5,
+    owner: "Mobile",
+  },
+  {
+    id: "hist-6",
+    project: "Help Center / SEO Health",
+    finishedAt: "25 Oct @ 20:15",
+    score: 90,
+    criticalIssues: 1,
+    owner: "Support",
+  },
 ] satisfies AuditHistoryItem[];
 
 export const auditPerformance = [
@@ -72,6 +120,7 @@ export const auditPerformance = [
     completedAt: "2025-10-30T15:54:00Z",
     score: 84,
     criticalIssues: 2,
+    durationSeconds: 780,
   },
   {
     id: "perf-2",
@@ -79,6 +128,7 @@ export const auditPerformance = [
     completedAt: "2025-10-29T10:12:00Z",
     score: 78,
     criticalIssues: 4,
+    durationSeconds: 960,
   },
   {
     id: "perf-3",
@@ -86,6 +136,7 @@ export const auditPerformance = [
     completedAt: "2025-10-28T18:41:00Z",
     score: 88,
     criticalIssues: 1,
+    durationSeconds: 720,
   },
   {
     id: "perf-4",
@@ -93,5 +144,22 @@ export const auditPerformance = [
     completedAt: "2025-10-27T17:20:00Z",
     score: 82,
     criticalIssues: 3,
+    durationSeconds: 840,
+  },
+  {
+    id: "perf-5",
+    project: "Mobile app / Core web vitals",
+    completedAt: "2025-10-26T09:45:00Z",
+    score: 75,
+    criticalIssues: 5,
+    durationSeconds: 910,
+  },
+  {
+    id: "perf-6",
+    project: "Help Center / SEO Health",
+    completedAt: "2025-10-25T20:15:00Z",
+    score: 90,
+    criticalIssues: 1,
+    durationSeconds: 660,
   },
 ] satisfies AuditPerformancePoint[];

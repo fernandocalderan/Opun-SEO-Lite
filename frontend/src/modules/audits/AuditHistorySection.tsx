@@ -7,7 +7,7 @@ import { createAuditHistoryFallback } from "@/lib/gateways";
 
 export function AuditHistorySection() {
   const fallback = useMemo(() => createAuditHistoryFallback(), []);
-  const { data, isError, refetch } = useAuditHistory();
+  const { data, isError, isLoading, refetch } = useAuditHistory();
 
   if (isError && !data) {
     return (
@@ -29,7 +29,14 @@ export function AuditHistorySection() {
     );
   }
 
-  const items = data ?? fallback;
+  const resultado = data ?? fallback;
 
-  return <AuditHistory items={items} />;
+  return (
+    <AuditHistory
+      items={resultado.items}
+      total={resultado.total}
+      onRefresh={() => void refetch()}
+      isLoading={isLoading}
+    />
+  );
 }

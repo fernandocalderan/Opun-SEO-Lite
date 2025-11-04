@@ -7,7 +7,7 @@ import { createAuditQueueFallback } from "@/lib/gateways";
 
 export function AuditQueueSection() {
   const fallback = useMemo(() => createAuditQueueFallback(), []);
-  const { data, isError, refetch } = useAuditQueue();
+  const { data, isError, isLoading, refetch } = useAuditQueue();
 
   if (isError && !data) {
     return (
@@ -29,8 +29,14 @@ export function AuditQueueSection() {
     );
   }
 
-  const items = data ?? fallback;
-  const key = data ? items.map((item) => item.id).join("|") : "fallback";
+  const resultado = data ?? fallback;
 
-  return <AuditQueue key={key} items={items} />;
+  return (
+    <AuditQueue
+      items={resultado.items}
+      total={resultado.total}
+      onRefresh={() => void refetch()}
+      isLoading={isLoading}
+    />
+  );
 }

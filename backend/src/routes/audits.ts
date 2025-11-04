@@ -29,6 +29,7 @@ const auditQueueItemSchema = z.object({
 const auditQueueResponseSchema = z.object({
   items: z.array(auditQueueItemSchema),
   next_cursor: z.string().nullable(),
+  total: z.number().int().min(0),
 });
 
 const auditHistoryItemSchema = z.object({
@@ -43,6 +44,7 @@ const auditHistoryItemSchema = z.object({
 const auditHistoryResponseSchema = z.object({
   items: z.array(auditHistoryItemSchema),
   next_cursor: z.string().nullable(),
+  total: z.number().int().min(0),
 });
 
 const auditPerformancePointSchema = z.object({
@@ -51,10 +53,17 @@ const auditPerformancePointSchema = z.object({
   completed_at: z.string(),
   score: z.number().int().min(0).max(100),
   critical_issues: z.number().int().min(0),
+  duration_seconds: z.number().int().min(0),
 });
 
 const auditPerformanceResponseSchema = z.object({
   points: z.array(auditPerformancePointSchema),
+  aggregates: z.object({
+    average_score: z.number(),
+    average_duration_seconds: z.number(),
+    max_duration_seconds: z.number(),
+    sample_size: z.number().int().min(0),
+  }),
 });
 
 export async function registerAuditRoutes(app: FastifyInstance) {
@@ -62,23 +71,105 @@ export async function registerAuditRoutes(app: FastifyInstance) {
     return auditSummarySchema.parse(auditSummaryMock);
   });
 
-  app.get("/v1/audits/queue", async () => {
+  app.get("/v1/audits/queue", async (request) => {
+    const { limit = "3", cursor } = request.query as {
+      limit?: string;
+      cursor?: string;
+    };
+
+    const pageSize = clamp(Number.parseInt(limit ?? "3", 10), 1, 10);
+    const startIndex = decodeCursor(cursor);
+    const endIndex = startIndex + pageSize;
+
+    const items = auditQueueMock.slice(startIndex, endIndex);
+    const nextCursor = endIndex < auditQueueMock.length ? encodeCursor(endIndex) : null;
+
     return auditQueueResponseSchema.parse({
-      items: auditQueueMock,
-      next_cursor: null,
+      items,
+      next_cursor: nextCursor,
+      total: auditQueueMock.length,
     });
   });
 
-  app.get("/v1/audits/history", async () => {
+  app.get("/v1/audits/history", async (request) => {
+    const { limit = "5", cursor } = request.query as {
+      limit?: string;
+      cursor?: string;
+    };
+
+    const pageSize = clamp(Number.parseInt(limit ?? "5", 10), 1, 20);
+    const startIndex = decodeCursor(cursor);
+    const endIndex = startIndex + pageSize;
+
+    const items = auditHistoryMock.slice(startIndex, endIndex);
+    const nextCursor =
+      endIndex < auditHistoryMock.length ? encodeCursor(endIndex) : null;
+
     return auditHistoryResponseSchema.parse({
-      items: auditHistoryMock,
-      next_cursor: null,
+      items,
+      next_cursor: nextCursor,
+      total: auditHistoryMock.length,
     });
   });
 
   app.get("/v1/audits/performance", async () => {
+    const aggregates = computePerformanceAggregates();
+
     return auditPerformanceResponseSchema.parse({
       points: auditPerformanceMock,
+      aggregates,
     });
   });
+}
+
+function clamp(value: number, min: number, max: number) {
+  if (Number.isNaN(value)) {
+    return min;
+  }
+  return Math.min(Math.max(value, min), max);
+}
+
+function decodeCursor(cursor?: string | null) {
+  if (!cursor) {
+    return 0;
+  }
+  try {
+    const decoded = Buffer.from(cursor, "base64url").toString("utf8");
+    const index = Number.parseInt(decoded, 10);
+    return Number.isNaN(index) || index < 0 ? 0 : index;
+  } catch {
+    return 0;
+  }
+}
+
+function encodeCursor(index: number) {
+  return Buffer.from(String(index)).toString("base64url");
+}
+
+function computePerformanceAggregates() {
+  if (auditPerformanceMock.length === 0) {
+    return {
+      average_score: 0,
+      average_duration_seconds: 0,
+      max_duration_seconds: 0,
+      sample_size: 0,
+    };
+  }
+
+  const totalScore = auditPerformanceMock.reduce((acc, point) => acc + point.score, 0);
+  const totalDuration = auditPerformanceMock.reduce(
+    (acc, point) => acc + point.duration_seconds,
+    0,
+  );
+  const maxDuration = auditPerformanceMock.reduce(
+    (max, point) => Math.max(max, point.duration_seconds),
+    0,
+  );
+
+  return {
+    average_score: totalScore / auditPerformanceMock.length,
+    average_duration_seconds: totalDuration / auditPerformanceMock.length,
+    max_duration_seconds: maxDuration,
+    sample_size: auditPerformanceMock.length,
+  };
 }

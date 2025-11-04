@@ -17,6 +17,14 @@ export const auditQueueMock = [
   },
   {
     id: "queue-2",
+    project: "Knowledge base",
+    type: "full",
+    status: "running",
+    started_at: "2025-11-04T19:10:00Z",
+    eta_seconds: 120,
+  },
+  {
+    id: "queue-3",
     project: "Blog / Cluster ORM",
     type: "contenido",
     status: "pending",
@@ -24,12 +32,28 @@ export const auditQueueMock = [
     eta_seconds: null,
   },
   {
-    id: "queue-3",
+    id: "queue-4",
     project: "Ecommerce / fichas producto",
     type: "performance",
     status: "pending",
     started_at: null,
     eta_seconds: null,
+  },
+  {
+    id: "queue-5",
+    project: "Product / Onboarding",
+    type: "full",
+    status: "failed",
+    started_at: "2025-11-04T17:05:00Z",
+    eta_seconds: 0,
+  },
+  {
+    id: "queue-6",
+    project: "Mobile app / Core web vitals",
+    type: "performance",
+    status: "completed",
+    started_at: "2025-11-04T16:20:00Z",
+    eta_seconds: 0,
   },
 ] as const;
 
@@ -58,6 +82,30 @@ export const auditHistoryMock = [
     critical_issues: 1,
     owner: "Support",
   },
+  {
+    id: "hist-4",
+    project: "Product / Onboarding",
+    completed_at: "2025-10-27T17:20:00Z",
+    score: 82,
+    critical_issues: 3,
+    owner: "Product Ops",
+  },
+  {
+    id: "hist-5",
+    project: "Mobile app / Core web vitals",
+    completed_at: "2025-10-26T09:45:00Z",
+    score: 75,
+    critical_issues: 5,
+    owner: "Mobile",
+  },
+  {
+    id: "hist-6",
+    project: "Help Center / SEO Health",
+    completed_at: "2025-10-25T20:15:00Z",
+    score: 90,
+    critical_issues: 1,
+    owner: "Support",
+  },
 ] as const;
 
 export const auditPerformanceMock = [
@@ -67,6 +115,7 @@ export const auditPerformanceMock = [
     completed_at: "2025-10-30T15:54:00Z",
     score: 84,
     critical_issues: 2,
+    duration_seconds: 780,
   },
   {
     id: "perf-2",
@@ -74,6 +123,7 @@ export const auditPerformanceMock = [
     completed_at: "2025-10-29T10:12:00Z",
     score: 78,
     critical_issues: 4,
+    duration_seconds: 960,
   },
   {
     id: "perf-3",
@@ -81,6 +131,7 @@ export const auditPerformanceMock = [
     completed_at: "2025-10-28T18:41:00Z",
     score: 88,
     critical_issues: 1,
+    duration_seconds: 720,
   },
   {
     id: "perf-4",
@@ -88,5 +139,22 @@ export const auditPerformanceMock = [
     completed_at: "2025-10-27T17:20:00Z",
     score: 82,
     critical_issues: 3,
+    duration_seconds: 840,
+  },
+  {
+    id: "perf-5",
+    project: "Mobile app / Core web vitals",
+    completed_at: "2025-10-26T09:45:00Z",
+    score: 75,
+    critical_issues: 5,
+    duration_seconds: 910,
+  },
+  {
+    id: "perf-6",
+    project: "Help Center / SEO Health",
+    completed_at: "2025-10-25T20:15:00Z",
+    score: 90,
+    critical_issues: 1,
+    duration_seconds: 660,
   },
 ] as const;

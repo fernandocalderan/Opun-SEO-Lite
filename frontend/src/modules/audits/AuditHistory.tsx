@@ -9,17 +9,52 @@ type HistoryItem = {
   owner: string;
 };
 
-export function AuditHistory({ items }: { items: HistoryItem[] }) {
+type Props = {
+  items: HistoryItem[];
+  total: number;
+  onRefresh?: () => void;
+  isLoading?: boolean;
+};
+
+export function AuditHistory({ items, total, onRefresh, isLoading }: Props) {
+  if (!items.length) {
+    return (
+      <section className="rounded-2xl border border-dashed border-border bg-surface-subtle p-6 text-center text-sm text-text-muted">
+        <div className="space-y-2">
+          <h2 className="text-base font-semibold text-text-heading">
+            No hay ejecuciones recientes
+          </h2>
+          <p>Ejecuta una auditoria o sincroniza tus proyectos para ver el historial.</p>
+          <button
+            type="button"
+            onClick={onRefresh}
+            disabled={isLoading}
+            className="rounded-full border border-border px-3 py-1 text-xs font-medium text-text-body transition hover:bg-surface disabled:opacity-60"
+          >
+            {isLoading ? "Actualizando..." : "Refrescar"}
+          </button>
+        </div>
+      </section>
+    );
+  }
+
   return (
     <section className="rounded-2xl border border-border bg-surface p-5 shadow-sm">
-      <header className="flex items-center justify-between">
-        <h2 className="text-lg font-semibold text-text-heading">Historial reciente</h2>
-        <a
-          href="#"
-          className="text-xs font-medium text-indigo-500 hover:text-indigo-600"
+      <header className="flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <h2 className="text-lg font-semibold text-text-heading">Historial reciente</h2>
+          <p className="text-xs text-text-muted">
+            Mostrando {items.length} de {total} auditorias.
+          </p>
+        </div>
+        <button
+          type="button"
+          onClick={onRefresh}
+          disabled={isLoading}
+          className="rounded-full border border-border px-3 py-1 text-xs font-medium text-text-body transition hover:bg-surface-alt disabled:opacity-60"
         >
-          Ver todo
-        </a>
+          {isLoading ? "Actualizando..." : "Refrescar"}
+        </button>
       </header>
       <div className="mt-4 overflow-hidden rounded-xl border border-border">
         <table className="min-w-full divide-y divide-slate-200 text-sm">

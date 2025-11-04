@@ -29,6 +29,7 @@ export type AuditPerformanceDatum = {
   label: string;
   score: number;
   criticalIssues: number;
+  durationSeconds: number;
 };
 
 export type AuditSummaryResponse = {
@@ -49,6 +50,7 @@ export type AuditQueueResponse = {
     eta_seconds: number | null;
   }>;
   next_cursor: string | null;
+  total?: number;
 };
 
 export type AuditHistoryResponse = {
@@ -61,6 +63,7 @@ export type AuditHistoryResponse = {
     owner: string;
   }>;
   next_cursor: string | null;
+  total?: number;
 };
 
 export type AuditPerformanceResponse = {
@@ -70,7 +73,14 @@ export type AuditPerformanceResponse = {
     completed_at: string;
     score: number;
     critical_issues: number;
+    duration_seconds: number;
   }>;
+  aggregates: {
+    average_score: number;
+    average_duration_seconds: number;
+    max_duration_seconds: number;
+    sample_size: number;
+  };
 };
 
 export type FetchAuditSummaryOptions = {
@@ -122,26 +132,83 @@ export function createAuditSummaryFallback(): AuditSummaryCard[] {
   }));
 }
 
-export function createAuditQueueFallback(): AuditQueueCard[] {
-  return auditQueueMock.map((item) => ({
+export type AuditQueueResult = {
+  items: AuditQueueCard[];
+  nextCursor: string | null;
+  total: number;
+};
+
+export type AuditHistoryResult = {
+  items: AuditHistoryRow[];
+  nextCursor: string | null;
+  total: number;
+};
+
+export function createAuditQueueFallback(): AuditQueueResult {
+  const items = auditQueueMock.map((item) => ({
     ...item,
     status: item.status as AuditQueueCard["status"],
   }));
+
+  return {
+    items,
+    nextCursor: null,
+    total: items.length,
+  };
 }
 
-export function createAuditHistoryFallback(): AuditHistoryRow[] {
-  return auditHistoryMock;
+export function createAuditHistoryFallback(): AuditHistoryResult {
+  return {
+    items: auditHistoryMock,
+    nextCursor: null,
+    total: auditHistoryMock.length,
+  };
 }
 
-export function createAuditPerformanceFallback(): AuditPerformanceDatum[] {
-  return auditPerformanceMock.map((point) => ({
+export type AuditPerformanceResult = {
+  points: AuditPerformanceDatum[];
+  aggregates: {
+    averageScore: number;
+    averageDurationSeconds: number;
+    maxDurationSeconds: number;
+    sampleSize: number;
+  };
+};
+
+export function createAuditPerformanceFallback(): AuditPerformanceResult {
+  const points = auditPerformanceMock.map((point) => ({
     id: point.id,
     project: point.project,
     completedAtIso: point.completedAt,
     label: formatPerformanceLabel(point.completedAt),
     score: point.score,
     criticalIssues: point.criticalIssues,
+    durationSeconds: point.durationSeconds,
   }));
+
+  const sampleSize = points.length;
+  const averageScore =
+    sampleSize === 0
+      ? 0
+      : points.reduce((acc, point) => acc + point.score, 0) / sampleSize;
+  const averageDurationSeconds =
+    sampleSize === 0
+      ? 0
+      : points.reduce((acc, point) => acc + point.durationSeconds, 0) / sampleSize;
+  const maxDurationSeconds = points.reduce(
+    (max, point) => Math.max(max, point.durationSeconds),
+    0,
+  );
+
+  return {
+    points,
+    aggregates: {
+      averageScore,
+      averageDurationSeconds,
+      maxDurationSeconds,
+      sampleSize,
+    },
+  };
 }
 
 export async function fetchAuditSummary(
@@ -168,7 +235,7 @@ export async function fetchAuditSummary(
 
 export async function fetchAuditQueue(
   options?: FetchAuditQueueOptions,
-): Promise<AuditQueueCard[]> {
+): Promise<AuditQueueResult> {
   const baseUrl = getApiBaseUrl();
 
   if (baseUrl) {
@@ -177,7 +244,7 @@ export async function fetchAuditQueue(
         `${baseUrl}/v1/audits/queue`,
         options?.signal,
       );
-      if (payload) {
+      if (payload && payload.items) {
         return transformAuditQueue(payload);
       }
     } catch (error) {
@@ -190,7 +257,7 @@ export async function fetchAuditQueue(
 
 export async function fetchAuditHistory(
   options?: FetchAuditHistoryOptions,
-): Promise<AuditHistoryRow[]> {
+): Promise<AuditHistoryResult> {
   const baseUrl = getApiBaseUrl();
 
   if (baseUrl) {
@@ -199,7 +266,7 @@ export async function fetchAuditHistory(
         `${baseUrl}/v1/audits/history`,
         options?.signal,
       );
-      if (payload) {
+      if (payload && payload.items) {
         return transformAuditHistory(payload);
       }
     } catch (error) {
@@ -212,7 +279,7 @@ export async function fetchAuditHistory(
 
 export async function fetchAuditPerformance(
   options?: FetchAuditPerformanceOptions,
-): Promise<AuditPerformanceDatum[]> {
+): Promise<AuditPerformanceResult> {
   const baseUrl = getApiBaseUrl();
 
   if (baseUrl) {
@@ -221,7 +288,7 @@ export async function fetchAuditPerformance(
         `${baseUrl}/v1/audits/performance`,
         options?.signal,
       );
-      if (payload) {
+      if (payload && payload.points) {
         return transformAuditPerformance(payload);
       }
     } catch (error) {
@@ -258,8 +325,8 @@ function transformAuditSummary(response: AuditSummaryResponse): AuditSummaryCard
   ];
 }
 
-function transformAuditQueue(response: AuditQueueResponse): AuditQueueCard[] {
-  return response.items.map((item) => ({
+function transformAuditQueue(response: AuditQueueResponse): AuditQueueResult {
+  const items = response.items.map((item) => ({
     id: item.id,
     project: item.project,
     type: item.type,
@@ -267,10 +334,18 @@ function transformAuditQueue(response: AuditQueueResponse): AuditQueueCard[] {
     startedAt: formatQueueStartTime(item.started_at),
     eta: formatEta(item.eta_seconds),
   }));
+
+  return {
+    items,
+    nextCursor: response.next_cursor ?? null,
+    total: response.total ?? items.length,
+  };
 }
 
-function transformAuditHistory(response: AuditHistoryResponse): AuditHistoryRow[] {
-  return response.items.map((item) => ({
+function transformAuditHistory(
+  response: AuditHistoryResponse,
+): AuditHistoryResult {
+  const items = response.items.map((item) => ({
     id: item.id,
     project: item.project,
     finishedAt: formatHistoryTimestamp(item.completed_at),
@@ -278,19 +353,36 @@ function transformAuditHistory(response: AuditHistoryResponse): AuditHistoryRow[
     criticalIssues: item.critical_issues,
     owner: item.owner,
   }));
+
+  return {
+    items,
+    nextCursor: response.next_cursor ?? null,
+    total: response.total ?? items.length,
+  };
 }
 
 function transformAuditPerformance(
   response: AuditPerformanceResponse,
-): AuditPerformanceDatum[] {
-  return response.points.map((point) => ({
+): AuditPerformanceResult {
+  const points = response.points.map((point) => ({
     id: point.id,
     project: point.project,
     completedAtIso: point.completed_at,
     label: formatPerformanceLabel(point.completed_at),
     score: point.score,
     criticalIssues: point.critical_issues,
+    durationSeconds: point.duration_seconds,
   }));
+
+  return {
+    points,
+    aggregates: {
+      averageScore: response.aggregates.average_score,
+      averageDurationSeconds: response.aggregates.average_duration_seconds,
+      maxDurationSeconds: response.aggregates.max_duration_seconds,
+      sampleSize: response.aggregates.sample_size,
+    },
+  };
 }
 
 async function fetchWithTimeout<T>(

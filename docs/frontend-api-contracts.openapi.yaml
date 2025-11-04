@@ -49,6 +49,21 @@ paths:
     get:
       tags: [Audits]
       summary: List audits currently queued or running
+      parameters:
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 10
+            default: 3
+          description: Numero de elementos a retornar.
+        - in: query
+          name: cursor
+          schema:
+            type: string
+          required: false
+          description: Cursor base64url devuelto por la pagina anterior.
       responses:
         "200":
           description: Ordered list of queue items.
@@ -56,7 +71,7 @@ paths:
             application/json:
               schema:
                 type: object
-                required: [items, next_cursor]
+                required: [items, next_cursor, total]
                 properties:
                   items:
                     type: array
@@ -64,6 +79,10 @@ paths:
                       $ref: "#/components/schemas/AuditQueueItem"
                   next_cursor:
                     $ref: "#/components/schemas/NextCursor"
+                  total:
+                    type: integer
+                    minimum: 0
+                    description: Total de auditorias en cola (incluyendo pendientes y en ejecucion).
   /v1/audits/history:
     get:
       tags: [Audits]
@@ -90,14 +109,17 @@ paths:
             application/json:
               schema:
                 type: object
-                required: [items, next_cursor]
+                required: [items, next_cursor, total]
                 properties:
                   items:
                     type: array
-                  items:
                     $ref: "#/components/schemas/AuditHistoryItem"
                   next_cursor:
                     $ref: "#/components/schemas/NextCursor"
+                  total:
+                    type: integer
+                    minimum: 0
+                    description: Total de ejecuciones registradas en el historial.
   /v1/audits/performance:
     get:
       tags: [Audits]
@@ -109,12 +131,14 @@ paths:
             application/json:
               schema:
                 type: object
-                required: [points]
+                required: [points, aggregates]
                 properties:
                   points:
                     type: array
                     items:
                       $ref: "#/components/schemas/AuditPerformancePoint"
+                  aggregates:
+                    $ref: "#/components/schemas/AuditPerformanceAggregates"
   /v1/reputation/sentiment/timeline:
     get:
       tags: [Reputation]
@@ -679,9 +703,11 @@ components:
           type: string
           format: date-time
           nullable: true
+          description: Timestamp ISO de inicio, si la auditoria ya fue tomada por un worker.
         eta_seconds:
           type: integer
           nullable: true
+          description: Segundos restantes estimados para finalizar.
     AuditHistoryItem:
       type: object
       required:
@@ -705,7 +731,7 @@ components:
           type: string
     AuditPerformancePoint:
       type: object
-      required: [id, project, completed_at, score, critical_issues]
+      required: [id, project, completed_at, score, critical_issues, duration_seconds]
       properties:
         id:
           type: string
@@ -719,6 +745,26 @@ components:
           minimum: 0
           maximum: 100
         critical_issues:
+          type: integer
+          minimum: 0
+        duration_seconds:
+          type: integer
+          minimum: 0
+          description: Duracion total de la auditoria en segundos.
+    AuditPerformanceAggregates:
+      type: object
+      required: [average_score, average_duration_seconds, max_duration_seconds, sample_size]
+      properties:
+        average_score:
+          type: number
+          format: float
+        average_duration_seconds:
+          type: number
+          format: float
+        max_duration_seconds:
+          type: number
+          format: float
+        sample_size:
           type: integer
           minimum: 0
     SentimentPoint:
