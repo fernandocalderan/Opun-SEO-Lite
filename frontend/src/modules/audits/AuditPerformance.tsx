@@ -112,6 +112,17 @@ export function AuditPerformance({ data, aggregates, onRefresh, isLoading }: Pro
         <StatCard label="Auditorias" value={String(aggregates.sampleSize)} />
       </div>
 
+      <div className="mt-4 flex flex-wrap gap-2 text-xs text-text-muted">
+        {aggregates.durationDistribution.map((bucket) => (
+          <span
+            key={bucket.label}
+            className="rounded-full border border-border px-3 py-1 font-medium text-text-body"
+          >
+            {bucket.label}: {bucket.count}
+          </span>
+        ))}
+      </div>
+
       <div className="mt-5 h-72">
         <ResponsiveContainer width="100%" height="100%">
           <LineChart data={chartData} margin={{ top: 10, right: 16, left: -20, bottom: 0 }}>

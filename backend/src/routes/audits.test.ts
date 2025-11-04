@@ -111,5 +111,22 @@ describe("GET /v1/audits/performance", () => {
       expectedAverageDuration,
       5,
     );
+    expect(Array.isArray(aggregates.duration_distribution)).toBe(true);
+    const totalBuckets = aggregates.duration_distribution.reduce(
+      (acc: number, bucket: { count: number }) => acc + bucket.count,
+      0,
+    );
+    expect(totalBuckets).toBe(auditPerformanceMock.length);
+  });
+});
+
+describe("GET /v1/audits/pending", () => {
+  it("retorna auditorias pendientes", async () => {
+    const response = await request(app.server).get("/v1/audits/pending");
+
+    expect(response.status).toBe(200);
+    const pendingMock = auditQueueMock.filter((item) => item.status === "pending");
+    expect(response.body.items).toEqual(pendingMock);
+    expect(response.body.count).toBe(pendingMock.length);
   });
 });

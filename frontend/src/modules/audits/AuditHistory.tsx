@@ -14,9 +14,20 @@ type Props = {
   total: number;
   onRefresh?: () => void;
   isLoading?: boolean;
+  hasMore?: boolean;
+  onLoadMore?: () => void;
+  isLoadingMore?: boolean;
 };
 
-export function AuditHistory({ items, total, onRefresh, isLoading }: Props) {
+export function AuditHistory({
+  items,
+  total,
+  onRefresh,
+  isLoading,
+  hasMore,
+  onLoadMore,
+  isLoadingMore,
+}: Props) {
   if (!items.length) {
     return (
       <section className="rounded-2xl border border-dashed border-border bg-surface-subtle p-6 text-center text-sm text-text-muted">
@@ -82,6 +93,18 @@ export function AuditHistory({ items, total, onRefresh, isLoading }: Props) {
           </tbody>
         </table>
       </div>
+      {hasMore ? (
+        <div className="mt-4 flex justify-center">
+          <button
+            type="button"
+            onClick={onLoadMore}
+            disabled={isLoadingMore}
+            className="rounded-full border border-border px-4 py-2 text-sm font-medium text-text-body transition hover:bg-surface-alt disabled:opacity-60"
+          >
+            {isLoadingMore ? "Cargando..." : "Cargar más"}
+          </button>
+        </div>
+      ) : null}
     </section>
   );
 }

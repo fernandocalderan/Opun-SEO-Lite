@@ -139,6 +139,28 @@ paths:
                       $ref: "#/components/schemas/AuditPerformancePoint"
                   aggregates:
                     $ref: "#/components/schemas/AuditPerformanceAggregates"
+  /v1/audits/pending:
+    get:
+      tags: [Audits]
+      summary: Auditorias pendientes de ejecucion
+      description: Retorna la lista de auditorias en estado pending para integraciones automatizadas.
+      responses:
+        "200":
+          description: Auditorias que aun no inician su ejecucion.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [items, count]
+                properties:
+                  items:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/AuditQueueItem"
+                  count:
+                    type: integer
+                    minimum: 0
+                    description: Total de auditorias pendientes.
   /v1/reputation/sentiment/timeline:
     get:
       tags: [Reputation]
@@ -753,7 +775,14 @@ components:
           description: Duracion total de la auditoria en segundos.
     AuditPerformanceAggregates:
       type: object
-      required: [average_score, average_duration_seconds, max_duration_seconds, sample_size]
+      required:
+        [
+          average_score,
+          average_duration_seconds,
+          max_duration_seconds,
+          sample_size,
+          duration_distribution,
+        ]
       properties:
         average_score:
           type: number
@@ -765,6 +794,20 @@ components:
           type: number
           format: float
         sample_size:
+          type: integer
+          minimum: 0
+        duration_distribution:
+          type: array
+          items:
+            $ref: "#/components/schemas/AuditDurationBucket"
+    AuditDurationBucket:
+      type: object
+      required: [label, count]
+      properties:
+        label:
+          type: string
+          example: "<5m"
+        count:
           type: integer
           minimum: 0
     SentimentPoint:

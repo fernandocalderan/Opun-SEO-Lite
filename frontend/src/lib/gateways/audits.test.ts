@@ -4,10 +4,12 @@ import {
   createAuditPerformanceFallback,
   createAuditQueueFallback,
   createAuditSummaryFallback,
+  createPendingAuditsFallback,
   fetchAuditHistory,
   fetchAuditPerformance,
   fetchAuditQueue,
   fetchAuditSummary,
+  fetchPendingAudits,
   type AuditHistoryResponse,
   type AuditPerformanceResponse,
   type AuditQueueResponse,
@@ -78,6 +80,7 @@ describe("audits gateways", () => {
           },
         ],
         next_cursor: null,
+        total: 1,
       };
 
       vi.spyOn(global, "fetch").mockResolvedValueOnce({
@@ -98,6 +101,7 @@ describe("audits gateways", () => {
         },
       ]);
       expect(result.nextCursor).toBeNull();
+      expect(result.total).toBe(1);
     });
 
     it("retorna fallback ante fallo", async () => {
@@ -125,6 +129,7 @@ describe("audits gateways", () => {
           },
         ],
         next_cursor: null,
+        total: 1,
       };
 
       vi.spyOn(global, "fetch").mockResolvedValueOnce({
@@ -145,6 +150,7 @@ describe("audits gateways", () => {
         },
       ]);
       expect(result.nextCursor).toBeNull();
+      expect(result.total).toBe(1);
     });
 
     it("usa fallback cuando hay error", async () => {
@@ -176,6 +182,12 @@ describe("audits gateways", () => {
           average_duration_seconds: 780,
           max_duration_seconds: 780,
           sample_size: 1,
+          duration_distribution: [
+            { label: "<5m", count: 0 },
+            { label: "5-10m", count: 0 },
+            { label: "10-15m", count: 1 },
+            { label: ">15m", count: 0 },
+          ],
         },
       };
 
@@ -190,6 +202,7 @@ describe("audits gateways", () => {
       expect(result.points[0].label).toContain("15:54");
       expect(result.aggregates.averageScore).toBe(90);
       expect(result.aggregates.sampleSize).toBe(1);
+      expect(result.aggregates.durationDistribution[2].count).toBe(1);
     });
 
     it("usa fallback ante errores", async () => {
@@ -199,6 +212,40 @@ describe("audits gateways", () => {
       const result = await fetchAuditPerformance();
 
       expect(result).toEqual(createAuditPerformanceFallback());
+    });
+  });
+
+  describe("fetchPendingAudits", () => {
+    it("formatea auditorias pendientes", async () => {
+      process.env.NEXT_PUBLIC_API_BASE_URL = "http://localhost:3333";
+      vi.spyOn(global, "fetch").mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({
+          items: [
+            {
+              id: "queue-2",
+              project: "Blog",
+              type: "contenido",
+              status: "pending",
+              started_at: null,
+              eta_seconds: null,
+            },
+          ],
+          count: 1,
+        }),
+      } as Response);
+
+      const result = await fetchPendingAudits();
+      expect(result.count).toBe(1);
+      expect(result.items[0].status).toBe("Pendiente");
+    });
+
+    it("usa fallback cuando falla la peticion", async () => {
+      process.env.NEXT_PUBLIC_API_BASE_URL = "http://localhost:3333";
+      vi.spyOn(global, "fetch").mockRejectedValueOnce(new Error("Network error"));
+
+      const result = await fetchPendingAudits();
+      expect(result).toEqual(createPendingAuditsFallback());
     });
   });
 });

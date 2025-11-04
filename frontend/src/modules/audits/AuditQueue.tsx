@@ -27,9 +27,22 @@ type Props = {
   total: number;
   onRefresh?: () => void;
   isLoading?: boolean;
+  pendingCount?: number;
+  onLoadMore?: () => void;
+  hasMore?: boolean;
+  isLoadingMore?: boolean;
 };
 
-export function AuditQueue({ items, total, onRefresh, isLoading }: Props) {
+export function AuditQueue({
+  items,
+  total,
+  onRefresh,
+  isLoading,
+  pendingCount,
+  onLoadMore,
+  hasMore,
+  isLoadingMore,
+}: Props) {
   const [queue, setQueue] = useState<ItemState[]>(() => normalizeItems(items));
 
   useEffect(() => {
@@ -135,6 +148,9 @@ export function AuditQueue({ items, total, onRefresh, isLoading }: Props) {
           </h2>
           <p className="text-xs text-text-body">
             {runningCount} en ejecucion, se procesan en paralelo por workers.
+            {typeof pendingCount === "number"
+              ? ` · ${pendingCount} pendientes globalmente`
+              : ""}
           </p>
         </div>
         <div className="flex items-center gap-2 text-xs text-text-muted">
@@ -210,8 +226,20 @@ export function AuditQueue({ items, total, onRefresh, isLoading }: Props) {
               ) : null}
             </div>
           </li>
-        ))}
+      ))}
       </ul>
+      {hasMore ? (
+        <div className="mt-4 flex justify-center">
+          <button
+            type="button"
+            onClick={onLoadMore}
+            disabled={isLoadingMore}
+            className="rounded-full border border-border px-4 py-2 text-sm font-medium text-text-body transition hover:bg-surface-alt disabled:opacity-60"
+          >
+            {isLoadingMore ? "Cargando..." : "Cargar más"}
+          </button>
+        </div>
+      ) : null}
     </section>
   );
 }

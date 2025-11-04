@@ -89,13 +89,21 @@ export type FetchAuditSummaryOptions = {
 
 export type FetchAuditQueueOptions = {
   signal?: AbortSignal;
+  cursor?: string | null;
+  limit?: number;
 };
 
 export type FetchAuditHistoryOptions = {
   signal?: AbortSignal;
+  cursor?: string | null;
+  limit?: number;
 };
 
 export type FetchAuditPerformanceOptions = {
+  signal?: AbortSignal;
+};
+
+export type FetchPendingAuditsOptions = {
   signal?: AbortSignal;
 };
 
@@ -172,6 +180,7 @@ export type AuditPerformanceResult = {
     averageDurationSeconds: number;
     maxDurationSeconds: number;
     sampleSize: number;
+    durationDistribution: Array<{ label: string; count: number }>;
   };
 };
 
@@ -200,6 +209,8 @@ export function createAuditPerformanceFallback(): AuditPerformanceResult {
     0,
   );
 
+  const durationDistribution = computeFallbackDistribution(points);
+
   return {
     points,
     aggregates: {
@@ -207,7 +218,22 @@ export function createAuditPerformanceFallback(): AuditPerformanceResult {
       averageDurationSeconds,
       maxDurationSeconds,
       sampleSize,
+      durationDistribution,
     },
+  };
+}
+
+export type PendingAuditsResult = {
+  items: AuditQueueCard[];
+  count: number;
+};
+
+export function createPendingAuditsFallback(): PendingAuditsResult {
+  const queueFallback = createAuditQueueFallback();
+  const pendingItems = queueFallback.items.filter((item) => item.status === "Pendiente");
+  return {
+    items: pendingItems,
+    count: pendingItems.length,
   };
 }
 
@@ -241,7 +267,10 @@ export async function fetchAuditQueue(
   if (baseUrl) {
     try {
       const payload = await fetchWithTimeout<AuditQueueResponse>(
-        `${baseUrl}/v1/audits/queue`,
+        buildUrl(baseUrl, "/v1/audits/queue", {
+          limit: options?.limit ? String(options.limit) : undefined,
+          cursor: options?.cursor ?? undefined,
+        }),
         options?.signal,
       );
       if (payload && payload.items) {
@@ -263,7 +292,10 @@ export async function fetchAuditHistory(
   if (baseUrl) {
     try {
       const payload = await fetchWithTimeout<AuditHistoryResponse>(
-        `${baseUrl}/v1/audits/history`,
+        buildUrl(baseUrl, "/v1/audits/history", {
+          limit: options?.limit ? String(options.limit) : undefined,
+          cursor: options?.cursor ?? undefined,
+        }),
         options?.signal,
       );
       if (payload && payload.items) {
@@ -297,6 +329,39 @@ export async function fetchAuditPerformance(
   }
 
   return createAuditPerformanceFallback();
+}
+
+export async function fetchPendingAudits(
+  options?: FetchPendingAuditsOptions,
+): Promise<PendingAuditsResult> {
+  const baseUrl = getApiBaseUrl();
+
+  if (baseUrl) {
+    try {
+      const payload = await fetchWithTimeout<{ items: AuditQueueResponse["items"]; count: number }>(
+        `${baseUrl}/v1/audits/pending`,
+        options?.signal,
+      );
+      if (payload) {
+        const items = payload.items.map((item) => ({
+          id: item.id,
+          project: item.project,
+          type: item.type,
+          status: STATUS_LABEL_MAP[item.status] ?? item.status,
+          startedAt: formatQueueStartTime(item.started_at),
+          eta: formatEta(item.eta_seconds),
+        }));
+        return {
+          items,
+          count: payload.count,
+        };
+      }
+    } catch (error) {
+      logFallback("pending", error);
+    }
+  }
+
+  return createPendingAuditsFallback();
 }
 
 function transformAuditSummary(response: AuditSummaryResponse): AuditSummaryCard[] {
@@ -381,6 +446,7 @@ function transformAuditPerformance(
       averageDurationSeconds: response.aggregates.average_duration_seconds,
       maxDurationSeconds: response.aggregates.max_duration_seconds,
       sampleSize: response.aggregates.sample_size,
+      durationDistribution: response.aggregates.duration_distribution,
     },
   };
 }
@@ -493,6 +559,32 @@ function formatPerformanceLabel(value: string): string {
   const time = historyTimeFormatter.format(date);
 
   return `${formattedDate} @ ${time}`;
+}
+
+function computeFallbackDistribution(points: AuditPerformanceDatum[]) {
+  const buckets = [
+    { label: "<5m", min: 0, max: 300 },
+    { label: "5-10m", min: 300, max: 600 },
+    { label: "10-15m", min: 600, max: 900 },
+    { label: ">15m", min: 900, max: Infinity },
+  ];
+
+  return buckets.map((bucket) => ({
+    label: bucket.label,
+    count: points.filter(
+      (point) => point.durationSeconds >= bucket.min && point.durationSeconds < bucket.max,
+    ).length,
+  }));
+}
+
+function buildUrl(baseUrl: string, path: string, params: Record<string, string | undefined>) {
+  const url = new URL(path, baseUrl);
+  Object.entries(params).forEach(([key, value]) => {
+    if (value) {
+      url.searchParams.set(key, value);
+    }
+  });
+  return url.toString();
 }
 
 function capitalize(value: string): string {

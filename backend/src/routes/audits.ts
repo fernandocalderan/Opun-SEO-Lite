@@ -63,7 +63,18 @@ const auditPerformanceResponseSchema = z.object({
     average_duration_seconds: z.number(),
     max_duration_seconds: z.number(),
     sample_size: z.number().int().min(0),
+    duration_distribution: z.array(
+      z.object({
+        label: z.string(),
+        count: z.number().int().min(0),
+      }),
+    ),
   }),
+});
+
+const auditPendingResponseSchema = z.object({
+  items: z.array(auditQueueItemSchema),
+  count: z.number().int().min(0),
 });
 
 export async function registerAuditRoutes(app: FastifyInstance) {
@@ -120,6 +131,14 @@ export async function registerAuditRoutes(app: FastifyInstance) {
       aggregates,
     });
   });
+
+  app.get("/v1/audits/pending", async () => {
+    const items = auditQueueMock.filter((item) => item.status === "pending");
+    return auditPendingResponseSchema.parse({
+      items,
+      count: items.length,
+    });
+  });
 }
 
 function clamp(value: number, min: number, max: number) {
@@ -153,6 +172,7 @@ function computePerformanceAggregates() {
       average_duration_seconds: 0,
       max_duration_seconds: 0,
       sample_size: 0,
+      duration_distribution: [],
     };
   }
 
@@ -171,5 +191,23 @@ function computePerformanceAggregates() {
     average_duration_seconds: totalDuration / auditPerformanceMock.length,
     max_duration_seconds: maxDuration,
     sample_size: auditPerformanceMock.length,
+    duration_distribution: computeDurationDistribution(),
   };
+}
+
+function computeDurationDistribution() {
+  const buckets = [
+    { label: "<5m", min: 0, max: 300 },
+    { label: "5-10m", min: 300, max: 600 },
+    { label: "10-15m", min: 600, max: 900 },
+    { label: ">15m", min: 900, max: Infinity },
+  ];
+
+  return buckets.map((bucket) => ({
+    label: bucket.label,
+    count: auditPerformanceMock.filter((point) => {
+      const duration = point.duration_seconds;
+      return duration >= bucket.min && duration < bucket.max;
+    }).length,
+  }));
 }

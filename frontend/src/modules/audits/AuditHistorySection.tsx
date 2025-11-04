@@ -7,7 +7,15 @@ import { createAuditHistoryFallback } from "@/lib/gateways";
 
 export function AuditHistorySection() {
   const fallback = useMemo(() => createAuditHistoryFallback(), []);
-  const { data, isError, isLoading, refetch } = useAuditHistory();
+  const {
+    data,
+    isError,
+    isLoading,
+    refetch,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = useAuditHistory();
 
   if (isError && !data) {
     return (
@@ -29,14 +37,19 @@ export function AuditHistorySection() {
     );
   }
 
-  const resultado = data ?? fallback;
+  const pages = data?.pages ?? [fallback];
+  const items = pages.flatMap((page) => page.items);
+  const total = pages[0]?.total ?? fallback.total;
 
   return (
     <AuditHistory
-      items={resultado.items}
-      total={resultado.total}
+      items={items}
+      total={total}
       onRefresh={() => void refetch()}
       isLoading={isLoading}
+      hasMore={Boolean(hasNextPage)}
+      onLoadMore={hasNextPage ? () => fetchNextPage() : undefined}
+      isLoadingMore={isFetchingNextPage}
     />
   );
 }
