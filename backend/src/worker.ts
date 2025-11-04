@@ -1,5 +1,6 @@
 import { setTimeout as sleep } from "node:timers/promises";
-import { getPendingQueue, markCompleted, markFailed, markRunning } from "./store/auditsStore";
+import { createAudit, getPendingQueue, markCompleted, markFailed, markRunning } from "./store/auditsStore";
+import { getSchedulableProjects, markProjectAudited } from "./store/projectsStore";
 import { getPendingReports, markReportCompleted, markReportFailed, markReportRunning } from "./store/reportsStore";
 import { analyzeCrawl, analyzePerformance, analyzeSeoMeta, analyzeSocial, computeScores, fetchSerp, generateExecutiveSummary, type AuditFullResult } from "./analyzers/web";
 
@@ -88,11 +89,28 @@ async function main() {
   if (mode === "loop") {
     // eslint-disable-next-line no-constant-condition
     while (true) {
+      // schedule audits for projects based on cadence
+      const sched = await getSchedulableProjects();
+      for (const p of sched) {
+        try {
+          await createAudit({ project: p.name || p.primary_url, type: "standard", url: p.primary_url, keywords: p.keywords });
+          await markProjectAudited(p.id);
+          console.log(`Scheduled audit for project ${p.name}`);
+        } catch (e) {
+          console.error("Failed to schedule audit", e);
+        }
+      }
       await processPendingOnce();
       await processReportsOnce();
       await sleep(5000);
     }
   } else {
+    // one-shot scheduling
+    const sched = await getSchedulableProjects();
+    for (const p of sched) {
+      await createAudit({ project: p.name || p.primary_url, type: "standard", url: p.primary_url, keywords: p.keywords });
+      await markProjectAudited(p.id);
+    }
     await processPendingOnce();
     await processReportsOnce();
   }

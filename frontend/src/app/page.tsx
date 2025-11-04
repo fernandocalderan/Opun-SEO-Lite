@@ -1,5 +1,5 @@
-import { OverviewScreen } from "@/modules/overview/OverviewScreen";
+import { redirect } from "next/navigation";
 
 export default function Home() {
-  return <OverviewScreen />;
+  redirect("/audits");
 }

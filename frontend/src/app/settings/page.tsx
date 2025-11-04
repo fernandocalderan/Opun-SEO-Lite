@@ -1,5 +1,6 @@
 import { initialSettings } from "@/lib/mocks";
 import { SettingsForm } from "@/modules/settings/SettingsForm";
+import { ProjectsManager } from "@/modules/settings/ProjectsManager";
 
 export default function SettingsPage() {
   return (
@@ -16,6 +17,7 @@ export default function SettingsPage() {
         </p>
       </header>
 
+      <ProjectsManager />
       <SettingsForm initialData={initialSettings} />
     </div>
   );

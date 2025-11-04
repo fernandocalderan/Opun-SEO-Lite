@@ -70,22 +70,22 @@ export function AuditHistory({
         </button>
       </header>
       <div className="mt-4 overflow-hidden rounded-xl border border-border">
-        <table className="min-w-full divide-y divide-slate-200 text-sm">
+        <table className="min-w-full table-fixed divide-y divide-slate-200 text-sm">
           <thead className="bg-surface-subtle text-left font-medium text-text-body">
             <tr>
-              <th className="px-4 py-3">Proyecto</th>
+              <th className="w-2/5 px-4 py-3">Proyecto</th>
               <th className="px-4 py-3">Finalizado</th>
               <th className="px-4 py-3">Score</th>
               <th className="px-4 py-3">Issues</th>
               <th className="px-4 py-3">Owner</th>
-              <th className="px-4 py-3 text-right">Acciones</th>
+              <th className="w-32 px-4 py-3 text-right">Acciones</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100">
             {items.map((item) => (
               <tr key={item.id} className="bg-surface">
                 <td className="px-4 py-3 font-medium text-slate-800">
-                  {item.project}
+                  <span className="block max-w-[40ch] truncate" title={item.project}>{item.project}</span>
                 </td>
                 <td className="px-4 py-3 text-text-body">{item.finishedAt}</td>
                 <td className="px-4 py-3 text-text-body">{item.score}</td>
@@ -95,7 +95,7 @@ export function AuditHistory({
                   <button
                     type="button"
                     onClick={() => onViewResult?.(item.id)}
-                    className="rounded-full border border-border px-3 py-1 text-xs font-medium text-text-body transition hover:bg-surface-alt"
+                    className="whitespace-nowrap rounded-full border border-border px-3 py-1 text-xs font-medium text-text-body transition hover:bg-surface-alt"
                   >
                     Ver detalle
                   </button>

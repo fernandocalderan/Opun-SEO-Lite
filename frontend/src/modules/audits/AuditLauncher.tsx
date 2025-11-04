@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import { FormEvent, useMemo, useReducer, useState } from "react";
-import { useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { fetchProjects, type Project } from "@/lib/gateways/projects";
 import { createAudit } from "@/lib/gateways/audits";
 import { auditHistoryQueryKey, auditPendingQueryKey, auditQueueQueryKey, auditSummaryQueryKey } from "./hooks";
 import { initialSettings } from "@/lib/mocks/settings";
@@ -117,6 +118,7 @@ export function AuditLauncher({ onLaunch }: AuditLauncherProps) {
   const [status, setStatus] = useState<"idle" | "running" | "success" | "error">("idle");
   const [message, setMessage] = useState<string>("");
   const queryClient = useQueryClient();
+  const projectsQuery = useQuery({ queryKey: ["projects"], queryFn: () => fetchProjects() });
 
   const usingPreset = useMemo(() => {
     return JSON.stringify(state) === JSON.stringify(presetConfig);
@@ -201,15 +203,34 @@ export function AuditLauncher({ onLaunch }: AuditLauncherProps) {
             <label className="text-sm font-medium text-text-heading" htmlFor="audit-url">
               URL del proyecto
             </label>
-            <input
-              id="audit-url"
-              type="url"
-              required
-              value={state.url}
-              onChange={(event) => dispatch({ type: "setUrl", payload: event.target.value })}
-              placeholder="https://www.tu-cliente.com"
-              className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm outline-none transition focus:border-brand-primary focus:ring focus:ring-brand-primary/30"
-            />
+            <div className="flex gap-2">
+              <select
+                className="w-64 rounded-lg border border-border bg-surface px-3 py-2 text-sm"
+                value=""
+                onChange={(e) => {
+                  const id = e.target.value;
+                  const proj = (projectsQuery.data ?? []).find((p: Project) => p.id === id);
+                  if (proj) {
+                    dispatch({ type: "setUrl", payload: proj.primary_url });
+                    dispatch({ type: "setKeywords", payload: proj.keywords });
+                  }
+                }}
+              >
+                <option value="">Seleccionar proyecto guardado...</option>
+                {(projectsQuery.data ?? []).map((p) => (
+                  <option key={p.id} value={p.id}>{p.name}</option>
+                ))}
+              </select>
+              <input
+                id="audit-url"
+                type="url"
+                required
+                value={state.url}
+                onChange={(event) => dispatch({ type: "setUrl", payload: event.target.value })}
+                placeholder="https://www.tu-cliente.com"
+                className="flex-1 rounded-lg border border-border bg-surface px-3 py-2 text-sm outline-none transition focus:border-brand-primary focus:ring focus:ring-brand-primary/30"
+              />
+            </div>
           </div>
           <div className="space-y-1">
             <label className="text-sm font-medium text-text-heading" htmlFor="audit-keywords">

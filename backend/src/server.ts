@@ -6,6 +6,7 @@ import { registerAuditRoutes } from "./routes/audits";
 import { registerReputationRoutes } from "./routes/reputation";
 import { registerPlanRoutes } from "./routes/plan";
 import { registerReportsRoutes } from "./routes/reports";
+import { registerProjectRoutes } from "./routes/projects";
 
 export function buildServer() {
   const app = Fastify({
@@ -21,6 +22,7 @@ export function buildServer() {
   void app.register(registerReputationRoutes);
   void app.register(registerPlanRoutes);
   void app.register(registerReportsRoutes);
+  void app.register(registerProjectRoutes);
 
   return app;
 }
