@@ -7,6 +7,7 @@ type Alert = {
   summary: string;
   sentiment: "positive" | "neutral" | "negative";
   publishedAt: string;
+  publishedAtIso?: string;
   url: string;
 };
 

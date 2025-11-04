@@ -38,7 +38,8 @@ export const reputationAlerts = [
     summary:
       "Hilo cuestiona tiempos de respuesta del equipo de soporte; 12 comentarios negativos en 24h.",
     sentiment: "negative",
-    publishedAt: "Hace 4 horas",
+    publishedAt: "2025-11-02T09:00:00Z",
+    publishedAtIso: "2025-11-02T09:00:00Z",
     url: "https://reddit.com",
   },
   {
@@ -48,7 +49,8 @@ export const reputationAlerts = [
     summary:
       "Blog especializado destaca la nueva funcion IA con tono positivo; oportunidad para amplificar.",
     sentiment: "positive",
-    publishedAt: "Hace 9 horas",
+    publishedAt: "2025-11-01T18:30:00Z",
+    publishedAtIso: "2025-11-01T18:30:00Z",
     url: "https://news.google.com",
   },
   {
@@ -58,7 +60,8 @@ export const reputationAlerts = [
     summary:
       "Review 3 estrellas menciona onboarding complejo. Sugiere reforzar tutoriales iniciales.",
     sentiment: "neutral",
-    publishedAt: "Hace 1 dia",
+    publishedAt: "2025-10-31T22:15:00Z",
+    publishedAtIso: "2025-10-31T22:15:00Z",
     url: "https://www.g2.com",
   },
 ] satisfies ReputationAlert[];

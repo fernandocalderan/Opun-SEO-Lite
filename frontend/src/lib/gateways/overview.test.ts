@@ -8,6 +8,7 @@ afterEach(() => {
 describe("fetchOverview", () => {
   it("retorna dataset normalizado con datos mock", async () => {
     vi.useFakeTimers();
+    vi.setSystemTime(new Date("2025-11-03T00:00:00Z"));
 
     const promise = fetchOverview();
     await vi.advanceTimersByTimeAsync(200);
@@ -16,6 +17,7 @@ describe("fetchOverview", () => {
     expect(data.kpis).toHaveLength(3);
     expect(data.alerts.every((alert) => "publishedAt" in alert)).toBe(true);
     expect(data.alerts.every((alert) => typeof alert.source === "string")).toBe(true);
+    expect(data.alerts.every((alert) => alert.publishedAtIso)).toBe(true);
     expect(data.narrative.headline).toBeDefined();
   });
 

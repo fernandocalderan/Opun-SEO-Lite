@@ -89,3 +89,10 @@
 
 ### Proxima Revision
 - Tras Sprint 0 del frontend (aprox. 2 semanas) o antes si se modifica el stack.
+
+## 11. Roadmap Backend Post-Overview
+- **Sprint 2 objetivo**: elevar `/v1/audits/*` (summary, queue, history) con almacenamiento temporal en memoria y contratos Zod.
+- **Sprint 3 objetivo**: habilitar `/v1/reputation/*` (timeline, channels, mentions) con normalizacion de fuentes externas mockeadas.
+- **Infra & Platform**: definir middleware de autenticacion (API Key temporal) y logging estructurado compartido.
+- **Observabilidad**: instrumentar Fastify con pino + exportacion a OpenTelemetry antes del hardening de Sprint 4.
+- **Handoff**: mantener sincronizada la OpenAPI (`docs/frontend-api-contracts.openapi.yaml`) tras cada endpoint y publicar changelog semanal en `docs/notes/`.

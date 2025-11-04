@@ -17,6 +17,7 @@ export interface ReputationAlert {
   summary: string;
   sentiment: SentimentTone;
   publishedAt: string;
+  publishedAtIso?: string;
   url: string;
 }
 

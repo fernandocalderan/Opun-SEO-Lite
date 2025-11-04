@@ -13,5 +13,6 @@
 ## Necesidades / Riesgos
 - Confirmar campos definitivos de alertas (`channel`, `source`, `published_at`) antes del 06 Nov.
 - Mantener mocks y spec sincronizados (OpenAPI 0.3.0) para evitar retrabajo en componentes.
+- Configurar `allowedDevOrigins` en `next.config.ts` para soportar accesos LAN sin warnings en Next.js 16.
 
 > Referencias: `docs/sprint-1-backlog.md`, `docs/frontend-api-contracts.openapi.yaml`.

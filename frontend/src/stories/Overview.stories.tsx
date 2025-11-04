@@ -16,6 +16,7 @@ import {
   overviewNarrative,
   reputationAlerts,
 } from "@/lib/mocks";
+import { formatRelativeTimeFromNow } from "@/lib/utils/relativeTime";
 import type { OverviewDataset } from "@/lib/gateways";
 import type { InsightItem, KpiSummaryItem } from "@/lib/mocks/types";
 import { overviewQueryKey } from "@/modules/overview/hooks";
@@ -166,11 +167,17 @@ function buildAlerts(target: number): OverviewDataset["alerts"] {
 
   return Array.from({ length: target }).map((_, index) => {
     const template = reputationAlerts[index % reputationAlerts.length];
+    const baseIso = template.publishedAtIso ?? template.publishedAt;
+    const adjustedIso =
+      index === 0
+        ? new Date(Date.now() - 2 * 60 * 1000).toISOString()
+        : baseIso;
+
     return {
       ...template,
       id: `${template.id}-${index + 1}`,
-      publishedAt:
-        index === 0 ? "Hace instantes" : template.publishedAt,
+      publishedAt: formatRelativeTimeFromNow(adjustedIso),
+      publishedAtIso: adjustedIso,
     };
   });
 }

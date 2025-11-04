@@ -1,0 +1,85 @@
+export const overviewMockResponse = {
+  kpis: [
+    {
+      label: "SEO Health",
+      value: "82 / 100",
+      delta: "+6 vs. last sprint",
+      status: "good",
+      description:
+        "Auditoria tecnica estable; se detectaron 3 issues criticos pendientes.",
+    },
+    {
+      label: "Reputation Score",
+      value: "74",
+      delta: "-5 ultima semana",
+      status: "watch",
+      description:
+        "Caida en SERP page 1 por menciones negativas en foros especializados.",
+    },
+    {
+      label: "CTR Brand Search",
+      value: "3.4%",
+      delta: "-1.2pp vs. benchmark",
+      status: "risk",
+      description: "Faltan rich snippets y copy consistente en title/meta.",
+    },
+  ],
+  alerts: [
+    {
+      id: "alert-1",
+      channel: "Foro / Reddit",
+      source: "r/soporte-opun",
+      summary:
+        "Hilo cuestiona tiempos de respuesta del equipo de soporte; 12 comentarios negativos en 24h.",
+      sentiment: "negative",
+      published_at: "2025-11-02T09:00:00Z",
+      url: "https://reddit.com/r/soporte-opun",
+    },
+    {
+      id: "alert-2",
+      channel: "SERP / Top Stories",
+      source: "news.google.com",
+      summary:
+        "Blog especializado destaca la nueva funcion IA con tono positivo; oportunidad para amplificar.",
+      sentiment: "positive",
+      published_at: "2025-11-01T18:30:00Z",
+      url: "https://news.google.com/articles/opun-ai",
+    },
+    {
+      id: "alert-3",
+      channel: "Reviews / G2",
+      source: "g2.com/app/opun",
+      summary:
+        "Review 3 estrellas menciona onboarding complejo. Sugiere reforzar tutoriales iniciales.",
+      sentiment: "neutral",
+      published_at: "2025-10-31T22:15:00Z",
+      url: "https://www.g2.com/products/opun/reviews/3",
+    },
+  ],
+  insights: [
+    {
+      title: "Mencion negativa escala en foros",
+      context:
+        "El hilo mas activo en Reddit concentra el 65% del sentimiento negativo semanal. Usuarios citan desconocimiento del nuevo SLA.",
+      recommendation:
+        "Coordinar respuesta oficial con PR, actualizar FAQs y compartir tutorial en Slack comunidad.",
+      severity: "critical",
+      source: "Monitor ORM",
+    },
+    {
+      title: "Opportunity: review positivo en medios",
+      context:
+        "Un medio especializado destaco la velocidad de despliegue de features. Todavia no se comparte en social corporativo.",
+      recommendation:
+        "Activar snippet social con quote destacado y enlazarlo en newsletter del viernes.",
+      severity: "medium",
+      source: "SERP Watch",
+    },
+  ],
+  narrative: {
+    headline: "Estrategia en progreso",
+    summary:
+      "Objetivo Sprint: estabilizar reputacion en foros especializados y recuperar 10% de CTR en brand search. El backend debera suministrar datos de tendencias y ownership de tareas.",
+    updated_at: "2025-11-02T14:00:00Z",
+  },
+} as const;
