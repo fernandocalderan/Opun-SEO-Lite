@@ -80,6 +80,7 @@ export type AuditPerformanceResponse = {
     average_duration_seconds: number;
     max_duration_seconds: number;
     sample_size: number;
+    duration_distribution: Array<{ label: string; count: number }>;
   };
 };
 

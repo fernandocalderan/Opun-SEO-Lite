@@ -28,6 +28,7 @@ type PerformanceAggregates = {
   averageDurationSeconds: number;
   maxDurationSeconds: number;
   sampleSize: number;
+  durationDistribution: Array<{ label: string; count: number }>;
 };
 
 type Props = {

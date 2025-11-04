@@ -42,8 +42,8 @@ export function AuditQueueSection() {
     );
   }
 
-  const pages = data?.pages ?? [fallbackQueue];
-  const items = pages.flatMap((page) => page.items);
+  const pages: any[] = ((data as any)?.pages ?? [fallbackQueue]) as any[];
+  const items = pages.flatMap((page: any) => page.items);
   const total = pages[0]?.total ?? fallbackQueue.total;
   const pendingResult = pendingQuery.data ?? fallbackPending;
   const pendingCount = pendingResult.count;

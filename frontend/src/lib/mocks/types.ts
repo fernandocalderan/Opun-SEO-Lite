@@ -65,6 +65,7 @@ export interface AuditPerformancePoint {
   completedAt: string;
   score: number;
   criticalIssues: number;
+  durationSeconds?: number;
 }
 
 export interface SentimentTimelinePoint {

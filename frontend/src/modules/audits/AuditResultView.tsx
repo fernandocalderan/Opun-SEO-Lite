@@ -63,7 +63,7 @@ export function AuditResultView({ result }: Props) {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
-                  {Object.entries(result.seo_meta.keyword_relevance.by_keyword).map(([kw, d]) => (
+                  {Object.entries(result.seo_meta.keyword_relevance.by_keyword as Record<string, any>).map(([kw, d]) => (
                     <tr key={kw}>
                       <td className="px-3 py-2 font-medium text-text-heading">{kw}</td>
                       <td className="px-3 py-2"><MatchBadge v={d.title?.match} /></td>

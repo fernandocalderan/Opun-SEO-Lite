@@ -1,3 +1,5 @@
+"use client";
+
 import { PlanBoard } from "@/modules/plan/PlanBoard";
 import { PlanTable } from "@/modules/plan/PlanTable";
 import { PlanVelocityChart } from "@/modules/plan/PlanVelocityChart";

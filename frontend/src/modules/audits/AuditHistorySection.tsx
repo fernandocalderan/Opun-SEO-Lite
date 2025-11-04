@@ -39,8 +39,8 @@ export function AuditHistorySection() {
     );
   }
 
-  const pages = data?.pages ?? [fallback];
-  const items = pages.flatMap((page) => page.items);
+  const pages: any[] = ((data as any)?.pages ?? [fallback]) as any[];
+  const items = pages.flatMap((page: any) => page.items);
   const total = pages[0]?.total ?? fallback.total;
   const [openId, setOpenId] = useState<string | null>(null);
   const [result, setResult] = useState<any | { status: "pending" } | null>(null);

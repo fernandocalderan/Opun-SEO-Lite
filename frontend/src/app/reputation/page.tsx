@@ -1,3 +1,5 @@
+"use client";
+
 import { ChannelBreakdown } from "@/modules/reputation/ChannelBreakdown";
 import { MentionsTable } from "@/modules/reputation/MentionsTable";
 import { SentimentTimeline } from "@/modules/reputation/SentimentTimeline";

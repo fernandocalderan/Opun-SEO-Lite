@@ -1,3 +1,5 @@
+"use client";
+
 import { ReportActivityChart } from "@/modules/reports/ReportActivityChart";
 import { ReportList } from "@/modules/reports/ReportList";
 import { TemplateLibrary } from "@/modules/reports/TemplateLibrary";
@@ -50,15 +52,6 @@ export default function ReportsPage() {
         </p>
       </header>
 
-      <ReportActivityChart data={activity.data ?? []} />
-      <ReportList reports={list.data ?? []} />
-      <TemplateLibrary templates={templates.data ?? []} />
-      {openId ? (
-        <ReportResultModal id={openId} html={html} onClose={() => { setOpenId(null); setHtml(undefined); }} />
-      ) : null}
-    </div>
-  );
-}
       <section className="rounded-2xl border border-border bg-surface p-4">
         <form
           className="flex flex-wrap items-center gap-3 text-sm"
@@ -77,3 +70,13 @@ export default function ReportsPage() {
           </button>
         </form>
       </section>
+
+      <ReportActivityChart data={activity.data ?? []} />
+      <ReportList reports={list.data ?? []} />
+      <TemplateLibrary templates={templates.data ?? []} />
+      {openId ? (
+        <ReportResultModal id={openId} html={html} onClose={() => { setOpenId(null); setHtml(undefined); }} />
+      ) : null}
+    </div>
+  );
+}
