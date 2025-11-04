@@ -9,6 +9,11 @@ El repositorio se ha reorganizado para reiniciar la capa frontend y mantener el 
 - `legacy/` – artefactos historicos de referencia (app Streamlit original).
 - `requirements.txt` – placeholder para dependencias globales (vacio por ahora).
 
+## Requisitos de entorno
+- Linux (Ubuntu 22.04+ probado) o macOS.
+- Node.js >= 20.19.0 (usar `nvm use` con el `.nvmrc` del repo).
+- npm 10+ (incluido con Node 20). Para instalar dependencias: `cd frontend && npm install`.
+
 ## Estado
 - **Backend/API**: pendiente de redisenar (consulta `docs/development-plan.md`).
 - **Frontend**: planificado en `docs/frontend-plan.md`, listo para iniciar con Next.js + Tailwind.
@@ -16,7 +21,7 @@ El repositorio se ha reorganizado para reiniciar la capa frontend y mantener el 
 
 ## Proximos pasos sugeridos
 1. Validar el plan frontend con stakeholders y registrar ADRs clave.
-2. Inicializar el proyecto web dentro de `frontend/src` siguiendo el plan (Sprint 0).
+2. Inicializar el proyecto web dentro de `frontend/` siguiendo el plan (Sprint 0).
 3. Definir la arquitectura backend y alinear los contratos API con el frontend.
 4. Reutilizar, si aplica, ideas del legacy Streamlit durante el redisen.
 

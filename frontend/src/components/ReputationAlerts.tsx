@@ -16,6 +16,28 @@ const sentimentBadge: Record<Alert["sentiment"], string> = {
 };
 
 export function ReputationAlerts({ alerts }: { alerts: Alert[] }) {
+  if (!alerts.length) {
+    return (
+      <section className="rounded-2xl border border-border bg-surface p-5 text-sm text-text-muted shadow-soft">
+        <header className="flex items-center justify-between">
+          <h2 className="text-lg font-semibold text-text-heading">
+            Alertas de reputacion
+          </h2>
+          <span className="text-sm text-text-muted">0 menciones nuevas</span>
+        </header>
+        <div className="mt-6 space-y-2 rounded-xl border border-dashed border-border p-6 text-center">
+          <p className="text-sm font-medium text-text-heading">
+            Sin alertas en las ultimas horas
+          </p>
+          <p className="text-sm leading-relaxed">
+            Configura reglas de monitoreo y conectores externos para catalogar
+            menciones y riesgos reputacionales en tiempo real.
+          </p>
+        </div>
+      </section>
+    );
+  }
+
   return (
     <section className="rounded-2xl border border-border bg-surface p-5 shadow-soft">
       <header className="flex items-center justify-between">

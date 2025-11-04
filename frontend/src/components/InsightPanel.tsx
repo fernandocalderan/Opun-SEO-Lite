@@ -16,6 +16,22 @@ const severityStyles: Record<Insight["severity"], string> = {
 };
 
 export function InsightPanel({ items }: { items: Insight[] }) {
+  if (!items.length) {
+    return (
+      <section className="rounded-2xl border border-border bg-surface p-6 text-sm text-text-muted shadow-soft">
+        <div className="space-y-2 text-center">
+          <h3 className="text-base font-semibold text-text-heading">
+            No hay recomendaciones activas
+          </h3>
+          <p className="leading-relaxed">
+            Publica auditorias o conecta tus fuentes de reputacion para recibir
+            insights priorizados automaticamente.
+          </p>
+        </div>
+      </section>
+    );
+  }
+
   return (
     <section className="space-y-3">
       {items.map((item) => (
