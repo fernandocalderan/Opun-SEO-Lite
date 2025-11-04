@@ -107,6 +107,66 @@ export type FetchPendingAuditsOptions = {
   signal?: AbortSignal;
 };
 
+export type CreateAuditPayload = {
+  url: string;
+  keywords?: string[];
+  scanDepth?: "light" | "standard" | "full";
+  includeSerp?: boolean;
+  includeReputation?: boolean;
+  includeTechnical?: boolean;
+  alerting?: {
+    notifyEmail?: boolean;
+    notifySlack?: boolean;
+    criticalOnly?: boolean;
+  };
+  notes?: string;
+  projectName?: string;
+};
+
+export type CreateAuditResult = {
+  id: string;
+  status: "pending" | "running" | "completed" | "failed";
+};
+
+export type AuditFullResult = {
+  seo_meta?: any;
+  crawl_indexability?: any;
+  performance?: any;
+  social?: any;
+  serp?: any[];
+  scores?: { onpage?: number; indexability?: number; wpo?: number; social?: number; serp?: number; overall?: number };
+  executive_summary?: { html?: string; markdown?: string };
+};
+
+export async function fetchAuditStatus(id: string): Promise<{ id: string; status: string } | null> {
+  const baseUrl = getApiBaseUrl();
+  if (!baseUrl) return null;
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
+  try {
+    const r = await fetch(`${baseUrl}/v1/audits/${id}/status`, { signal: controller.signal });
+    if (!r.ok) return null;
+    return (await r.json()) as { id: string; status: string };
+  } finally {
+    clearTimeout(timeoutId);
+  }
+}
+
+export async function fetchAuditResult(id: string): Promise<AuditFullResult | { status: "pending" } | null> {
+  const baseUrl = getApiBaseUrl();
+  if (!baseUrl) return null;
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
+  try {
+    const r = await fetch(`${baseUrl}/v1/audits/${id}/result`, { signal: controller.signal });
+    if (r.status === 202) return { status: "pending" } as const;
+    if (!r.ok) return null;
+    return (await r.json()) as AuditFullResult;
+  } finally {
+    clearTimeout(timeoutId);
+  }
+}
+
 const REQUEST_TIMEOUT_MS = 5_000;
 const STATUS_LABEL_MAP: Record<AuditQueueResponse["items"][number]["status"], AuditQueueCard["status"]> = {
   running: "En ejecucion",
@@ -362,6 +422,27 @@ export async function fetchPendingAudits(
   }
 
   return createPendingAuditsFallback();
+}
+
+export async function createAudit(payload: CreateAuditPayload): Promise<CreateAuditResult | null> {
+  const baseUrl = getApiBaseUrl();
+  if (!baseUrl) return null;
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
+  try {
+    const response = await fetch(`${baseUrl}/v1/audits`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Accept: "application/json" },
+      body: JSON.stringify(payload),
+      signal: controller.signal,
+    });
+    if (!response.ok) {
+      throw new Error(`Request failed with status ${response.status}`);
+    }
+    return (await response.json()) as CreateAuditResult;
+  } finally {
+    clearTimeout(timeoutId);
+  }
 }
 
 function transformAuditSummary(response: AuditSummaryResponse): AuditSummaryCard[] {

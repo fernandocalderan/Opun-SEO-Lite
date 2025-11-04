@@ -8,6 +8,8 @@ node_modules/
 __pycache__/
 *.py[cod]
 *.log
+*.pid
+backend/.data/
 
 # OS / Editor noise
 .DS_Store

@@ -6,6 +6,17 @@ import {
   auditQueueMock,
   auditSummaryMock,
 } from "../mocks/audits";
+import {
+  createAudit,
+  getHistory,
+  getPendingQueue,
+  getPerformance,
+  getQueue,
+  getResultById,
+  getStatusById,
+  getSummary,
+  initStoreWithMocksIfNeeded,
+} from "../store/auditsStore";
 
 const auditSummarySchema = z.object({
   overall_score: z.number().int().min(0).max(100),
@@ -78,8 +89,44 @@ const auditPendingResponseSchema = z.object({
 });
 
 export async function registerAuditRoutes(app: FastifyInstance) {
+  // Ensure JSON store exists and is seeded with current mocks on first use
+  await initStoreWithMocksIfNeeded({
+    queue: auditQueueMock as unknown as any,
+    history: auditHistoryMock as unknown as any,
+    performance: auditPerformanceMock as unknown as any,
+    summary: auditSummaryMock as unknown as any,
+  });
+
+  // Create/launch audit
+  app.post("/v1/audits", async (request) => {
+    const bodySchema = z.object({
+      url: z.string().url(),
+      keywords: z.array(z.string()).optional(),
+      scanDepth: z.enum(["light", "standard", "full"]).optional(),
+      includeSerp: z.boolean().optional(),
+      includeReputation: z.boolean().optional(),
+      includeTechnical: z.boolean().optional(),
+      alerting: z
+        .object({
+          notifyEmail: z.boolean().optional(),
+          notifySlack: z.boolean().optional(),
+          criticalOnly: z.boolean().optional(),
+        })
+        .optional(),
+      notes: z.string().optional(),
+      projectName: z.string().optional(),
+    });
+
+    const payload = bodySchema.parse(request.body);
+    const projectLabel = payload.projectName ?? payload.url;
+    const type = payload.scanDepth === "full" ? "full" : payload.scanDepth === "light" ? "light" : "standard";
+    const created = await createAudit({ project: projectLabel, type, url: payload.url, keywords: payload.keywords });
+    return { id: created.id, status: created.status };
+  });
+
   app.get("/v1/audits/summary", async () => {
-    return auditSummarySchema.parse(auditSummaryMock);
+    const data = await getSummary();
+    return auditSummarySchema.parse(data as any);
   });
 
   app.get("/v1/audits/queue", async (request) => {
@@ -92,13 +139,14 @@ export async function registerAuditRoutes(app: FastifyInstance) {
     const startIndex = decodeCursor(cursor);
     const endIndex = startIndex + pageSize;
 
-    const items = auditQueueMock.slice(startIndex, endIndex);
-    const nextCursor = endIndex < auditQueueMock.length ? encodeCursor(endIndex) : null;
+    const queue = await getQueue();
+    const items = queue.slice(startIndex, endIndex);
+    const nextCursor = endIndex < queue.length ? encodeCursor(endIndex) : null;
 
     return auditQueueResponseSchema.parse({
       items,
       next_cursor: nextCursor,
-      total: auditQueueMock.length,
+      total: queue.length,
     });
   });
 
@@ -112,32 +160,50 @@ export async function registerAuditRoutes(app: FastifyInstance) {
     const startIndex = decodeCursor(cursor);
     const endIndex = startIndex + pageSize;
 
-    const items = auditHistoryMock.slice(startIndex, endIndex);
-    const nextCursor =
-      endIndex < auditHistoryMock.length ? encodeCursor(endIndex) : null;
+    const history = await getHistory();
+    const items = history.slice(startIndex, endIndex);
+    const nextCursor = endIndex < history.length ? encodeCursor(endIndex) : null;
 
     return auditHistoryResponseSchema.parse({
       items,
       next_cursor: nextCursor,
-      total: auditHistoryMock.length,
+      total: history.length,
     });
   });
 
   app.get("/v1/audits/performance", async () => {
-    const aggregates = computePerformanceAggregates();
+    const aggregates = await computePerformanceAggregates();
 
     return auditPerformanceResponseSchema.parse({
-      points: auditPerformanceMock,
+      points: await getPerformance(),
       aggregates,
     });
   });
 
   app.get("/v1/audits/pending", async () => {
-    const items = auditQueueMock.filter((item) => item.status === "pending");
+    const items = await getPendingQueue();
     return auditPendingResponseSchema.parse({
       items,
       count: items.length,
     });
+  });
+
+  app.get("/v1/audits/:id/status", async (request, reply) => {
+    const params = request.params as { id: string };
+    const item = await getStatusById(params.id);
+    if (!item) {
+      return reply.code(404).send({ error: "Not found" });
+    }
+    return item;
+  });
+
+  app.get("/v1/audits/:id/result", async (request, reply) => {
+    const params = request.params as { id: string };
+    const result = await getResultById(params.id);
+    if (!result) {
+      return reply.code(202).send({ status: "pending" });
+    }
+    return result;
   });
 }
 
@@ -165,8 +231,9 @@ function encodeCursor(index: number) {
   return Buffer.from(String(index)).toString("base64url");
 }
 
-function computePerformanceAggregates() {
-  if (auditPerformanceMock.length === 0) {
+async function computePerformanceAggregates() {
+  const perf = await getPerformance();
+  if (perf.length === 0) {
     return {
       average_score: 0,
       average_duration_seconds: 0,
@@ -176,26 +243,26 @@ function computePerformanceAggregates() {
     };
   }
 
-  const totalScore = auditPerformanceMock.reduce((acc, point) => acc + point.score, 0);
-  const totalDuration = auditPerformanceMock.reduce(
+  const totalScore = perf.reduce((acc, point) => acc + point.score, 0);
+  const totalDuration = perf.reduce(
     (acc, point) => acc + point.duration_seconds,
     0,
   );
-  const maxDuration = auditPerformanceMock.reduce(
+  const maxDuration = perf.reduce(
     (max, point) => Math.max(max, point.duration_seconds),
     0,
   );
 
   return {
-    average_score: totalScore / auditPerformanceMock.length,
-    average_duration_seconds: totalDuration / auditPerformanceMock.length,
+    average_score: totalScore / perf.length,
+    average_duration_seconds: totalDuration / perf.length,
     max_duration_seconds: maxDuration,
-    sample_size: auditPerformanceMock.length,
-    duration_distribution: computeDurationDistribution(),
+    sample_size: perf.length,
+    duration_distribution: await computeDurationDistribution(),
   };
 }
 
-function computeDurationDistribution() {
+async function computeDurationDistribution() {
   const buckets = [
     { label: "<5m", min: 0, max: 300 },
     { label: "5-10m", min: 300, max: 600 },
@@ -203,9 +270,10 @@ function computeDurationDistribution() {
     { label: ">15m", min: 900, max: Infinity },
   ];
 
+  const perf = await getPerformance();
   return buckets.map((bucket) => ({
     label: bucket.label,
-    count: auditPerformanceMock.filter((point) => {
+    count: perf.filter((point) => {
       const duration = point.duration_seconds;
       return duration >= bucket.min && duration < bucket.max;
     }).length,

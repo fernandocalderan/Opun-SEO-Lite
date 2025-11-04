@@ -60,6 +60,7 @@ export function useAuditQueue(): UseAuditQueueResult {
       pages: [fallback],
       pageParams: [null],
     },
+    refetchInterval: 5000,
   });
 }
 
@@ -76,6 +77,7 @@ export function useAuditHistory(): UseAuditHistoryResult {
       pages: [fallback],
       pageParams: [null],
     },
+    refetchInterval: 10000,
   });
 }
 
@@ -98,5 +100,6 @@ export function useAuditPending(): UseAuditPendingResult {
     queryFn: ({ signal }) => fetchPendingAudits({ signal }),
     placeholderData: fallback,
     staleTime: 60_000,
+    refetchInterval: 5000,
   });
 }

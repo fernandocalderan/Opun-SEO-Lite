@@ -17,6 +17,7 @@ type Props = {
   hasMore?: boolean;
   onLoadMore?: () => void;
   isLoadingMore?: boolean;
+  onViewResult?: (id: string) => void;
 };
 
 export function AuditHistory({
@@ -27,6 +28,7 @@ export function AuditHistory({
   hasMore,
   onLoadMore,
   isLoadingMore,
+  onViewResult,
 }: Props) {
   if (!items.length) {
     return (
@@ -76,6 +78,7 @@ export function AuditHistory({
               <th className="px-4 py-3">Score</th>
               <th className="px-4 py-3">Issues</th>
               <th className="px-4 py-3">Owner</th>
+              <th className="px-4 py-3 text-right">Acciones</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100">
@@ -88,6 +91,15 @@ export function AuditHistory({
                 <td className="px-4 py-3 text-text-body">{item.score}</td>
                 <td className="px-4 py-3 text-text-body">{item.criticalIssues}</td>
                 <td className="px-4 py-3 text-text-body">{item.owner}</td>
+                <td className="px-4 py-3 text-right">
+                  <button
+                    type="button"
+                    onClick={() => onViewResult?.(item.id)}
+                    className="rounded-full border border-border px-3 py-1 text-xs font-medium text-text-body transition hover:bg-surface-alt"
+                  >
+                    Ver detalle
+                  </button>
+                </td>
               </tr>
             ))}
           </tbody>

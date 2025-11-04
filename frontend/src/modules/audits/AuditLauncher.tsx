@@ -2,6 +2,9 @@
 
 import Link from "next/link";
 import { FormEvent, useMemo, useReducer, useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
+import { createAudit } from "@/lib/gateways/audits";
+import { auditHistoryQueryKey, auditPendingQueryKey, auditQueueQueryKey, auditSummaryQueryKey } from "./hooks";
 import { initialSettings } from "@/lib/mocks/settings";
 
 const preset = initialSettings;
@@ -113,6 +116,7 @@ export function AuditLauncher({ onLaunch }: AuditLauncherProps) {
   const [state, dispatch] = useReducer(reducer, presetConfig);
   const [status, setStatus] = useState<"idle" | "running" | "success" | "error">("idle");
   const [message, setMessage] = useState<string>("");
+  const queryClient = useQueryClient();
 
   const usingPreset = useMemo(() => {
     return JSON.stringify(state) === JSON.stringify(presetConfig);
@@ -142,17 +146,32 @@ export function AuditLauncher({ onLaunch }: AuditLauncherProps) {
     try {
       setStatus("running");
       setMessage(`Ejecutando auditoria ${mode === "quick" ? "rapida" : "avanzada"}...`);
-      await new Promise((resolve) => setTimeout(resolve, 600));
+      await new Promise((resolve) => setTimeout(resolve, 300));
       if (onLaunch) {
         await Promise.resolve(onLaunch(config));
       } else {
-        console.group("Audit request");
-        console.log("modo", mode);
-        console.table(config);
-        console.groupEnd();
+        const result = await createAudit({
+          url: config.url,
+          keywords: config.keywords,
+          scanDepth: config.scanDepth,
+          includeSerp: config.includeSerp,
+          includeReputation: config.includeReputation,
+          includeTechnical: config.includeTechnical,
+          alerting: config.alerting,
+          notes: config.notes,
+          projectName: undefined,
+        });
+        if (!result) {
+          throw new Error("No se pudo crear la auditoria");
+        }
+        setMessage(`Auditoria enviada (ID ${result.id})`);
       }
       setStatus("success");
-      setMessage("Auditoria enviada correctamente");
+      // refrescar secciones relacionadas
+      queryClient.invalidateQueries({ queryKey: auditQueueQueryKey });
+      queryClient.invalidateQueries({ queryKey: auditPendingQueryKey });
+      queryClient.invalidateQueries({ queryKey: auditHistoryQueryKey });
+      queryClient.invalidateQueries({ queryKey: auditSummaryQueryKey });
       if (mode === "quick") {
         dispatch({ type: "resetQuick" });
       }
