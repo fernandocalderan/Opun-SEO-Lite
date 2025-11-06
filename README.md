@@ -15,9 +15,9 @@ El repositorio se ha reorganizado para reiniciar la capa frontend y mantener el 
 - npm 10+ (incluido con Node 20). Para instalar dependencias: `cd frontend && npm install`.
 
 ## Estado
-- **Backend/API**: pendiente de redisenar (consulta `docs/development-plan.md`).
-- **Frontend**: planificado en `docs/frontend-plan.md`, listo para iniciar con Next.js + Tailwind.
-- **CI/CD & Infra**: se configuraran nuevamente cuando se definan los stacks finales.
+- Backend/API: prototipo Fastify en `backend/` con worker mock y stores JSON.
+- Frontend: Next.js en `frontend/`.
+- CI/CD & Infra: dockerizado localmente y esqueleto Terraform para AWS (ECS Fargate + ALB + ECR).
 
 ## Proximos pasos sugeridos
 1. Validar el plan frontend con stakeholders y registrar ADRs clave.
@@ -26,3 +26,10 @@ El repositorio se ha reorganizado para reiniciar la capa frontend y mantener el 
 4. Reutilizar, si aplica, ideas del legacy Streamlit durante el redisen.
 
 Mantener este README actualizado conforme avance la implementacion.
+\n+## Docker (local)
+- Backend: `docker compose up -d --build backend`
+- Worker: `docker compose up -d --build worker`
+\n+Ambos comparten un volumen para `backend/.data`.
+\n+## Despliegue AWS (Terraform)
+- Ver `infra/terraform/README.md` para crear: VPC, ALB, ECS Fargate y ECR.
+- Recomendado publicar la imagen del backend en ECR y pasarla vía `-var 'container_image=...'` en `terraform apply`.
