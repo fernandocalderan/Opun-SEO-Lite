@@ -1,0 +1,6 @@
+project_name    = "opun-seo-lite"
+aws_region      = "eu-west-1"
+aws_profile     = "<TU_PERFIL_SSO>"
+container_image = "285392455781.dkr.ecr.eu-west-1.amazonaws.com/opun-seo-lite:latest"
+# acm_certificate_arn = "arn:aws:acm:eu-west-1:285392455781:certificate/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+# redirect_http_to_https = true

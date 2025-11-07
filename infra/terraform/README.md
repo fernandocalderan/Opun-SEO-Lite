@@ -28,14 +28,13 @@ terraform init
 
 # Iniciar sesión con SSO y seleccionar el perfil (ej. "default" o "sso-opun")
 aws sso login --profile <AWS_PROFILE>
-export AWS_PROFILE=<AWS_PROFILE>
 export AWS_REGION=eu-west-1
 export ACCOUNT_ID=285392455781
 export REPO=opun-seo-lite
 export ECR_URL="$ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$REPO:latest"
 
 # Crear sólo el ECR primero (para poder publicar la imagen)
-terraform apply -target=module.ecr -var "project_name=$REPO" -var "aws_region=$AWS_REGION"
+terraform apply -target=module.ecr -var "project_name=$REPO" -var "aws_region=$AWS_REGION" -var "aws_profile=<AWS_PROFILE>"
 
 # Login en ECR y publicar la imagen local del backend
 aws ecr get-login-password --region $AWS_REGION | \
@@ -44,10 +43,10 @@ docker tag opun-backend:local $ECR_URL
 docker push $ECR_URL
 
 # Plan completo con la imagen ya publicada
-terraform plan -var "project_name=$REPO" -var "aws_region=$AWS_REGION" -var "container_image=$ECR_URL"
+terraform plan -var "project_name=$REPO" -var "aws_region=$AWS_REGION" -var "aws_profile=<AWS_PROFILE>" -var "container_image=$ECR_URL"
 
 # Aplicar
-terraform apply -var "project_name=$REPO" -var "aws_region=$AWS_REGION" -var "container_image=$ECR_URL"
+terraform apply -var "project_name=$REPO" -var "aws_region=$AWS_REGION" -var "aws_profile=<AWS_PROFILE>" -var "container_image=$ECR_URL"
 ```
 
 ## Flujo sugerido de CI/CD
@@ -61,3 +60,12 @@ terraform apply -var "project_name=$REPO" -var "aws_region=$AWS_REGION" -var "co
 ## Certificado TLS (opcional)
 - Listener HTTPS 443 soportado: pasa `-var "acm_certificate_arn=arn:aws:acm:eu-west-1:285392455781:certificate/xxxxxxxx"`.
 - El SG del ALB permite 80/443. Si no pasas `acm_certificate_arn`, sólo quedará activo el listener 80.
+
+### Sugerencia: terraform.tfvars
+Puedes evitar escribir variables en cada comando creando `infra/terraform/terraform.tfvars` (o usando un `*.auto.tfvars`):
+
+project_name     = "opun-seo-lite"
+aws_region       = "eu-west-1"
+aws_profile      = "<AWS_PROFILE>"
+container_image  = "285392455781.dkr.ecr.eu-west-1.amazonaws.com/opun-seo-lite:latest"
+# acm_certificate_arn = "arn:aws:acm:eu-west-1:285392455781:certificate/…"

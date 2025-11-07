@@ -9,6 +9,12 @@ variable "aws_region" {
   default     = "eu-west-1"
 }
 
+variable "aws_profile" {
+  description = "Nombre del perfil de AWS CLI (opcional, p. ej. 'default' o 'sso-empresa')"
+  type        = string
+  default     = ""
+}
+
 variable "container_image" {
   description = "Imagen del contenedor (ECR URL + tag)"
   type        = string
