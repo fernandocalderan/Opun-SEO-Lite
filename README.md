@@ -1,35 +1,32 @@
 # Opun Intelligence Suite
 
-Evolucion de **Opun SEO Lite** hacia una plataforma SaaS multi-tenant orientada a SEO continuo e ingenieria reputacional.  
-El repositorio se ha reorganizado para reiniciar la capa frontend y mantener el legado separado.
+Evolución de Opun SEO Lite hacia una plataforma orientada a SEO continuo e ingeniería reputacional.
+
+Decisión actual: el backend se reinicia desde cero y ha sido retirado del repositorio. El frontend opera íntegramente con datos de mock hasta definir la nueva API.
 
 ## Estructura actual
-- `docs/` – planes, ADRs y documentacion estrategica (`frontend-plan.md`, `frontend-api-contracts.md`, etc.).
-- `frontend/` – workspace del nuevo frontend (ver `frontend/README.md`).
-- `legacy/` – artefactos historicos de referencia (app Streamlit original).
-- `requirements.txt` – placeholder para dependencias globales (vacio por ahora).
+- `docs/` – planes, ADRs y documentación estratégica.
+- `frontend/` – workspace del frontend (Next.js + Tailwind). Ver `frontend/README.md`.
+- `legacy/` – artefactos históricos.
+- `requirements.txt` – placeholder para dependencias globales.
 
 ## Requisitos de entorno
-- Linux (Ubuntu 22.04+ probado) o macOS.
-- Node.js >= 20.19.0 (usar `nvm use` con el `.nvmrc` del repo).
-- npm 10+ (incluido con Node 20). Para instalar dependencias: `cd frontend && npm install`.
+- Linux/macOS
+- Node.js >= 20.19.0 (`nvm use` con `.nvmrc` del repo)
+- npm 10+
 
 ## Estado
-- Backend/API: prototipo Fastify en `backend/` con worker mock y stores JSON.
-- Frontend: Next.js en `frontend/`.
-- CI/CD & Infra: dockerizado localmente y esqueleto Terraform para AWS (ECS Fargate + ALB + ECR).
+- Backend/API: en rediseño; eliminado código previo y la infraestructura asociada.
+- Frontend: activo con gateways que usan mocks cuando no hay `NEXT_PUBLIC_API_BASE_URL`.
 
-## Proximos pasos sugeridos
-1. Validar el plan frontend con stakeholders y registrar ADRs clave.
-2. Inicializar el proyecto web dentro de `frontend/` siguiendo el plan (Sprint 0).
-3. Definir la arquitectura backend y alinear los contratos API con el frontend.
-4. Reutilizar, si aplica, ideas del legacy Streamlit durante el redisen.
+## Desarrollo (solo frontend con mocks)
+1) Instalar dependencias: `cd frontend && npm install`
+2) Ejecutar en local: `npm run dev`
+3) Pruebas: `npm test`
 
-Mantener este README actualizado conforme avance la implementacion.
-\n+## Docker (local)
-- Backend: `docker compose up -d --build backend`
-- Worker: `docker compose up -d --build worker`
-\n+Ambos comparten un volumen para `backend/.data`.
-\n+## Despliegue AWS (Terraform)
-- Ver `infra/terraform/README.md` para crear: VPC, ALB, ECS Fargate y ECR.
-- Recomendado publicar la imagen del backend en ECR y pasarla vía `-var 'container_image=...'` en `terraform apply`.
+Notas:
+- `frontend/.env.local` no define `NEXT_PUBLIC_API_BASE_URL` para forzar mocks.
+- Al definir la nueva API, reactivaremos esa variable y actualizaremos los gateways.
+
+Mantén este README actualizado conforme avance la implementación.
+
