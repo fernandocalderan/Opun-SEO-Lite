@@ -36,6 +36,14 @@ public/            # Assets estáticos (logos, ilustraciones, manifest, etc.)
 .storybook/        # Configuracion y decorators de Storybook
 ```
 
+## Navegación (WIP)
+- SEO (resultado completo, historial y búsqueda rápida)
+- Reputation (menciones, sentimiento, canales y ranking de keywords)
+- Plan (backlog y seguimiento)
+- Monitoreo (proyectos activos + cola de auditorías)
+- Registro (alta de proyectos y preferencias)
+- Alerts (auditorías pendientes + alertas)
+
 ## Flujo de trabajo recomendado
 1. Desarrolla cada feature contra los mocks en `src/lib/mocks` y documenta las dependencias de contrato.
 2. Crea o actualiza historias en Storybook (`src/stories` o el módulo correspondiente) para acelerar el feedback de diseño.

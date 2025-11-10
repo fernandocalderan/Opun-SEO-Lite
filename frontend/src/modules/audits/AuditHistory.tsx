@@ -37,7 +37,9 @@ export function AuditHistory({
           <h2 className="text-base font-semibold text-text-heading">
             No hay ejecuciones recientes
           </h2>
-          <p>Ejecuta una auditoria o sincroniza tus proyectos para ver el historial.</p>
+          <p>
+            Ejecuta una auditoria o sincroniza tus proyectos para ver el historial. Para ver resultados completos, abre la vista SEO.
+          </p>
           <button
             type="button"
             onClick={onRefresh}
@@ -97,7 +99,7 @@ export function AuditHistory({
                     onClick={() => onViewResult?.(item.id)}
                     className="whitespace-nowrap rounded-full border border-border px-3 py-1 text-xs font-medium text-text-body transition hover:bg-surface-alt"
                   >
-                    Ver detalle
+                    Abrir en SEO
                   </button>
                 </td>
               </tr>

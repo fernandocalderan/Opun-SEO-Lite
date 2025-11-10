@@ -6,12 +6,12 @@ import { useUiPreferences } from "@/lib/stores/uiPreferences";
 import { useMemo } from "react";
 
 const NAV_ITEMS = [
-  { label: "Overview", href: "/" },
+  { label: "SEO", href: "/seo" },
   { label: "Reputation", href: "/reputation" },
-  { label: "Audits", href: "/audits" },
   { label: "Plan", href: "/plan" },
-  { label: "Reports", href: "/reports" },
-  { label: "Settings", href: "/settings" },
+  { label: "Monitoreo", href: "/monitoring" },
+  { label: "Registro", href: "/projects" },
+  { label: "Alerts", href: "/alerts" },
 ] as const;
 
 export function Sidebar() {

@@ -12,10 +12,10 @@ export default function AuditsPage() {
           Audit Orchestrator
         </span>
         <h1 className="text-3xl font-semibold text-text-heading">
-          Estado de auditorias y backlog
+          Lanzar auditorias y evolucion
         </h1>
         <p className="text-sm text-text-body">
-          Controla ejecuciones en curso, prioriza el backlog y comparte resultados con los squads.
+          Controla ejecuciones, prioriza backlog y lanza nuevas auditorias. Para ver resultados completos, usa la vista SEO.
         </p>
       </header>
 

@@ -5,6 +5,7 @@ import { KpiCard } from "@/components/KpiCard";
 import { InsightPanel } from "@/components/InsightPanel";
 import { ReputationAlerts } from "@/components/ReputationAlerts";
 import { useOverviewQuery } from "./hooks";
+import { AuditSummarySection } from "@/modules/audits/AuditSummarySection";
 
 export function OverviewScreen() {
   const { data, isLoading, isError, refetch } = useOverviewQuery();
@@ -52,6 +53,13 @@ export function OverviewScreen() {
           </p>
         </header>
 
+        {/* SEO audit at-a-glance */}
+        <section className="space-y-3">
+          <h2 className="text-base font-semibold text-text-heading">Estado SEO (ultimo run)</h2>
+          <AuditSummarySection />
+        </section>
+
+        {/* KPIs */}
         <section className="grid gap-5 md:grid-cols-3">
           {data.kpis.length ? (
             data.kpis.map((metric) => <KpiCard key={metric.label} {...metric} />)

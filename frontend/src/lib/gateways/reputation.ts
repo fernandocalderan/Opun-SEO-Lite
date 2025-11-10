@@ -1,6 +1,8 @@
 import { channelBreakdown, recentMentions, sentimentTimeline } from "../mocks/reputation";
 import type { ChannelBreakdownItem, ReputationMention, SentimentTimelinePoint, KpiSummaryItem } from "../mocks/types";
 
+export type RankRow = { keyword: string; status: "found" | "not_found"; position: number | null; found_url: string | null };
+
 const REQUEST_TIMEOUT_MS = 5000;
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL?.replace(/\/$/, "");
 
@@ -74,3 +76,49 @@ async function getJson(url: string) {
   }
 }
 
+// Keyword rank quick lookup — API if available, otherwise mock
+export async function fetchKeywordRanks(domain: string, keywords: string[]): Promise<RankRow[]> {
+  const cleanDomain = (domain || "").trim();
+  const list = (keywords || []).map((k) => k.trim()).filter(Boolean);
+  if (!cleanDomain || list.length === 0) return [];
+
+  if (API_BASE_URL) {
+    try {
+      const params = new URLSearchParams();
+      params.set("domain", cleanDomain);
+      for (const kw of list) params.append("kw", kw);
+      const data = await getJson(`${API_BASE_URL}/v1/reputation/ranks?${params.toString()}`);
+      // Expect array of { keyword, status, position, found_url }
+      if (Array.isArray(data)) return data as RankRow[];
+    } catch {
+      // fall through to mock
+    }
+  }
+
+  // Mock deterministic positions by hashing keyword
+  const baseUrl = normalizeDomainToUrl(cleanDomain);
+  return list.map((kw) => {
+    const hash = Array.from(kw).reduce((acc, ch) => acc + ch.charCodeAt(0), 0);
+    const found = hash % 3 !== 0; // ~66% found
+    const pos = found ? (hash % 20) + 1 : null; // 1..20
+    return {
+      keyword: kw,
+      status: found ? "found" : "not_found",
+      position: pos,
+      found_url: found ? `${baseUrl}/${slugify(kw)}` : null,
+    } as RankRow;
+  });
+}
+
+function normalizeDomainToUrl(input: string) {
+  try {
+    const u = new URL(input.includes("http") ? input : `https://${input}`);
+    return `${u.origin}`;
+  } catch {
+    return `https://${input.replace(/\/$/, "")}`;
+  }
+}
+
+function slugify(s: string) {
+  return s.toLowerCase().normalize("NFKD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+}
