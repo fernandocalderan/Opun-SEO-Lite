@@ -3,7 +3,7 @@
 import { useMemo } from "react";
 import { AuditHistory } from "./AuditHistory";
 import { useAuditHistory } from "./hooks";
-import { createAuditHistoryFallback } from "@/lib/gateways";
+import { createAuditHistoryFallback, type AuditHistoryResult, type AuditHistoryRow } from "@/lib/gateways";
 import { useRouter } from "next/navigation";
 
 export function AuditHistorySection() {
@@ -39,10 +39,10 @@ export function AuditHistorySection() {
     );
   }
 
-  const pages: any[] = ((data as any)?.pages ?? [fallback]) as any[];
-  const itemsRaw = pages.flatMap((page: any) => page.items);
+  const pages: AuditHistoryResult[] = (data?.pages ?? [fallback]) as AuditHistoryResult[];
+  const itemsRaw: AuditHistoryRow[] = pages.flatMap((page) => page.items);
   const seen = new Set<string>();
-  const items = itemsRaw.filter((it: any) => {
+  const items = itemsRaw.filter((it) => {
     if (!it?.id) return true;
     if (seen.has(it.id)) return false;
     seen.add(it.id);

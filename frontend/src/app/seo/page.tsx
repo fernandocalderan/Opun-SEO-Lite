@@ -7,7 +7,7 @@ import { fetchProjects, type Project } from "@/lib/gateways/projects";
 import { useAuditHistory } from "@/modules/audits/hooks";
 import { AuditHistory } from "@/modules/audits/AuditHistory";
 import { AuditResultView } from "@/modules/audits/AuditResultView";
-import { fetchAuditResult } from "@/lib/gateways/audits";
+import { fetchAuditResult, type AuditFullResult } from "@/lib/gateways/audits";
 import { createAuditHistoryFallback } from "@/lib/gateways";
 import { auditResultSample } from "@/lib/mocks/auditResult.sample";
 import { fetchKeywordRanks, type RankRow } from "@/lib/gateways/reputation";
@@ -17,14 +17,14 @@ export default function SeoAnalysisPage() {
   const history = useAuditHistory();
   const searchParams = useSearchParams();
   const fallback = useMemo(() => createAuditHistoryFallback(), []);
-  const pages: any[] = ((history.data as any)?.pages ?? [fallback]) as any[];
+  const pages = (history.data?.pages ?? [fallback]);
   const items = pages.flatMap((p) => p.items);
   const initialId = searchParams.get("id") || items[0]?.id || null;
   const [selectedId, setSelectedId] = useState<string | null>(initialId);
   const [urlInput, setUrlInput] = useState<string>("");
   const [kwInput, setKwInput] = useState<string>("");
   const [currentUrl, setCurrentUrl] = useState<string>("");
-  const [content, setContent] = useState<any | { status: "pending" } | null>(null);
+  const [content, setContent] = useState<AuditFullResult | { status: "pending" } | null>(null);
   const [demo, setDemo] = useState(false);
   const projectsQuery = useQuery({ queryKey: ["projects"], queryFn: () => fetchProjects() });
   const [repRanks, setRepRanks] = useState<RankRow[]>([]);
@@ -37,7 +37,7 @@ export default function SeoAnalysisPage() {
       return;
     }
     // Si el seleccionado no existe en la lista actual (p.ej. fallback 'hist-1'), seleccionar el primero real
-    const idSet = new Set(items.map((i: any) => i.id));
+    const idSet = new Set(items.map((i) => i.id));
     if (!selectedId || !idSet.has(selectedId)) {
       setSelectedId(items[0]?.id ?? null);
     }
@@ -68,15 +68,17 @@ export default function SeoAnalysisPage() {
         setContent(res);
         setDemo(false);
         // si aún está pendiente, reintentar después de 2s
-        if ("status" in (res as any) && (res as any).status === "pending") {
+        if ("status" in res && res.status === "pending") {
           setTimeout(() => {
             if (!active) return;
             // fuerza un re-fetch cambiando temporalmente el estado
             setContent(null);
-            fetchAuditResult(selectedId).then((r) => {
-              if (!active || !r) return;
-              setContent(r);
-            }).catch(() => {});
+            fetchAuditResult(selectedId)
+              .then((r) => {
+                if (!active || !r) return;
+                setContent(r);
+              })
+              .catch(() => {});
           }, 2000);
         }
       } else {
@@ -184,10 +186,10 @@ export default function SeoAnalysisPage() {
             ) : null}
           </header>
           {content ? (
-            "status" in (content as any) && (content as any).status === "pending" ? (
+            "status" in content && content.status === "pending" ? (
               <p className="text-sm text-text-muted">El resultado aún no está listo. Intentando nuevamente...</p>
             ) : (
-              <AuditResultView result={content as any} />
+              <AuditResultView result={content as AuditFullResult} />
             )
           ) : (
             <p className="text-sm text-text-muted">Cargando...</p>

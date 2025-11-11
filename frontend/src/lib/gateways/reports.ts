@@ -4,11 +4,20 @@ import type { ReportActivityPoint, ReportListItem, ReportTemplate } from "../moc
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL?.replace(/\/$/, "");
 const REQUEST_TIMEOUT_MS = 5000;
 
+type ReportListApi = Array<{
+  id: string;
+  title: string;
+  project: string;
+  generated_at: string;
+  format: string;
+  status: string;
+}>;
+
 export async function fetchReportList(): Promise<ReportListItem[]> {
   if (!API_BASE_URL) return reportList;
   try {
-    const payload = await getJson(`${API_BASE_URL}/v1/reports/list`);
-    return (payload as any[]).map((r) => ({
+    const payload = (await getJson(`${API_BASE_URL}/v1/reports/list`)) as ReportListApi;
+    return payload.map((r) => ({
       id: r.id,
       title: r.title,
       project: r.project,
@@ -63,10 +72,30 @@ export async function fetchReportStatus(id: string): Promise<{ id: string; statu
   return (await r.json()) as { id: string; status: string };
 }
 
-export async function fetchReportResult(id: string): Promise<{ id: string; title: string; project: string; generated_at: string; html: string; format: string } | { status: "pending" } | null> {
-  if (!API_BASE_URL) return null;
+export type ReportResultApi = { id: string; title: string; project: string; generated_at: string; html: string; format: string };
+
+export async function fetchReportResult(id: string): Promise<ReportResultApi | { status: "pending" } | null> {
+  if (!API_BASE_URL) {
+    // Fallback inmediato con HTML de muestra para validar la UI
+    const nowIso = new Date().toISOString();
+    return {
+      id,
+      title: `Executive Brief ${new Date().toLocaleDateString("es-ES")}`,
+      project: "Demo",
+      generated_at: nowIso,
+      format: "html",
+      html: `<!doctype html><html><head><meta charset=\"utf-8\"/><title>Reporte ${id}</title></head><body style=\"font-family: system-ui, sans-serif; padding: 24px\"><h1>Reporte demo</h1><p>Generado: ${nowIso}</p><p>Contenido de ejemplo para validar estilos y export.</p></body></html>`
+    } satisfies ReportResultApi;
+  }
   const r = await fetch(`${API_BASE_URL}/v1/reports/${id}/result`);
   if (r.status === 202) return { status: "pending" } as const;
   if (!r.ok) return null;
-  return (await r.json()) as any;
+  return (await r.json()) as ReportResultApi;
+}
+
+// Fallback para generar un ID y HTML temporal si no hay API
+export async function createReportFallback(payload: { title: string; project: string; format?: string }): Promise<{ id: string; status: string }> {
+  const id = `rep_${Date.now().toString(36)}`;
+  // Simula estado accepted
+  return { id, status: "pending" };
 }

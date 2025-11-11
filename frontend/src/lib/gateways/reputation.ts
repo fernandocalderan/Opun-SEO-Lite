@@ -37,12 +37,22 @@ export async function fetchReputationChannels(): Promise<ChannelBreakdownItem[]>
   }
 }
 
+type MentionsApi = Array<{
+  id: string;
+  source: string;
+  sentiment: "positivo" | "negativo" | "neutral";
+  snippet: string;
+  published_at: string;
+  reach: string;
+  action: string;
+}>;
+
 export async function fetchReputationMentions(): Promise<ReputationMention[]> {
   if (!API_BASE_URL) return recentMentions;
   try {
-    const data = await getJson(`${API_BASE_URL}/v1/reputation/mentions`);
+    const data = (await getJson(`${API_BASE_URL}/v1/reputation/mentions`)) as MentionsApi;
     // map to frontend shape: publishedAt human readable
-    return (data as any[]).map((m) => ({
+    return data.map((m) => ({
       id: m.id,
       source: m.source,
       sentiment: m.sentiment,

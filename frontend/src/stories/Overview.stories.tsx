@@ -140,11 +140,7 @@ function OverviewStoryShell({
 
 function OverviewStoryProviders({ dataset }: { dataset: OverviewDataset }) {
   const datasetRef = useRef(dataset);
-  const [queryClient] = useState(() => {
-    const client = new QueryClient();
-    client.setQueryData(overviewQueryKey, datasetRef.current);
-    return client;
-  });
+  const [queryClient] = useState(() => new QueryClient());
 
   useEffect(() => {
     datasetRef.current = dataset;

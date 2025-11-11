@@ -6,6 +6,7 @@ import { useAuditPending, useAuditQueue } from "./hooks";
 import {
   createAuditQueueFallback,
   createPendingAuditsFallback,
+  type AuditQueueResult,
 } from "@/lib/gateways";
 
 export function AuditQueueSection() {
@@ -42,10 +43,10 @@ export function AuditQueueSection() {
     );
   }
 
-  const pages: any[] = ((data as any)?.pages ?? [fallbackQueue]) as any[];
-  const itemsRaw = pages.flatMap((page: any) => page.items);
+  const pages: AuditQueueResult[] = (data?.pages ?? [fallbackQueue]) as AuditQueueResult[];
+  const itemsRaw = pages.flatMap((page) => page.items);
   const seen = new Set<string>();
-  const items = itemsRaw.filter((it: any) => {
+  const items = itemsRaw.filter((it) => {
     if (!it?.id) return true;
     if (seen.has(it.id)) return false;
     seen.add(it.id);

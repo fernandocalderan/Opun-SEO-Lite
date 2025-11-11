@@ -1,13 +1,12 @@
 "use client";
 
-import { useMemo } from "react";
 import type { AuditFullResult } from "@/lib/gateways/audits";
 
 type Props = { result: AuditFullResult };
 
 export function AuditResultView({ result }: Props) {
   const scores = result.scores || {};
-  const suggestions = useMemo(() => collectSuggestions(result), [result]);
+  const suggestions = collectSuggestions(result);
 
   return (
     <div className="space-y-6">
@@ -63,7 +62,7 @@ export function AuditResultView({ result }: Props) {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
-                  {Object.entries(result.seo_meta.keyword_relevance.by_keyword as Record<string, any>).map(([kw, d]) => (
+                  {Object.entries((result.seo_meta.keyword_relevance.by_keyword || {}) as Record<string, KeywordDetail>).map(([kw, d]) => (
                     <tr key={kw}>
                       <td className="px-3 py-2 font-medium text-text-heading">{kw}</td>
                       <td className="px-3 py-2"><MatchBadge v={d.title?.match} /></td>
@@ -220,9 +219,13 @@ function List({ k, items }: { k: string; items: string[] }) {
 }
 
 function MatchBadge({ v }: { v: string }) {
-  const map: any = { exact: ["Exacta", "green"], partial: ["Parcial", "amber"], none: ["Ninguna", "red"] };
+  const map: Record<string, [string, "green" | "amber" | "red"]> = {
+    exact: ["Exacta", "green"],
+    partial: ["Parcial", "amber"],
+    none: ["Ninguna", "red"],
+  };
   const [label, status] = map[v] || ["—", "red"];
-  return <span className={chipClass(status as any)}>{label}</span>;
+  return <span className={chipClass(status)}>{label}</span>;
 }
 
 function chipClass(status: "green" | "amber" | "red") {
@@ -251,8 +254,8 @@ function formatBytes(n: number) {
 }
 
 function collectSuggestions(result: AuditFullResult) {
-  const out: any[] = [];
-  const push = (arr?: any[]) => { if (Array.isArray(arr)) out.push(...arr); };
+  const out: Array<Record<string, unknown>> = [];
+  const push = (arr?: Array<Record<string, unknown>>) => { if (Array.isArray(arr)) out.push(...arr); };
   push(result.seo_meta?.suggestions);
   push(result.crawl_indexability?.suggestions);
   push(result.performance?.suggestions);
@@ -260,8 +263,8 @@ function collectSuggestions(result: AuditFullResult) {
   return out;
 }
 
-function hasKeys(obj: any) {
-  return obj && typeof obj === "object" && Object.keys(obj).length > 0;
+function hasKeys(obj: unknown) {
+  return !!obj && typeof obj === "object" && Object.keys(obj as object).length > 0;
 }
 
 function prioClass(p: string) {
@@ -270,3 +273,12 @@ function prioClass(p: string) {
   if (v.startsWith("media")) return "pill amber";
   return "pill red";
 }
+
+type KeywordDetail = {
+  title?: { match?: unknown };
+  meta_description?: { match?: unknown };
+  h1?: { match?: unknown };
+  h2?: { match?: unknown };
+  url_slug?: { match?: unknown };
+  score?: number;
+};

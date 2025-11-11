@@ -1,6 +1,7 @@
 "use client";
 
 import { ReputationAlerts } from "@/components/ReputationAlerts";
+import type { SentimentTone } from "@/lib/mocks/types";
 import { useAuditPending } from "@/modules/audits/hooks";
 import { useReputationMentions } from "@/modules/reputation/hooks";
 
@@ -60,18 +61,22 @@ export default function AlertsPage() {
       </section>
 
       <ReputationAlerts
-        alerts={
-          (mentions.data ?? []).map((m) => ({
-            id: m.id,
-            channel: "Mentions",
-            source: m.source,
-            summary: m.snippet,
-            sentiment: m.sentiment === "positivo" ? "positive" : m.sentiment === "negativo" ? "negative" : "neutral",
-            publishedAt: m.publishedAt,
-            url: "#",
-          })) as any
-        }
+        alerts={(mentions.data ?? []).map((m) => ({
+          id: m.id,
+          channel: "Mentions",
+          source: m.source,
+          summary: m.snippet,
+          sentiment: mapSentiment(m.sentiment),
+          publishedAt: m.publishedAt,
+          url: "#",
+        }))}
       />
     </div>
   );
+}
+
+function mapSentiment(s: "positivo" | "neutral" | "negativo"): SentimentTone {
+  if (s === "positivo") return "positive";
+  if (s === "negativo") return "negative";
+  return "neutral";
 }

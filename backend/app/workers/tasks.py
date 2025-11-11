@@ -1,6 +1,9 @@
 from __future__ import annotations
 
 from datetime import datetime, timezone
+import logging
+import random
+import time
 from uuid import uuid4
 
 from sqlalchemy.orm import Session
@@ -12,12 +15,17 @@ from app.db.models.project import Project, ScheduleEnum
 from app.services.openai_svc import generate_summary_and_suggestions
 
 
+logger = logging.getLogger("opun.worker")
+
+
 @celery.task(name="opun.run_audit")
 def run_audit_task(audit_id: str) -> None:
     db: Session = SessionLocal()
     try:
+        logger.info("run_audit.start", extra={"audit_id": audit_id})
         audit = db.get(Audit, audit_id)
         if not audit:
+            logger.warning("run_audit.audit_not_found", extra={"audit_id": audit_id})
             return
         audit.status = AuditStatus.running
         audit.started_at = datetime.now(timezone.utc)
@@ -30,18 +38,22 @@ def run_audit_task(audit_id: str) -> None:
 
         # Enriquecer con OpenAI si hay clave
         try:
-            html, suggestions = generate_summary_and_suggestions(
-                url=audit.url, keywords=audit.keywords or [], metrics={}
+            html, suggestions = _with_retries(
+                lambda: generate_summary_and_suggestions(
+                    url=audit.url, keywords=audit.keywords or [], metrics={}
+                ),
+                attempts=3,
+                base_delay=1.0,
+                jitter=0.3,
+                audit_id=audit.id,
             )
             if html:
                 payload.setdefault("executive_summary", {})["html"] = html
             if suggestions:
-                # Insertar en bloque seo_meta.suggestions para que el frontend las capte
                 existing = payload.get("seo_meta", {}).get("suggestions") or []
                 payload.setdefault("seo_meta", {})["suggestions"] = [*existing, *suggestions]
-        except Exception:
-            # Ignorar fallo de OpenAI, mantener payload base
-            pass
+        except Exception as e:
+            logger.error("run_audit.openai_failed", extra={"audit_id": audit.id, "error": str(e)})
 
         result = AuditResult(
             audit_id=audit.id,
@@ -63,6 +75,7 @@ def run_audit_task(audit_id: str) -> None:
                 proj.last_audit_at = audit.finished_at
                 db.add(proj)
         db.commit()
+        logger.info("run_audit.completed", extra={"audit_id": audit.id, "status": audit.status.value})
     except Exception:
         db.rollback()
         audit = db.get(Audit, audit_id)
@@ -70,8 +83,9 @@ def run_audit_task(audit_id: str) -> None:
             audit.status = AuditStatus.failed
             db.add(audit)
             db.commit()
+        logger.exception("run_audit.unhandled_error", extra={"audit_id": audit_id})
     finally:
-    db.close()
+        db.close()
 
 
 def build_sample_result(url: str, keywords: list[str]) -> dict:
@@ -132,21 +146,29 @@ def enqueue_due_audits() -> int:
     try:
         now = datetime.now(timezone.utc)
         enqueued = 0
+        # Lock rows to avoid duplicate scheduling under concurrency
         projects = db.query(Project).filter(Project.monitoring_enabled.is_(True)).all()
         for p in projects:
-            threshold_seconds = _schedule_to_seconds(p.schedule)
+            # Reload with FOR UPDATE to ensure idempotency
+            p_locked = (
+                db.query(Project)
+                .filter(Project.id == p.id)
+                .with_for_update(nowait=False, of=Project)
+                .one()
+            )
+            threshold_seconds = _schedule_to_seconds(p_locked.schedule)
             if threshold_seconds is None:
                 continue
-            last = p.last_audit_at
+            last = p_locked.last_audit_at
             should_run = last is None or (now - last).total_seconds() >= threshold_seconds
             if not should_run:
                 continue
 
             audit = Audit(
                 id=str(uuid4()),
-                project_id=p.id,
-                url=p.primary_url,
-                keywords=p.keywords or [],
+                project_id=p_locked.id,
+                url=p_locked.primary_url,
+                keywords=p_locked.keywords or [],
                 scan_depth="standard",
                 include_serp=True,
                 include_reputation=True,
@@ -157,11 +179,12 @@ def enqueue_due_audits() -> int:
             )
             db.add(audit)
             # actualizar last_audit_at al momento de encolar para evitar duplicados
-            p.last_audit_at = now
-            db.add(p)
+            p_locked.last_audit_at = now
+            db.add(p_locked)
             db.commit()
             run_audit_task.delay(audit.id)
             enqueued += 1
+        logger.info("enqueue_due_audits.done", extra={"enqueued": enqueued})
         return enqueued
     finally:
         db.close()
@@ -182,4 +205,27 @@ def _schedule_to_seconds(s: ScheduleEnum | str | None) -> int | None:
         return 7 * 24 * 60 * 60
     if val == "monthly":
         return 30 * 24 * 60 * 60
+    return None
+
+
+def _with_retries(fn, attempts: int = 3, base_delay: float = 0.5, jitter: float = 0.1, audit_id: str | None = None):
+    """Execute callable with simple exponential backoff and jitter.
+    Returns fn() result or raises last error.
+    """
+    last_exc: Exception | None = None
+    for i in range(1, attempts + 1):
+        try:
+            return fn()
+        except Exception as e:  # noqa: BLE001
+            last_exc = e
+            delay = base_delay * (2 ** (i - 1)) + random.uniform(0, jitter)
+            logger.warning(
+                "retrying",
+                extra={"attempt": i, "delay": round(delay, 3), "audit_id": audit_id, "error": str(e)},
+            )
+            time.sleep(delay)
+    # exhausted
+    if last_exc:
+        raise last_exc
+    # should not reach
     return None

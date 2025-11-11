@@ -2,10 +2,11 @@
 
 import { useEffect } from "react";
 import { AuditResultView } from "./AuditResultView";
+import type { AuditFullResult } from "@/lib/gateways/audits";
 
 type Props = {
   id: string;
-  content: any | { status: "pending" } | null;
+  content: AuditFullResult | { status: "pending" } | null;
   onClose: () => void;
 };
 
@@ -24,7 +25,7 @@ export function AuditResultModal({ id, content, onClose }: Props) {
         <header className="flex items-center justify-between border-b border-border p-4">
           <h3 className="text-base font-semibold text-text-heading">Resultado de auditoria · {id}</h3>
           <div className="flex items-center gap-2">
-            {content && !("status" in (content as any)) ? (
+            {content && !("status" in content) ? (
               <button
                 onClick={() => downloadJson(id, content)}
                 className="rounded-full border border-border px-3 py-1 text-xs font-medium text-text-body hover:bg-surface-subtle"
@@ -40,10 +41,10 @@ export function AuditResultModal({ id, content, onClose }: Props) {
         <div className="max-h-[70vh] overflow-auto p-4 text-sm">
           {content == null ? (
             <p className="text-text-muted">Cargando...</p>
-          ) : "status" in (content as any) && (content as any).status === "pending" ? (
+          ) : "status" in content && content.status === "pending" ? (
             <p className="text-text-muted">El resultado aún no está listo. Intentando nuevamente...</p>
           ) : (
-            <AuditResultView result={content as any} />
+            <AuditResultView result={content as AuditFullResult} />
           )}
         </div>
       </div>
@@ -51,7 +52,7 @@ export function AuditResultModal({ id, content, onClose }: Props) {
   );
 }
 
-function downloadJson(id: string, data: any) {
+function downloadJson(id: string, data: AuditFullResult | { status: "pending" }) {
   const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");

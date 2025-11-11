@@ -129,12 +129,35 @@ export type CreateAuditResult = {
   status: "pending" | "running" | "completed" | "failed";
 };
 
+// Tipado mínimo y laxo para el resultado de auditoría, manteniendo solo las claves utilizadas por la UI.
 export type AuditFullResult = {
-  seo_meta?: any;
-  crawl_indexability?: any;
-  performance?: any;
-  social?: any;
-  serp?: any[];
+  seo_meta?: {
+    title?: { value?: string; status?: string };
+    description?: { value?: string; status?: string };
+    robots_meta?: { value?: string; status?: string };
+    canonical?: { value?: string; status?: string };
+    headings_top?: { h1?: string[]; h2?: string[] };
+    keyword_relevance?: { by_keyword?: Record<string, Record<string, unknown>> };
+    suggestions?: Array<Record<string, unknown>>;
+  };
+  crawl_indexability?: {
+    final_status?: number | null;
+    redirect_chain?: Array<Record<string, unknown>>;
+    chain_status?: string;
+    x_robots_tag?: string;
+    suggestions?: Array<Record<string, unknown>>;
+  };
+  performance?: {
+    core_web_vitals?: { lcp_ms?: number; cls?: number; inp_ms?: number };
+    assets?: { total_js_bytes?: number; total_css_bytes?: number };
+    suggestions?: Array<Record<string, unknown>>;
+  };
+  social?: {
+    og?: Record<string, unknown>;
+    twitter?: Record<string, unknown>;
+    suggestions?: Array<Record<string, unknown>>;
+  };
+  serp?: Array<Record<string, unknown>>;
   scores?: { onpage?: number; indexability?: number; wpo?: number; social?: number; serp?: number; overall?: number };
   executive_summary?: { html?: string; markdown?: string };
 };

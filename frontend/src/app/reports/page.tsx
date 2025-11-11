@@ -5,7 +5,7 @@ import { ReportList } from "@/modules/reports/ReportList";
 import { TemplateLibrary } from "@/modules/reports/TemplateLibrary";
 import { useReportActivity, useReportList, useReportTemplates } from "@/modules/reports/hooks";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { createReport, fetchReportResult } from "@/lib/gateways/reports";
+import { createReport, fetchReportResult, createReportFallback, type ReportResultApi } from "@/lib/gateways/reports";
 import { useEffect, useRef, useState } from "react";
 import { ReportResultModal } from "@/modules/reports/ReportResultModal";
 
@@ -19,7 +19,12 @@ export default function ReportsPage() {
   const pollRef = useRef<NodeJS.Timeout | null>(null);
 
   const mGen = useMutation({
-    mutationFn: (payload: { title: string; project: string }) => createReport(payload),
+    mutationFn: async (payload: { title: string; project: string }) => {
+      const real = await createReport(payload);
+      if (real) return real;
+      // Sin API: simular aceptacion
+      return createReportFallback(payload);
+    },
     onSuccess: async (res) => {
       if (!res) return;
       setOpenId(res.id);
@@ -27,8 +32,8 @@ export default function ReportsPage() {
       // poll until ready
       const tryFetch = async () => {
         const r = await fetchReportResult(res.id);
-        if (r && !("status" in (r as any))) {
-          setHtml((r as any).html);
+        if (r && !("status" in r)) {
+          setHtml((r as ReportResultApi).html);
           qc.invalidateQueries({ queryKey: ["reports","list"] });
           if (pollRef.current) { clearInterval(pollRef.current); pollRef.current = null; }
         }

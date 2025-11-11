@@ -1,8 +1,10 @@
 from celery import Celery
 from app.core.config import get_settings
+from app.core.logging import configure_json_logging
 
 
 settings = get_settings()
+configure_json_logging(settings.log_level)
 
 celery = Celery(
     "opun",

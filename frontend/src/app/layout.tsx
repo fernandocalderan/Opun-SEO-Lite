@@ -34,9 +34,9 @@ export default function RootLayout({
         <AppProviders>
           <div className="grid min-h-screen grid-cols-[auto_1fr] bg-surface-subtle">
             <Sidebar />
-            <div className="flex flex-col">
+            <div className="min-w-0 flex flex-col">
               <TopBar />
-              <main className="flex-1 bg-surface-subtle">{children}</main>
+              <main className="min-w-0 flex-1 bg-surface-subtle">{children}</main>
             </div>
           </div>
         </AppProviders>
