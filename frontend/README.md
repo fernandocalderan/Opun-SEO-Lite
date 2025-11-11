@@ -49,3 +49,30 @@ public/            # Assets estáticos (logos, ilustraciones, manifest, etc.)
 2. Crea o actualiza historias en Storybook (`src/stories` o el módulo correspondiente) para acelerar el feedback de diseño.
 3. Antes de abrir PR ejecuta `npm run lint` y `npm run test`. Husky + lint-staged validan los archivos modificados en `pre-commit`.
 4. Mantén `docs/frontend-plan.md`, los contratos OpenAPI y los ADRs sincronizados con los cambios de producto/arquitectura.
+
+## Dev en contenedor (Node 20 sin instalar localmente)
+
+En la raíz del repo:
+
+```bash
+# levanta Next en http://localhost:3002 (usa NEXT_PUBLIC_API_BASE_URL si está exportada)
+make fe-up
+
+# ver logs
+make fe-logs
+
+# detener/eliminar contenedor
+make fe-down
+
+# limpiar caché y permisos de .next y node_modules
+make fe-clean
+```
+
+Backend útil:
+
+```bash
+make be-up       # api, worker, beat, postgres, redis
+make be-migrate  # aplica migraciones Alembic
+make be-logs     # logs de api/worker/beat
+make be-down     # detener todo
+```

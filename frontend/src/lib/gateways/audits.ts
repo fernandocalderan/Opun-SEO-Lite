@@ -163,12 +163,17 @@ export async function fetchAuditResult(id: string): Promise<AuditFullResult | { 
     if (r.status === 202) return { status: "pending" } as const;
     if (!r.ok) return null;
     return (await r.json()) as AuditFullResult;
+  } catch (error) {
+    if (process.env.NODE_ENV !== "production") {
+      console.warn("[fetchAuditResult] error, treating as pending", error);
+    }
+    return { status: "pending" } as const;
   } finally {
     clearTimeout(timeoutId);
   }
 }
 
-const REQUEST_TIMEOUT_MS = 5_000;
+const REQUEST_TIMEOUT_MS = 15_000;
 const STATUS_LABEL_MAP: Record<AuditQueueResponse["items"][number]["status"], AuditQueueCard["status"]> = {
   running: "En ejecucion",
   pending: "Pendiente",
