@@ -6,6 +6,7 @@ from app.core.config import get_settings
 from app.core.logging import configure_json_logging
 from app.core.middleware import request_id_middleware, access_log_middleware
 from app.routers import health as health_router
+from app.routers import metrics as metrics_router
 from app.routers import projects as projects_router
 from app.routers import audits as audits_router
 from app.routers import reputation as reputation_router
@@ -32,6 +33,7 @@ def create_app() -> FastAPI:
     app.middleware("http")(access_log_middleware)
 
     app.include_router(health_router.router)
+    app.include_router(metrics_router.router)
     from fastapi import Depends
     from app.core.auth import require_api_key
 

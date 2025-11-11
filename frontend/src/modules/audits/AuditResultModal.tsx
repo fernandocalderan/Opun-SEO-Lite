@@ -6,7 +6,7 @@ import type { AuditFullResult } from "@/lib/gateways/audits";
 
 type Props = {
   id: string;
-  content: AuditFullResult | { status: "pending" } | null;
+  content: AuditFullResult | { status: "pending" } | { status: "failed"; reason?: string } | null;
   onClose: () => void;
 };
 
@@ -43,6 +43,11 @@ export function AuditResultModal({ id, content, onClose }: Props) {
             <p className="text-text-muted">Cargando...</p>
           ) : "status" in content && content.status === "pending" ? (
             <p className="text-text-muted">El resultado aún no está listo. Intentando nuevamente...</p>
+          ) : "status" in content && content.status === "failed" ? (
+            <div className="space-y-2 text-sm">
+              <p className="text-rose-700">La auditoría falló{(content as any).reason ? `: ${(content as any).reason}` : "."}</p>
+              <p>Vuelve a intentarlo desde la sección Audits.</p>
+            </div>
           ) : (
             <AuditResultView result={content as AuditFullResult} />
           )}

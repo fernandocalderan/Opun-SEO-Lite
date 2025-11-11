@@ -22,6 +22,7 @@ export default function ReputationPage() {
   const [domain, setDomain] = useState("");
   const [keywords, setKeywords] = useState("");
   const [ranks, setRanks] = useState<RankRow[]>([]);
+  const [loadingRanks, setLoadingRanks] = useState(false);
   const projectsQuery = useQuery({ queryKey: ["projects"], queryFn: () => fetchProjects() });
 
   useEffect(() => {
@@ -41,8 +42,13 @@ export default function ReputationPage() {
       .split(",")
       .map((k) => k.trim())
       .filter(Boolean);
-    const res = await fetchKeywordRanks(dom, kws);
-    setRanks(res);
+    setLoadingRanks(true);
+    try {
+      const res = await fetchKeywordRanks(dom, kws);
+      setRanks(res);
+    } finally {
+      setLoadingRanks(false);
+    }
   };
 
   return (
@@ -109,7 +115,9 @@ export default function ReputationPage() {
       <button type="submit" className="rounded-full bg-brand-primary px-4 py-2 text-sm font-semibold text-white">Analizar reputación</button>
     </form>
 
-    {ranks.length ? (
+    {loadingRanks ? (
+      <div className="text-xs text-text-muted">Analizando posiciones…</div>
+    ) : ranks.length ? (
       <p className="text-xs text-text-muted">Dominio analizado: <span className="font-medium text-text-heading">{domain || "—"}</span></p>
     ) : null}
 

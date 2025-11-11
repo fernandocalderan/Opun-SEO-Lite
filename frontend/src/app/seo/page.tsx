@@ -24,10 +24,11 @@ export default function SeoAnalysisPage() {
   const [urlInput, setUrlInput] = useState<string>("");
   const [kwInput, setKwInput] = useState<string>("");
   const [currentUrl, setCurrentUrl] = useState<string>("");
-  const [content, setContent] = useState<AuditFullResult | { status: "pending" } | null>(null);
+  const [content, setContent] = useState<AuditFullResult | { status: "pending" } | { status: "failed"; reason?: string } | null>(null);
   const [demo, setDemo] = useState(false);
   const projectsQuery = useQuery({ queryKey: ["projects"], queryFn: () => fetchProjects() });
   const [repRanks, setRepRanks] = useState<RankRow[]>([]);
+  const [loadingRep, setLoadingRep] = useState(false);
 
   useEffect(() => {
     // Si cambia el query param id o la lista, sincronizar selección inicial
@@ -52,9 +53,11 @@ export default function SeoAnalysisPage() {
     setContent(auditResultSample);
     setDemo(true);
     const kwList = (kwInput || "").split(",").map((k) => k.trim()).filter(Boolean);
+    setLoadingRep(true);
     void fetchKeywordRanks(urlInput.trim(), kwList)
       .then(setRepRanks)
-      .catch(() => setRepRanks([]));
+      .catch(() => setRepRanks([]))
+      .finally(() => setLoadingRep(false));
   };
 
   useEffect(() => {
@@ -151,7 +154,9 @@ export default function SeoAnalysisPage() {
         </form>
       </section>
 
-      {repRanks.length ? (
+      {loadingRep ? (
+        <section className="space-y-3 rounded-2xl border border-border bg-surface p-5"><p className="text-xs text-text-muted">Analizando reputación…</p></section>
+      ) : repRanks.length ? (
         <section className="space-y-3 rounded-2xl border border-border bg-surface p-5">
           <header className="space-y-1">
             <h2 className="text-lg font-semibold text-text-heading">Reputación (búsqueda rápida)</h2>
@@ -188,6 +193,12 @@ export default function SeoAnalysisPage() {
           {content ? (
             "status" in content && content.status === "pending" ? (
               <p className="text-sm text-text-muted">El resultado aún no está listo. Intentando nuevamente...</p>
+            ) : "status" in content && content.status === "failed" ? (
+              <FailedResultState auditId={selectedId} reason={content.reason} onRetry={() => {
+                if (!selectedId) return;
+                setContent(null);
+                void fetchAuditResult(selectedId).then(setContent).catch(() => {});
+              }} />
             ) : (
               <AuditResultView result={content as AuditFullResult} />
             )
@@ -195,6 +206,19 @@ export default function SeoAnalysisPage() {
             <p className="text-sm text-text-muted">Cargando...</p>
           )}
         </section>
+      </div>
+    </div>
+  );
+}
+
+function FailedResultState({ auditId, reason, onRetry }: { auditId: string | null; reason?: string; onRetry: () => void }) {
+  return (
+    <div className="space-y-3 rounded-xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-700">
+      <p className="font-semibold text-rose-800">La auditoría {auditId ?? "seleccionada"} falló</p>
+      <p className="leading-relaxed">{reason ? `Motivo: ${reason}` : "Ocurrió un error durante la ejecución."}</p>
+      <div className="flex items-center gap-2">
+        <button onClick={onRetry} className="rounded-full bg-rose-600 px-3 py-1 text-xs font-semibold text-white hover:bg-rose-700">Reintentar carga</button>
+        <a href="/audits" className="rounded-full border border-rose-600 px-3 py-1 text-xs font-semibold text-rose-700 hover:bg-rose-100">Lanzar una nueva auditoría</a>
       </div>
     </div>
   );

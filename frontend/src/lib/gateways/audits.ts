@@ -176,7 +176,12 @@ export async function fetchAuditStatus(id: string): Promise<{ id: string; status
   }
 }
 
-export async function fetchAuditResult(id: string): Promise<AuditFullResult | { status: "pending" } | null> {
+export type AuditResultPending = { status: "pending" };
+export type AuditResultFailed = { status: "failed"; reason?: string };
+
+export async function fetchAuditResult(
+  id: string,
+): Promise<AuditFullResult | AuditResultPending | AuditResultFailed | null> {
   const baseUrl = getApiBaseUrl();
   if (!baseUrl) return null;
   const controller = new AbortController();
@@ -184,6 +189,14 @@ export async function fetchAuditResult(id: string): Promise<AuditFullResult | { 
   try {
     const r = await fetch(`${baseUrl}/v1/audits/${id}/result`, { signal: controller.signal });
     if (r.status === 202) return { status: "pending" } as const;
+    if (r.status === 409) {
+      try {
+        const body = (await r.json()) as { status?: string; reason?: string };
+        return { status: "failed", reason: body?.reason } as const;
+      } catch {
+        return { status: "failed" } as const;
+      }
+    }
     if (!r.ok) return null;
     return (await r.json()) as AuditFullResult;
   } catch (error) {
