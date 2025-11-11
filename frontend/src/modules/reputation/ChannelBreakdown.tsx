@@ -41,7 +41,7 @@ export function ChannelBreakdown({ channels }: { channels: Channel[] }) {
         </span>
       </header>
       <div className="mt-6 grid gap-5 lg:grid-cols-[1fr,1.1fr]">
-        <div className="h-64 rounded-xl border border-border bg-surface-subtle p-4">
+        <div className="flex h-64 items-center justify-center overflow-hidden rounded-xl border border-border bg-surface-subtle p-4">
           <ResponsiveContainer width="100%" height="100%">
             <PieChart>
               <Tooltip
@@ -59,7 +59,7 @@ export function ChannelBreakdown({ channels }: { channels: Channel[] }) {
                 data={chartData}
                 dataKey="value"
                 innerRadius={60}
-                outerRadius={90}
+                outerRadius={80}
                 paddingAngle={3}
                 strokeWidth={1.5}
                 onMouseEnter={(_, index) =>
@@ -99,10 +99,10 @@ export function ChannelBreakdown({ channels }: { channels: Channel[] }) {
                   onMouseEnter={() => setHighlighted(item.channel)}
                   onMouseLeave={() => setHighlighted(null)}
                   className={`bg-surface transition ${
-                    highlighted === item.channel ? "bg-indigo-50/60" : ""
+                    highlighted === item.channel ? "bg-brand-primary/10" : ""
                   }`}
                 >
-                  <td className="px-4 py-3 font-medium text-slate-800">
+                  <td className="px-4 py-3 font-medium text-text-heading">
                     {item.channel}
                   </td>
                   <td className="px-4 py-3 text-text-body">{item.exposure}</td>
