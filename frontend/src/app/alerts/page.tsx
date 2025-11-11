@@ -1,11 +1,12 @@
 "use client";
 
 import { ReputationAlerts } from "@/components/ReputationAlerts";
-import { reputationAlerts } from "@/lib/mocks";
 import { useAuditPending } from "@/modules/audits/hooks";
+import { useReputationMentions } from "@/modules/reputation/hooks";
 
 export default function AlertsPage() {
   const pending = useAuditPending();
+  const mentions = useReputationMentions();
 
   return (
     <div className="space-y-6 p-8">
@@ -58,8 +59,19 @@ export default function AlertsPage() {
         )}
       </section>
 
-      <ReputationAlerts alerts={reputationAlerts as any} />
+      <ReputationAlerts
+        alerts={
+          (mentions.data ?? []).map((m) => ({
+            id: m.id,
+            channel: "Mentions",
+            source: m.source,
+            summary: m.snippet,
+            sentiment: m.sentiment === "positivo" ? "positive" : m.sentiment === "negativo" ? "negative" : "neutral",
+            publishedAt: m.publishedAt,
+            url: "#",
+          })) as any
+        }
+      />
     </div>
   );
 }
-

@@ -34,7 +34,11 @@ export default function SeoAnalysisPage() {
     const qp = searchParams.get("id");
     if (qp) {
       setSelectedId(qp);
-    } else if (!selectedId) {
+      return;
+    }
+    // Si el seleccionado no existe en la lista actual (p.ej. fallback 'hist-1'), seleccionar el primero real
+    const idSet = new Set(items.map((i: any) => i.id));
+    if (!selectedId || !idSet.has(selectedId)) {
       setSelectedId(items[0]?.id ?? null);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -63,6 +67,18 @@ export default function SeoAnalysisPage() {
       if (res) {
         setContent(res);
         setDemo(false);
+        // si aún está pendiente, reintentar después de 2s
+        if ("status" in (res as any) && (res as any).status === "pending") {
+          setTimeout(() => {
+            if (!active) return;
+            // fuerza un re-fetch cambiando temporalmente el estado
+            setContent(null);
+            fetchAuditResult(selectedId).then((r) => {
+              if (!active || !r) return;
+              setContent(r);
+            }).catch(() => {});
+          }, 2000);
+        }
       } else {
         // Sin API: mostrar demo para trabajar diseño/flujo
         setContent(auditResultSample);

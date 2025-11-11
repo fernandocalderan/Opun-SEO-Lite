@@ -1,17 +1,28 @@
 services:
-  backend:
+  api:
     build:
       context: ./backend
     image: opun-backend:local
     container_name: opun-backend
     environment:
-      - NODE_ENV=production
-      - PORT=3333
-      - NODE_OPTIONS=--experimental-specifier-resolution=node
+      - ENVIRONMENT=development
+      - LOG_LEVEL=info
+      - PORT=8000
+      - DATABASE_URL=postgresql+psycopg://postgres:postgres@postgres:5432/opun
+      - REDIS_URL=redis://redis:6379/0
+      - ALLOWED_ORIGINS=["http://localhost:3000","http://localhost:3001","http://localhost:3002","http://localhost:3003","http://127.0.0.1:3000","http://127.0.0.1:3001","http://127.0.0.1:3002","http://127.0.0.1:3003"]
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+      - OPENAI_MODEL=${OPENAI_MODEL:-gpt-4o-mini}
+      - SERPAPI_API_KEY=${SERPAPI_API_KEY:-}
+      - PYTHONPATH=/app
     ports:
-      - "3333:3333"
+      - "8000:8000"
+    depends_on:
+      - postgres
+      - redis
     volumes:
-      - opun_backend_data:/app/.data
+      - ./backend:/app
+    command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
     restart: unless-stopped
 
   worker:
@@ -19,15 +30,62 @@ services:
       context: ./backend
     image: opun-backend:local
     container_name: opun-backend-worker
-    command: ["node", "--enable-source-maps", "--no-warnings", "--import", "tsx", "src/worker.ts"]
     environment:
-      - NODE_ENV=production
-      - NODE_OPTIONS=
+      - ENVIRONMENT=development
+      - LOG_LEVEL=info
+      - DATABASE_URL=postgresql+psycopg://postgres:postgres@postgres:5432/opun
+      - REDIS_URL=redis://redis:6379/0
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+      - OPENAI_MODEL=${OPENAI_MODEL:-gpt-4o-mini}
+      - SERPAPI_API_KEY=${SERPAPI_API_KEY:-}
+      - PYTHONPATH=/app
     depends_on:
-      - backend
+      - redis
     volumes:
-      - opun_backend_data:/app/.data
+      - ./backend:/app
+    command: ["celery", "-A", "app.workers.celery_app", "worker", "-Q", "celery", "-l", "info"]
+    restart: unless-stopped
+
+  beat:
+    build:
+      context: ./backend
+    image: opun-backend:local
+    container_name: opun-backend-beat
+    environment:
+      - ENVIRONMENT=development
+      - LOG_LEVEL=info
+      - DATABASE_URL=postgresql+psycopg://postgres:postgres@postgres:5432/opun
+      - REDIS_URL=redis://redis:6379/0
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+      - OPENAI_MODEL=${OPENAI_MODEL:-gpt-4o-mini}
+      - SERPAPI_API_KEY=${SERPAPI_API_KEY:-}
+      - PYTHONPATH=/app
+    depends_on:
+      - redis
+    volumes:
+      - ./backend:/app
+    command: ["celery", "-A", "app.workers.celery_app", "beat", "-l", "info"]
+    restart: unless-stopped
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: opun-postgres
+    environment:
+      - POSTGRES_DB=opun
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - opun_pg_data:/var/lib/postgresql/data
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    container_name: opun-redis
+    ports:
+      - "6379:6379"
     restart: unless-stopped
 
 volumes:
-  opun_backend_data:
+  opun_pg_data:
