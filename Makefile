@@ -12,6 +12,7 @@ fe-up:
 		--user $(UID):$(GID) \
 		--add-host=host.docker.internal:host-gateway \
 		-e NEXT_PUBLIC_API_BASE_URL=$${NEXT_PUBLIC_API_BASE_URL:-http://localhost:8000} \
+		-e NEXT_PUBLIC_API_KEY=$${NEXT_PUBLIC_API_KEY:-devkey} \
 		-e CHOKIDAR_USEPOLLING=1 \
 		-p 3002:3000 \
 		-v "$$PWD":/app \
@@ -39,4 +40,3 @@ be-logs:
 
 be-migrate:
 	@docker compose exec api alembic upgrade head
-

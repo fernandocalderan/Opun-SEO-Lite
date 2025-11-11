@@ -461,7 +461,7 @@ export async function createAudit(payload: CreateAuditPayload): Promise<CreateAu
   try {
     const response = await fetch(`${baseUrl}/v1/audits`, {
       method: "POST",
-      headers: { "Content-Type": "application/json", Accept: "application/json" },
+      headers: { "Content-Type": "application/json", Accept: "application/json", ...authHeaders() },
       body: JSON.stringify(payload),
       signal: controller.signal,
     });
@@ -581,7 +581,7 @@ async function fetchWithTimeout<T>(
   try {
     const response = await fetch(url, {
       method: "GET",
-      headers: { Accept: "application/json" },
+      headers: { ...{ Accept: "application/json" }, ...authHeaders() },
       signal: controller.signal,
     });
 
@@ -595,9 +595,7 @@ async function fetchWithTimeout<T>(
   }
 }
 
-function getApiBaseUrl() {
-  return process.env.NEXT_PUBLIC_API_BASE_URL?.replace(/\/$/, "");
-}
+import { getApiBaseUrl, authHeaders } from "./http";
 
 function logFallback(scope: string, error: unknown) {
   if (process.env.NODE_ENV !== "production") {

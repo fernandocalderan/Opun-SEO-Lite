@@ -121,6 +121,7 @@ function normalizeOverviewResponse(response: OverviewResponse): OverviewDataset 
 
 const SIMULATED_DELAY_MS = 120;
 const REQUEST_TIMEOUT_MS = 5_000;
+import { authHeaders } from "./http";
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL?.replace(/\/$/, "");
 
 export type FetchOverviewOptions = {
@@ -167,9 +168,7 @@ async function fetchOverviewFromApi(
   try {
     const response = await fetch(`${baseUrl}/v1/overview`, {
       method: "GET",
-      headers: {
-        Accept: "application/json",
-      },
+      headers: authHeaders(),
       signal: controller.signal,
     });
 

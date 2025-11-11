@@ -13,6 +13,7 @@ from app.db.session import SessionLocal
 from app.db.models.audit import Audit, AuditResult, AuditStatus
 from app.db.models.project import Project, ScheduleEnum
 from app.services.openai_svc import generate_summary_and_suggestions
+from app.core.metrics import metric
 
 
 logger = logging.getLogger("opun.worker")
@@ -76,14 +77,31 @@ def run_audit_task(audit_id: str) -> None:
                 db.add(proj)
         db.commit()
         logger.info("run_audit.completed", extra={"audit_id": audit.id, "status": audit.status.value})
-    except Exception:
+        try:
+            metric("audits.completed", 1, source="worker")
+            # duración si disponible
+            if audit.started_at and audit.finished_at:
+                duration = (audit.finished_at - audit.started_at).total_seconds()
+                metric("audits.duration_seconds", duration, source="worker")
+        except Exception:
+            pass
+    except Exception as e:
         db.rollback()
         audit = db.get(Audit, audit_id)
         if audit:
             audit.status = AuditStatus.failed
+            try:
+                # guardar causa de fallo
+                audit.failure_reason = str(e)[:1000]
+            except Exception:
+                pass
             db.add(audit)
             db.commit()
         logger.exception("run_audit.unhandled_error", extra={"audit_id": audit_id})
+        try:
+            metric("audits.failed", 1, source="worker")
+        except Exception:
+            pass
     finally:
         db.close()
 
@@ -91,6 +109,8 @@ def run_audit_task(audit_id: str) -> None:
 def build_sample_result(url: str, keywords: list[str]) -> dict:
     # Resultado de ejemplo compatible con el frontend
     kw = keywords[:2] if keywords else ["plataforma seo", "reputacion online"]
+    if len(kw) == 1:
+        kw = [kw[0], "reputacion online"]
     return {
         "executive_summary": {
             "html": f"<p><strong>Resumen:</strong> Se analizó <em>{url}</em>. Salud general adecuada con oportunidades en metaetiquetas y rendimiento.</p>"

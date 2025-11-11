@@ -82,8 +82,8 @@ export function ChannelBreakdown({ channels }: { channels: Channel[] }) {
             </PieChart>
           </ResponsiveContainer>
         </div>
-        <div className="overflow-hidden rounded-xl border border-border">
-          <table className="min-w-full divide-y divide-slate-200 text-sm">
+        <div className="overflow-auto rounded-xl border border-border">
+          <table className="min-w-full table-fixed divide-y divide-slate-200 text-sm">
             <thead className="bg-surface-subtle text-left font-medium text-text-body">
               <tr>
                 <th className="px-4 py-3">Canal</th>
@@ -98,20 +98,24 @@ export function ChannelBreakdown({ channels }: { channels: Channel[] }) {
                   key={item.channel}
                   onMouseEnter={() => setHighlighted(item.channel)}
                   onMouseLeave={() => setHighlighted(null)}
-                  className={`bg-surface transition ${
+                  className={`transition ${
                     highlighted === item.channel ? "bg-brand-primary/10" : ""
                   }`}
                 >
-                  <td className="px-4 py-3 font-medium text-text-heading">
+                  <td className="px-4 py-3 font-medium text-text-heading whitespace-nowrap align-middle">
                     {item.channel}
                   </td>
-                  <td className="px-4 py-3 text-text-body">{item.exposure}</td>
-                  <td className="px-4 py-3">
-                    <span className="inline-flex rounded-full border border-border bg-surface-subtle px-3 py-1 text-xs font-medium text-text-body">
-                      {item.sentiment}
+                  <td className="px-4 py-3 text-text-body align-middle whitespace-nowrap">{item.exposure}</td>
+                  <td className="px-4 py-3 align-middle">
+                    <span className="inline-flex items-center gap-2 text-xs font-medium text-text-body">
+                      <i
+                        aria-hidden
+                        className={`h-2.5 w-2.5 rounded-full ${item.sentiment === "positivo" ? "bg-emerald-500" : item.sentiment === "negativo" ? "bg-rose-500" : "bg-slate-400"}`}
+                      />
+                      <span className="whitespace-nowrap">{item.sentiment}</span>
                     </span>
                   </td>
-                  <td className="px-4 py-3 text-right font-semibold text-text-heading">
+                  <td className="px-4 py-3 text-right font-semibold text-text-heading align-middle">
                     {item.share}
                   </td>
                 </tr>

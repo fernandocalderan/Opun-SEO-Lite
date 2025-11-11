@@ -1,6 +1,7 @@
 import { planColumns, planTable, planVelocity } from "../mocks/plan";
 import type { PlanColumn, PlanTableRow, PlanVelocityPoint } from "../mocks/types";
 
+import { authHeaders } from "./http";
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL?.replace(/\/$/, "");
 const REQUEST_TIMEOUT_MS = 5000;
 
@@ -20,14 +21,14 @@ export async function fetchPlanVelocity(): Promise<PlanVelocityPoint[]> {
 async function getJson(url: string) {
   const c = new AbortController();
   const tid = setTimeout(() => c.abort(), REQUEST_TIMEOUT_MS);
-  try { const r = await fetch(url, { signal: c.signal }); if (!r.ok) throw new Error(String(r.status)); return await r.json(); } finally { clearTimeout(tid); }
+  try { const r = await fetch(url, { signal: c.signal, headers: authHeaders() }); if (!r.ok) throw new Error(String(r.status)); return await r.json(); } finally { clearTimeout(tid); }
 }
 
 export async function createPlanItem(column: string, item: { title: string; impact: string; effort: string; owner: string; due: string }) {
   if (!API_BASE_URL) return null;
   const r = await fetch(`${API_BASE_URL}/v1/plan/items`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: { "Content-Type": "application/json", ...authHeaders() },
     body: JSON.stringify({ column, item }),
   });
   if (!r.ok) throw new Error(`HTTP ${r.status}`);
@@ -38,7 +39,7 @@ export async function updatePlanItem(id: string, patch: Partial<{ title: string;
   if (!API_BASE_URL) return null;
   const r = await fetch(`${API_BASE_URL}/v1/plan/items/${id}`, {
     method: "PATCH",
-    headers: { "Content-Type": "application/json" },
+    headers: { "Content-Type": "application/json", ...authHeaders() },
     body: JSON.stringify(patch),
   });
   if (!r.ok) throw new Error(`HTTP ${r.status}`);
@@ -47,7 +48,7 @@ export async function updatePlanItem(id: string, patch: Partial<{ title: string;
 
 export async function deletePlanItem(id: string) {
   if (!API_BASE_URL) return null;
-  const r = await fetch(`${API_BASE_URL}/v1/plan/items/${id}`, { method: "DELETE" });
+  const r = await fetch(`${API_BASE_URL}/v1/plan/items/${id}`, { method: "DELETE", headers: authHeaders() });
   if (!r.ok) throw new Error(`HTTP ${r.status}`);
   return await r.json();
 }

@@ -1,4 +1,5 @@
 import { reportActivity, reportList, templateLibrary } from "../mocks/reports";
+import { authHeaders } from "./http";
 import type { ReportActivityPoint, ReportListItem, ReportTemplate } from "../mocks/types";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL?.replace(/\/$/, "");
@@ -51,14 +52,14 @@ function formatDate(iso: string) {
 async function getJson(url: string) {
   const c = new AbortController();
   const tid = setTimeout(() => c.abort(), REQUEST_TIMEOUT_MS);
-  try { const r = await fetch(url, { signal: c.signal }); if (!r.ok) throw new Error(String(r.status)); return await r.json(); } finally { clearTimeout(tid); }
+  try { const r = await fetch(url, { signal: c.signal, headers: authHeaders() }); if (!r.ok) throw new Error(String(r.status)); return await r.json(); } finally { clearTimeout(tid); }
 }
 
 export async function createReport(payload: { title: string; project: string; format?: string }): Promise<{ id: string; status: string } | null> {
   if (!API_BASE_URL) return null;
   const r = await fetch(`${API_BASE_URL}/v1/reports`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: { "Content-Type": "application/json", ...authHeaders() },
     body: JSON.stringify(payload),
   });
   if (!r.ok) throw new Error(`HTTP ${r.status}`);
@@ -67,7 +68,7 @@ export async function createReport(payload: { title: string; project: string; fo
 
 export async function fetchReportStatus(id: string): Promise<{ id: string; status: string } | null> {
   if (!API_BASE_URL) return null;
-  const r = await fetch(`${API_BASE_URL}/v1/reports/${id}/status`);
+  const r = await fetch(`${API_BASE_URL}/v1/reports/${id}/status`, { headers: authHeaders() });
   if (!r.ok) return null;
   return (await r.json()) as { id: string; status: string };
 }
@@ -87,7 +88,7 @@ export async function fetchReportResult(id: string): Promise<ReportResultApi | {
       html: `<!doctype html><html><head><meta charset=\"utf-8\"/><title>Reporte ${id}</title></head><body style=\"font-family: system-ui, sans-serif; padding: 24px\"><h1>Reporte demo</h1><p>Generado: ${nowIso}</p><p>Contenido de ejemplo para validar estilos y export.</p></body></html>`
     } satisfies ReportResultApi;
   }
-  const r = await fetch(`${API_BASE_URL}/v1/reports/${id}/result`);
+  const r = await fetch(`${API_BASE_URL}/v1/reports/${id}/result`, { headers: authHeaders() });
   if (r.status === 202) return { status: "pending" } as const;
   if (!r.ok) return null;
   return (await r.json()) as ReportResultApi;

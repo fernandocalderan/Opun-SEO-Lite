@@ -27,6 +27,10 @@ class Settings(BaseSettings):
     serpapi_api_key: str | None = None
     openai_model: str = "gpt-4o-mini"
 
+    # Auth
+    api_keys: List[str] = []
+    allow_unauthenticated_in_dev: bool = True
+
     class Config:
         env_file = ".env"
         env_prefix = ""
@@ -47,6 +51,26 @@ class Settings(BaseSettings):
                     pass
             return [x.strip() for x in s.split(",") if x.strip()]
         return v
+
+    @field_validator("api_keys", mode="before")
+    @classmethod
+    def _parse_api_keys(cls, v):
+        # Admite JSON ("[\"k1\",\"k2\"]") o coma separada ("k1,k2") o valor unico
+        if v is None:
+            return []
+        if isinstance(v, list):
+            return v
+        if isinstance(v, str):
+            s = v.strip()
+            if not s:
+                return []
+            if s.startswith("["):
+                try:
+                    return json.loads(s)
+                except Exception:
+                    pass
+            return [x.strip() for x in s.split(",") if x.strip()]
+        return []
 
 
 @lru_cache

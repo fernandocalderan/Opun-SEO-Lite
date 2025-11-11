@@ -1,6 +1,6 @@
 # Plan de Frontend - Opun Intelligence Suite
 
-> Estado: validado - 01 Nov 2025
+> Estado: actualizado - 11 Nov 2025
 
 ## 1. Objetivo
 Redisenar la experiencia web para agencias y equipos de reputacion, integrando auditoria SEO, ingenieria reputacional y colaboracion multi-equipo en una interfaz moderna, responsive y preparada para marca blanca.
@@ -15,7 +15,7 @@ Redisenar la experiencia web para agencias y equipos de reputacion, integrando a
 - Framework: **Next.js 15 (App Router, React Server Components)**.
 - Estilos: **Tailwind CSS** + design tokens propios, con Storybook 8 para documentar componentes.
 - Estado cliente: **Zustand** para UI local + **React Query** para datos remotos.
-- Autenticacion: integracion futura con OIDC; MVP soporta API Keys y sesion basica.
+- Autenticacion: API Key mínima activa. El frontend envía `x-api-key` si `NEXT_PUBLIC_API_KEY` está definido. OIDC/JWT en roadmap.
 - Distribucion sugerida:
   - `frontend/src/app`: rutas y layouts.
   - `frontend/src/modules`: dominios funcionales (audits, reputation, workspace, settings).
@@ -56,9 +56,9 @@ Redisenar la experiencia web para agencias y equipos de reputacion, integrando a
 - **Report Builder**: editor visual con bloques arrastrables y exportacion inmediata.
 
 ## 6. Data e Integraciones
-- Mock API inicial (JSON fixtures) para acelerar front.
-- Conexion futura a API Gateway (cuando este disponible) mediante cliente tipado (OpenAPI -> gen).
-- Stubs para integraciones externas (Search Console, redes, resenas) en `frontend/src/lib/gateways`.
+- Los gateways consumen API real cuando `NEXT_PUBLIC_API_BASE_URL` está definida; de lo contrario, usan mocks.
+- Los requests incluyen cabeceras de autenticación si `NEXT_PUBLIC_API_KEY` o `NEXT_PUBLIC_BEARER` están definidas.
+- Stubs para integraciones externas (Search Console, redes, reseñas) se activarán tras cerrar auth y contrato.
 
 ## 7. Design System
 - Paleta base (brand/dark/light) documentada en Storybook.
@@ -76,11 +76,11 @@ Redisenar la experiencia web para agencias y equipos de reputacion, integrando a
 - Design tokens iniciales + biblioteca Storybook.
 - Documentacion de user flows para los roles: SEO Strategist, Reputation Manager, Agency Admin.
 
-## 10. Proximos Pasos Inmediatos
-1. Documentar hallazgos de validacion y mantener ADRs sincronizados (completo).
-2. Mantener mock data alineada al spec y compartir updates semanales (en curso).
-3. Ejecutar Sprint 0 enfocandose en layout base, design tokens y Storybook (en curso).
-4. Ejecutar Sprint 1 (dashboards) siguiendo `docs/sprint-1-backlog.md` y registrar feedback (nuevo).
+## 10. Próximos Pasos Inmediatos
+1. Sustituir mocks por API en páginas donde ya existe backend (Overview/Audits/Reputation) activando `.env.local`.
+2. Añadir manejo explícito de errores 409 (auditoría fallida) con CTA de reintento.
+3. Playwright E2E para flujos críticos: lanzar auditoría, ver historial, abrir resultado y tabla de ranks.
+4. CI: mantener lint/tests/build verdes en cada PR (workflow actualizado).
 
 ---
 

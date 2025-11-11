@@ -32,13 +32,18 @@ def create_app() -> FastAPI:
     app.middleware("http")(access_log_middleware)
 
     app.include_router(health_router.router)
-    app.include_router(projects_router.router)
-    app.include_router(audits_router.router)
-    app.include_router(reputation_router.router)
+    from fastapi import Depends
+    from app.core.auth import require_api_key
+
+    # Rutas publicas
+    app.include_router(health_router.router)
+    # Rutas protegidas (v1)
+    app.include_router(projects_router.router, dependencies=[Depends(require_api_key)])
+    app.include_router(audits_router.router, dependencies=[Depends(require_api_key)])
+    app.include_router(reputation_router.router, dependencies=[Depends(require_api_key)])
     try:
         from app.routers import overview as overview_router
-
-        app.include_router(overview_router.router)
+        app.include_router(overview_router.router, dependencies=[Depends(require_api_key)])
     except Exception:
         # overview router optional during early development
         pass
@@ -52,9 +57,11 @@ def create_app() -> FastAPI:
 
 app = create_app()
 
-# Fase 1 dev: crear tablas si no existen (en prod usar Alembic)
+# Solo en desarrollo: crear tablas si no existen (en prod usar Alembic)
 try:
-    Base.metadata.create_all(bind=engine)
+    settings = get_settings()
+    if settings.environment.lower() in ("development", "dev"):  # evitar en prod/staging
+        Base.metadata.create_all(bind=engine)
 except Exception:
     pass
 

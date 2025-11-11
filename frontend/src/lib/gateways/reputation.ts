@@ -4,6 +4,7 @@ import type { ChannelBreakdownItem, ReputationMention, SentimentTimelinePoint, K
 export type RankRow = { keyword: string; status: "found" | "not_found"; position: number | null; found_url: string | null };
 
 const REQUEST_TIMEOUT_MS = 5000;
+import { authHeaders } from "./http";
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL?.replace(/\/$/, "");
 
 export async function fetchReputationSummary(): Promise<KpiSummaryItem[]> {
@@ -78,7 +79,7 @@ async function getJson(url: string) {
   const controller = new AbortController();
   const tid = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
   try {
-    const r = await fetch(url, { headers: { Accept: "application/json" }, signal: controller.signal });
+    const r = await fetch(url, { headers: authHeaders(), signal: controller.signal });
     if (!r.ok) throw new Error(String(r.status));
     return await r.json();
   } finally {

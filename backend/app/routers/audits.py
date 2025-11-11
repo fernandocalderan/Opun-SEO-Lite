@@ -4,6 +4,7 @@ from datetime import datetime, timedelta, timezone
 from uuid import uuid4
 
 from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi.responses import JSONResponse
 from sqlalchemy import desc, func, select
 from sqlalchemy.orm import Session
 
@@ -23,6 +24,7 @@ from app.schemas.audits import (
     AuditSummaryOut,
 )
 from app.workers.tasks import run_audit_task
+from app.core.metrics import metric
 
 
 router = APIRouter(prefix="/v1/audits", tags=["audits"])
@@ -53,6 +55,11 @@ def create_audit(payload: CreateAuditIn, db: Session = Depends(get_db)) -> Creat
 
     # Encolar tarea asíncrona
     run_audit_task.delay(audit.id)
+    # métrica
+    try:
+        metric("audits.created", 1, source="api")
+    except Exception:
+        pass
     return CreateAuditOut(id=audit.id)
 
 
@@ -69,11 +76,17 @@ def get_audit_result(audit_id: str, db: Session = Depends(get_db)):
     audit = db.get(Audit, audit_id)
     if not audit:
         raise HTTPException(status_code=404, detail="Audit not found")
+    if audit.status == AuditStatus.failed:
+        return JSONResponse(
+            status_code=409,
+            content={
+                "status": "failed",
+                "reason": audit.failure_reason or "unknown",
+            },
+        )
     if audit.status in (AuditStatus.pending, AuditStatus.running) or not audit.result:
         # 202 Accepted para indicar en proceso
-        from fastapi import Response
-
-        return Response(status_code=202)
+        return JSONResponse(status_code=202, content={"status": "pending"})
     return audit.result.payload
 
 
