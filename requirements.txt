@@ -1,2 +1,9 @@
-# Placeholder: agrega aqui las dependencias globales cuando se definan.
-
+streamlit>=1.37,<2
+pandas>=2.2,<3
+requests>=2.32,<3
+beautifulsoup4>=4.12,<5
+lxml>=5,<6
+openai>=1.35,<2
+python-dotenv>=1.0,<2
+certifi>=2024.0.0
+urllib3>=2,<3

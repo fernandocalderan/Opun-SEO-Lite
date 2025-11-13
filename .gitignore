@@ -1,24 +1,25 @@
-# Environments & caches
-venv/
+# Python virtualenvs & caches
 .venv/
-node_modules/
-**/node_modules/
-**/.next/
-**/.storybook-out/
+venv/
 __pycache__/
 *.py[cod]
 *.log
-*.pid
-backend/.data/
 
-# OS / Editor noise
+# Local env files
+.env
+.env.*
+
+# Streamlit state
+.streamlit/
+
+# CLI outputs (keep .gitkeep)
+outputs/json/*
+!outputs/json/.gitkeep
+outputs/csv/*
+!outputs/csv/.gitkeep
+
+# OS / editor junk
 .DS_Store
 Thumbs.db
 .idea/
 .vscode/
-
-# Terraform local state
-infra/terraform/.terraform/
-infra/terraform/.terraform.lock.hcl
-infra/terraform/terraform.tfstate
-infra/terraform/terraform.tfstate.backup
